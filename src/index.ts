@@ -27,6 +27,19 @@ import campaignRoutes from "./routes/campaigns";
 import inventoryRoutes from "./routes/inventory";
 import productOptionRoutes from "./routes/productOptions";
 import taxRegionRoutes from "./routes/tax-regions";
+import shippingZoneRoutes from "./routes/shipping-zones";
+import shippingRateRoutes from "./routes/shipping-rates";
+import fulfillmentCenterRoutes from "./routes/fulfillment-centers";
+import shippingProviderRoutes from "./routes/shipping-providers";
+import shipmentRoutes from "./routes/shipments";
+import adminAuthRoutes from "./routes/admin-auth";
+import apiKeyRoutes from "./routes/api-keys";
+import roleRoutes from "./routes/roles";
+import oauthRoutes from "./routes/oauth";
+import paymentIntentRoutes from "./routes/payment-intents";
+import savedPaymentMethodRoutes from "./routes/saved-payment-methods";
+import webhookRoutes from "./routes/webhooks";
+import refundRoutes from "./routes/refunds";
 
 // Import middleware
 import { errorHandler } from "./middleware/errorHandler";
@@ -82,6 +95,23 @@ app.use("/api/campaigns", campaignRoutes);
 app.use("/api/inventory", inventoryRoutes);
 app.use("/api/product-options", productOptionRoutes);
 app.use("/api/tax-regions", taxRegionRoutes);
+app.use("/api/shipping-zones", shippingZoneRoutes);
+app.use("/api/shipping-rates", shippingRateRoutes);
+app.use("/api/fulfillment-centers", fulfillmentCenterRoutes);
+app.use("/api/shipping-providers", shippingProviderRoutes);
+app.use("/api/shipments", shipmentRoutes);
+
+// Payment Integration Routes
+app.use("/api/payment-intents", paymentIntentRoutes);
+app.use("/api", savedPaymentMethodRoutes); // This includes /customers/:id/payment-methods and /payment-methods/:id
+app.use("/api/webhooks", webhookRoutes);
+app.use("/api/refunds", refundRoutes);
+
+// Authentication & Authorization Routes
+app.use("/api/admin/auth", adminAuthRoutes);
+app.use("/api/auth/oauth", oauthRoutes);
+app.use("/api/admin/api-keys", apiKeyRoutes);
+app.use("/api/admin/roles", roleRoutes);
 
 // 404 handler - simple inline handler for now
 app.use((req, res) => {

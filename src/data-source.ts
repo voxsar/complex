@@ -22,6 +22,14 @@ import { PriceList } from "./entities/PriceList";
 import { SalesChannel } from "./entities/SalesChannel";
 import { User } from "./entities/User";
 import { TaxRegion } from "./entities/TaxRegion";
+import { ShippingZone } from "./entities/ShippingZone";
+import { ShippingRate } from "./entities/ShippingRate";
+import { ShippingProvider } from "./entities/ShippingProvider";
+import { FulfillmentCenter } from "./entities/FulfillmentCenter";
+import { Shipment } from "./entities/Shipment";
+import { Role } from "./entities/Role";
+import { ApiKey } from "./entities/ApiKey";
+import { OAuthAccount } from "./entities/OAuthAccount";
 
 dotenv.config();
 
@@ -54,6 +62,14 @@ export const AppDataSource = new DataSource({
     SalesChannel,
     User,
     TaxRegion,
+    ShippingZone,
+    ShippingRate,
+    ShippingProvider,
+    FulfillmentCenter,
+    Shipment,
+    Role,
+    ApiKey,
+    OAuthAccount,
   ],
   migrations: ["src/migrations/*.ts"],
   subscribers: ["src/subscribers/*.ts"],

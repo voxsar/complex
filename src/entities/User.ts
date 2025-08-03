@@ -39,8 +39,15 @@ export class User {
   @IsOptional()
   phone?: string;
 
+  @Column({ nullable: true })
+  @IsOptional()
+  profilePictureUrl?: string;
+
   @Column({ type: "enum", enum: UserRole, default: UserRole.CUSTOMER })
   role!: UserRole;
+
+  @Column({ type: "array", default: [] })
+  roleIds: string[]; // References to Role entities for RBAC
 
   @Column({ default: true })
   isActive!: boolean;
@@ -56,6 +63,17 @@ export class User {
 
   @Column({ nullable: true })
   passwordResetExpires?: Date;
+
+  @Column({ nullable: true })
+  @IsOptional()
+  lastLoginIP?: string;
+
+  @Column({ default: 0 })
+  loginAttempts: number;
+
+  @Column({ nullable: true })
+  @IsOptional()
+  lockedUntil?: Date;
 
   @Column({ nullable: true })
   lastLoginAt?: Date;
@@ -96,5 +114,48 @@ export class User {
   toJSON() {
     const { password, passwordResetToken, emailVerificationToken, ...user } = this;
     return user;
+  }
+
+  // Check if user is locked due to failed login attempts
+  isLocked(): boolean {
+    return !!(this.lockedUntil && this.lockedUntil > new Date());
+  }
+
+  // Increment login attempts and lock if necessary
+  incLoginAttempts(): void {
+    this.loginAttempts += 1;
+    
+    // Lock account after 5 failed attempts for 30 minutes
+    if (this.loginAttempts >= 5) {
+      this.lockedUntil = new Date(Date.now() + 30 * 60 * 1000); // 30 minutes
+    }
+  }
+
+  // Reset login attempts
+  resetLoginAttempts(): void {
+    this.loginAttempts = 0;
+    this.lockedUntil = undefined;
+  }
+
+  // Update last login info
+  updateLastLogin(ipAddress?: string): void {
+    this.lastLoginAt = new Date();
+    this.lastLoginIP = ipAddress;
+    this.resetLoginAttempts();
+  }
+
+  // Check if user has a specific role
+  hasRole(role: UserRole): boolean {
+    return this.role === role;
+  }
+
+  // Check if user is admin
+  isAdmin(): boolean {
+    return this.role === UserRole.ADMIN;
+  }
+
+  // Check if user is staff (admin, manager, or staff)
+  isStaff(): boolean {
+    return [UserRole.ADMIN, UserRole.MANAGER, UserRole.STAFF].includes(this.role);
   }
 }
