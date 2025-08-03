@@ -11,6 +11,8 @@ import { AppDataSource } from "./data-source";
 import productRoutes from "./routes/products";
 import categoryRoutes from "./routes/categories";
 import customerRoutes from "./routes/customers";
+import userRoutes from "./routes/users";
+import authDemoRoutes from "./routes/auth-demo";
 // TODO: Fix and re-import other routes
 // import orderRoutes from "./routes/orders";
 // import paymentRoutes from "./routes/payments";
@@ -58,6 +60,8 @@ app.get("/health", (req, res) => {
 app.use("/api/products", productRoutes);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/customers", customerRoutes);
+app.use("/api/users", userRoutes);
+app.use("/api/auth-demo", authDemoRoutes);
 // TODO: Re-create the remaining routes that got corrupted
 // app.use("/api/collections", collectionRoutes);
 // app.use("/api/orders", orderRoutes);
