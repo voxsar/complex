@@ -188,4 +188,123 @@ export class Customer {
   get defaultAddress() {
     return this.addresses?.find((addr) => addr.isDefault);
   }
+
+  // Loyalty Program Methods
+  addLoyaltyPoints(points: number): void {
+    this.loyaltyPoints += points;
+    this.lifetimePoints += points;
+    this.updateLoyaltyTier();
+  }
+
+  redeemLoyaltyPoints(points: number): boolean {
+    if (this.loyaltyPoints >= points) {
+      this.loyaltyPoints -= points;
+      return true;
+    }
+    return false;
+  }
+
+  updateLoyaltyTier(): void {
+    const tiers = [
+      { name: "Bronze", threshold: 0 },
+      { name: "Silver", threshold: 1000 },
+      { name: "Gold", threshold: 5000 },
+      { name: "Platinum", threshold: 15000 },
+    ];
+
+    let currentTier = "Bronze";
+    let nextThreshold = 1000;
+
+    for (let i = 0; i < tiers.length; i++) {
+      if (this.lifetimePoints >= tiers[i].threshold) {
+        currentTier = tiers[i].name;
+        nextThreshold = i < tiers.length - 1 ? tiers[i + 1].threshold : null;
+      }
+    }
+
+    this.loyaltyTier = currentTier;
+    this.nextTierThreshold = nextThreshold;
+  }
+
+  getLoyaltyMultiplier(): number {
+    switch (this.loyaltyTier) {
+      case "Silver":
+        return 1.2;
+      case "Gold":
+        return 1.5;
+      case "Platinum":
+        return 2.0;
+      default:
+        return 1.0; // Bronze
+    }
+  }
+
+  getAvailableDiscounts(): Array<
+    { type: string; value: number; description: string } | undefined
+  > {
+    const discounts = [];
+
+    // Birthday discount
+    if (this.dateOfBirth) {
+      const today = new Date();
+      const birthday = new Date(this.dateOfBirth);
+      if (today.getMonth() === birthday.getMonth() && today.getDate() === birthday.getDate()) {
+        discounts.push({
+          type: "birthday",
+          value: 15,
+          description: "Happy Birthday! 15% off your purchase",
+        });
+      }
+    }
+
+    // Loyalty tier discounts
+    switch (this.loyaltyTier) {
+      case "Silver":
+        discounts.push({
+          type: "loyalty",
+          value: 5,
+          description: "Silver member 5% discount",
+        });
+        break;
+      case "Gold":
+        discounts.push({
+          type: "loyalty",
+          value: 10,
+          description: "Gold member 10% discount",
+        });
+        break;
+      case "Platinum":
+        discounts.push({
+          type: "loyalty",
+          value: 15,
+          description: "Platinum member 15% discount",
+        });
+        break;
+    }
+
+    // First-time buyer discount
+    if (this.ordersCount === 0) {
+      discounts.push({
+        type: "first_time",
+        value: 10,
+        description: "First-time buyer 10% discount",
+      });
+    }
+
+    return discounts;
+  }
+
+  toJSON() {
+    const {
+      password,
+      passwordResetToken,
+      emailVerificationToken,
+      ...customer
+    } = this;
+    return {
+      ...customer,
+      availableDiscounts: this.getAvailableDiscounts(),
+      loyaltyMultiplier: this.getLoyaltyMultiplier(),
+    };
+  }
 }
