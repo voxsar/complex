@@ -95,6 +95,61 @@ export class Customer {
   @IsOptional()
   lastOrderAt?: Date;
 
+  // Authentication & Verification fields
+  @Column({ default: false })
+  isEmailVerified: boolean;
+
+  @Column({ nullable: true })
+  emailVerificationToken?: string;
+
+  @Column({ nullable: true })
+  passwordResetToken?: string;
+
+  @Column({ nullable: true })
+  passwordResetExpires?: Date;
+
+  @Column({ nullable: true })
+  lastLoginAt?: Date;
+
+  // Loyalty Program fields
+  @Column("int", { default: 0 })
+  loyaltyPoints: number;
+
+  @Column({ nullable: true })
+  loyaltyTier?: string; // Bronze, Silver, Gold, Platinum
+
+  @Column("decimal", { precision: 10, scale: 2, default: 0 })
+  lifetimePoints: number; // Total points earned (never decreases)
+
+  @Column({ nullable: true })
+  nextTierThreshold?: number;
+
+  @Column({ nullable: true })
+  @IsOptional()
+  loyaltyJoinedAt?: Date;
+
+  // Preferences
+  @Column({ type: "json", nullable: true })
+  preferences?: {
+    notifications: {
+      email: boolean;
+      sms: boolean;
+      push: boolean;
+    };
+    marketing: {
+      newsletter: boolean;
+      promotions: boolean;
+      newProducts: boolean;
+    };
+    privacy: {
+      profileVisible: boolean;
+      shareData: boolean;
+    };
+    language: string;
+    currency: string;
+    timezone: string;
+  };
+
   @CreateDateColumn()
   createdAt: Date;
 
