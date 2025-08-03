@@ -13,14 +13,20 @@ import categoryRoutes from "./routes/categories";
 import customerRoutes from "./routes/customers";
 import userRoutes from "./routes/users";
 import authDemoRoutes from "./routes/auth-demo";
-// TODO: Fix and re-import other routes
-// import orderRoutes from "./routes/orders";
-// import paymentRoutes from "./routes/payments";
-// import promotionRoutes from "./routes/promotions";
-// import campaignRoutes from "./routes/campaigns";
-// import inventoryRoutes from "./routes/inventory";
-// import productOptionRoutes from "./routes/productOptions";
-// import collectionRoutes from "./routes/collections";
+import customerDemoRoutes from "./routes/customer-demo";
+import cartRoutes from "./routes/carts";
+import orderRoutes from "./routes/orders";
+import orderReturnsRoutes from "./routes/order-returns";
+import orderClaimsRoutes from "./routes/order-claims";
+import orderExchangesRoutes from "./routes/order-exchanges";
+import priceListsRoutes from "./routes/price-lists";
+import salesChannelsRoutes from "./routes/sales-channels";
+import paymentRoutes from "./routes/payments";
+import promotionRoutes from "./routes/promotions";
+import campaignRoutes from "./routes/campaigns";
+import inventoryRoutes from "./routes/inventory";
+import productOptionRoutes from "./routes/productOptions";
+import taxRegionRoutes from "./routes/tax-regions";
 
 // Import middleware
 import { errorHandler } from "./middleware/errorHandler";
@@ -62,14 +68,20 @@ app.use("/api/categories", categoryRoutes);
 app.use("/api/customers", customerRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/auth-demo", authDemoRoutes);
-// TODO: Re-create the remaining routes that got corrupted
-// app.use("/api/collections", collectionRoutes);
-// app.use("/api/orders", orderRoutes);
-// app.use("/api/payments", paymentRoutes);
-// app.use("/api/promotions", promotionRoutes);
-// app.use("/api/campaigns", campaignRoutes);
-// app.use("/api/inventory", inventoryRoutes);
-// app.use("/api/product-options", productOptionRoutes);
+app.use("/api/customer-demo", customerDemoRoutes);
+app.use("/api/carts", cartRoutes);
+app.use("/api/orders", orderRoutes);
+app.use("/api/order-returns", orderReturnsRoutes);
+app.use("/api/order-claims", orderClaimsRoutes);
+app.use("/api/order-exchanges", orderExchangesRoutes);
+app.use("/api/price-lists", priceListsRoutes);
+app.use("/api/sales-channels", salesChannelsRoutes);
+app.use("/api/payments", paymentRoutes);
+app.use("/api/promotions", promotionRoutes);
+app.use("/api/campaigns", campaignRoutes);
+app.use("/api/inventory", inventoryRoutes);
+app.use("/api/product-options", productOptionRoutes);
+app.use("/api/tax-regions", taxRegionRoutes);
 
 // 404 handler - simple inline handler for now
 app.use((req, res) => {

@@ -177,4 +177,51 @@ router.post("/:id/refund", async (req: Request, res: Response) => {
   }
 });
 
+// Capture payment
+router.post("/:id/capture", async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { amount } = req.body;
+    const paymentRepository = AppDataSource.getRepository(Payment);
+
+    const payment = await paymentRepository.findOne({
+      where: { id }
+    });
+
+    if (!payment) {
+      return res.status(404).json({ error: "Payment not found" });
+    }
+
+    if (!payment.isAuthorized) {
+      return res.status(400).json({ error: "Payment must be authorized before capture" });
+    }
+
+    const captureAmount = amount || payment.availableToCapture;
+
+    if (captureAmount > payment.availableToCapture) {
+      return res.status(400).json({ error: "Capture amount exceeds authorized amount" });
+    }
+
+    payment.capturedAmount += captureAmount;
+    
+    if (payment.capturedAmount >= payment.authorizedAmount) {
+      payment.status = PaymentStatus.CAPTURED;
+    } else {
+      payment.status = PaymentStatus.PARTIALLY_CAPTURED;
+    }
+
+    // Here you would integrate with payment gateway to actually capture
+    // await paymentGateway.capture(payment.gatewayTransactionId, captureAmount);
+
+    const updatedPayment = await paymentRepository.save(payment);
+    res.json({
+      message: "Payment captured successfully",
+      payment: updatedPayment
+    });
+  } catch (error) {
+    console.error("Error capturing payment:", error);
+    res.status(500).json({ error: "Failed to capture payment" });
+  }
+});
+
 export default router;

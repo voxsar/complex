@@ -11,9 +11,11 @@ export interface CustomerAuthRequest extends Request {
 }
 
 interface CustomerJWTPayload {
+  _id: string;
   id: string;
   email: string;
-  customerId: string;
+  status: string;
+  type: string;
   iat?: number;
   exp?: number;
 }
@@ -48,7 +50,7 @@ export const authenticateCustomer = async (
     const decoded = jwt.verify(token, JWT_SECRET) as CustomerJWTPayload;
 
     // Validate token payload
-    if (!decoded.id || !decoded.email || !decoded.customerId) {
+    if (!decoded._id || !decoded.id || !decoded.email || decoded.type !== "customer") {
       return res.status(401).json({ 
         error: "Invalid token format.",
         code: "INVALID_TOKEN_FORMAT"
@@ -57,7 +59,7 @@ export const authenticateCustomer = async (
 
     const customerRepository = AppDataSource.getRepository(Customer);
     const customer = await customerRepository.findOne({
-      where: { _id: new ObjectId(decoded.id) },
+      where: { _id: new ObjectId(decoded._id) },
     });
 
     if (!customer) {
@@ -127,10 +129,10 @@ export const optionalCustomerAuth = async (
       try {
         const decoded = jwt.verify(token, JWT_SECRET) as CustomerJWTPayload;
 
-        if (decoded.id && decoded.email && decoded.customerId) {
+        if (decoded._id && decoded.id && decoded.email && decoded.type === "customer") {
           const customerRepository = AppDataSource.getRepository(Customer);
           const customer = await customerRepository.findOne({
-            where: { _id: new ObjectId(decoded.id) },
+            where: { _id: new ObjectId(decoded._id) },
           });
 
           if (customer && customer.status === CustomerStatus.ACTIVE && customer.email === decoded.email) {

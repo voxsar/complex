@@ -142,6 +142,12 @@ export class Order {
   @Column({ nullable: true })
   customerId?: string;
 
+  @Column({ nullable: true })
+  salesChannelId?: string;
+
+  @Column({ nullable: true })
+  priceListId?: string;
+
   // Embedded items and payments arrays
   @Column({ default: [] })
   items: Array<{
@@ -184,9 +190,56 @@ export class Order {
     gatewayResponse?: Record<string, any>;
     failureReason?: string;
     processedAt?: Date;
+    refundedAmount?: number;
     metadata?: Record<string, any>;
     createdAt: Date;
   }>;
+
+  @Column({ default: [] })
+  fulfillments: Array<{
+    id: string;
+    status: string;
+    trackingCompany?: string;
+    trackingNumber?: string;
+    estimatedDelivery?: Date;
+    shippedAt?: Date;
+    deliveredAt?: Date;
+    items: Array<{
+      orderItemId: string;
+      quantity: number;
+    }>;
+    metadata?: Record<string, any>;
+    createdAt: Date;
+  }>;
+
+  @Column({ default: [] })
+  returnIds: string[];
+
+  @Column({ default: [] })
+  claimIds: string[];
+
+  @Column({ default: [] })
+  exchangeIds: string[];
+
+  @Column({ nullable: true })
+  @IsOptional()
+  taxRegionId?: string; // ID of the tax region used for this order
+
+  @Column({ default: [] })
+  taxBreakdown: Array<{
+    name: string;
+    rate: number;
+    amount: number;
+    source: 'default' | 'override' | 'parent';
+  }>; // Detailed tax breakdown
+
+  @Column({ nullable: true })
+  @IsOptional()
+  taxExempt?: boolean; // Whether this order is tax exempt
+
+  @Column({ nullable: true })
+  @IsOptional()
+  taxExemptReason?: string; // Reason for tax exemption
 
   @BeforeInsert()
   generateId() {
@@ -202,5 +255,129 @@ export class Order {
 
   get isGuest(): boolean {
     return !this.customerId;
+  }
+
+  get totalPaid(): number {
+    return this.payments?.reduce((sum, payment) => {
+      return payment.status === 'paid' ? sum + payment.amount : sum;
+    }, 0) || 0;
+  }
+
+  get totalRefunded(): number {
+    return this.payments?.reduce((sum, payment) => {
+      return sum + (payment.refundedAmount || 0);
+    }, 0) || 0;
+  }
+
+  get remainingBalance(): number {
+    return this.total - this.totalPaid;
+  }
+
+  get isPaid(): boolean {
+    return this.remainingBalance <= 0;
+  }
+
+  get hasReturns(): boolean {
+    return this.returnIds.length > 0;
+  }
+
+  get hasClaims(): boolean {
+    return this.claimIds.length > 0;
+  }
+
+  get hasExchanges(): boolean {
+    return this.exchangeIds.length > 0;
+  }
+
+  get isFulfilled(): boolean {
+    const totalFulfilledQuantity = this.fulfillments?.reduce((sum, fulfillment) => {
+      if (fulfillment.status === 'fulfilled') {
+        return sum + fulfillment.items.reduce((itemSum, item) => itemSum + item.quantity, 0);
+      }
+      return sum;
+    }, 0) || 0;
+    
+    return totalFulfilledQuantity >= this.itemsCount;
+  }
+
+  get outstandingAmount(): number {
+    return this.remainingBalance;
+  }
+
+  get hasOutstandingAmount(): boolean {
+    return this.outstandingAmount > 0;
+  }
+
+  get canCapture(): boolean {
+    return this.payments?.some(p => p.status === 'authorized') || false;
+  }
+
+  get canRefund(): boolean {
+    return this.payments?.some(p => p.status === 'captured' || p.status === 'paid') || false;
+  }
+
+  // Helper methods
+  addPayment(payment: Omit<{
+    id: string;
+    amount: number;
+    currency: string;
+    status: string;
+    method: string;
+    reference?: string;
+    gatewayTransactionId?: string;
+    gatewayResponse?: Record<string, any>;
+    failureReason?: string;
+    processedAt?: Date;
+    refundedAmount?: number;
+    metadata?: Record<string, any>;
+    createdAt: Date;
+  }, 'id' | 'createdAt'>) {
+    const newPayment = {
+      ...payment,
+      id: uuidv4(),
+      createdAt: new Date()
+    };
+    this.payments = [...(this.payments || []), newPayment];
+    return newPayment;
+  }
+
+  addFulfillment(fulfillment: Omit<{
+    id: string;
+    status: string;
+    trackingCompany?: string;
+    trackingNumber?: string;
+    estimatedDelivery?: Date;
+    shippedAt?: Date;
+    deliveredAt?: Date;
+    items: Array<{
+      orderItemId: string;
+      quantity: number;
+    }>;
+    metadata?: Record<string, any>;
+    createdAt: Date;
+  }, 'id' | 'createdAt'>) {
+    const newFulfillment = {
+      ...fulfillment,
+      id: uuidv4(),
+      createdAt: new Date()
+    };
+    this.fulfillments = [...(this.fulfillments || []), newFulfillment];
+    return newFulfillment;
+  }
+
+  updatePaymentStatus(paymentId: string, status: string, metadata?: Record<string, any>) {
+    this.payments = this.payments?.map(payment => 
+      payment.id === paymentId 
+        ? { ...payment, status, ...(metadata && { metadata: { ...payment.metadata, ...metadata } }) }
+        : payment
+    ) || [];
+  }
+
+  addRefund(paymentId: string, amount: number) {
+    this.payments = this.payments?.map(payment => 
+      payment.id === paymentId 
+        ? { ...payment, refundedAmount: (payment.refundedAmount || 0) + amount }
+        : payment
+    ) || [];
   }
 }

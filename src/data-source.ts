@@ -9,11 +9,19 @@ import { Collection } from "./entities/Collection";
 import { Inventory } from "./entities/Inventory";
 import { Customer } from "./entities/Customer";
 import { CustomerGroup } from "./entities/CustomerGroup";
+import { Cart } from "./entities/Cart";
 import { Order } from "./entities/Order";
+import { OrderReturn } from "./entities/OrderReturn";
+import { OrderClaim } from "./entities/OrderClaim";
+import { OrderExchange } from "./entities/OrderExchange";
 import { Payment } from "./entities/Payment";
 import { Promotion } from "./entities/Promotion";
 import { Campaign } from "./entities/Campaign";
 import { ProductOption } from "./entities/ProductOption";
+import { PriceList } from "./entities/PriceList";
+import { SalesChannel } from "./entities/SalesChannel";
+import { User } from "./entities/User";
+import { TaxRegion } from "./entities/TaxRegion";
 
 dotenv.config();
 
@@ -34,10 +42,18 @@ export const AppDataSource = new DataSource({
     Inventory,
     Customer,
     CustomerGroup,
+    Cart,
     Order,
+    OrderReturn,
+    OrderClaim,
+    OrderExchange,
     Payment,
     Promotion,
     Campaign,
+    PriceList,
+    SalesChannel,
+    User,
+    TaxRegion,
   ],
   migrations: ["src/migrations/*.ts"],
   subscribers: ["src/subscribers/*.ts"],

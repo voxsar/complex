@@ -1,4 +1,4 @@
-import * as jwt from "jsonwebtoken";
+import jwt, { SignOptions } from "jsonwebtoken";
 import crypto from "crypto";
 import { Customer } from "../entities/Customer";
 
@@ -6,31 +6,28 @@ export const generateCustomerJWT = (customer: Customer): string => {
   const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
   const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || "7d";
 
-  return jwt.sign(
-    {
-      id: customer._id.toString(),
-      email: customer.email,
-      customerId: customer.id,
-      type: "customer"
-    },
-    JWT_SECRET,
-    { expiresIn: JWT_EXPIRES_IN }
-  );
+  const payload = {
+    _id: customer._id.toString(),
+    id: customer.id,
+    email: customer.email,
+    status: customer.status,
+    type: "customer"
+  };
+
+  return jwt.sign(payload, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN as any });
 };
 
 export const generateCustomerRefreshToken = (customer: Customer): string => {
   const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || "your-refresh-secret-key";
   const JWT_REFRESH_EXPIRES_IN = process.env.JWT_REFRESH_EXPIRES_IN || "30d";
 
-  return jwt.sign(
-    {
-      id: customer._id.toString(),
-      customerId: customer.id,
-      type: "customer_refresh",
-    },
-    JWT_REFRESH_SECRET,
-    { expiresIn: JWT_REFRESH_EXPIRES_IN }
-  );
+  const payload = {
+    _id: customer._id.toString(),
+    id: customer.id,
+    type: "customer_refresh",
+  };
+
+  return jwt.sign(payload, JWT_REFRESH_SECRET, { expiresIn: JWT_REFRESH_EXPIRES_IN as any });
 };
 
 export const verifyCustomerRefreshToken = (token: string): any => {

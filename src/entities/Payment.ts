@@ -34,6 +34,16 @@ export class Payment {
   @Min(0)
   refundedAmount: number;
 
+  @Column("decimal", { precision: 10, scale: 2, default: 0 })
+  @IsDecimal()
+  @Min(0)
+  authorizedAmount: number;
+
+  @Column("decimal", { precision: 10, scale: 2, default: 0 })
+  @IsDecimal()
+  @Min(0)
+  capturedAmount: number;
+
   @Column({ length: 3 })
   @IsNotEmpty()
   currency: string; // ISO 4217 currency code
@@ -105,19 +115,23 @@ export class Payment {
 
   // Computed properties
   get isCompleted(): boolean {
-    return this.status === PaymentStatus.COMPLETED;
+    return this.status === PaymentStatus.COMPLETED || this.status === PaymentStatus.CAPTURED;
   }
 
-  get isFailed(): boolean {
-    return this.status === PaymentStatus.FAILED;
+  get isAuthorized(): boolean {
+    return this.status === PaymentStatus.AUTHORIZED || this.status === PaymentStatus.PARTIALLY_AUTHORIZED;
   }
 
-  get isPending(): boolean {
-    return this.status === PaymentStatus.PENDING;
+  get isCaptured(): boolean {
+    return this.status === PaymentStatus.CAPTURED || this.status === PaymentStatus.PARTIALLY_CAPTURED;
+  }
+
+  get availableToCapture(): number {
+    return this.authorizedAmount - this.capturedAmount;
   }
 
   get refundableAmount(): number {
-    return this.amount - this.refundedAmount;
+    return this.capturedAmount - this.refundedAmount;
   }
 
   @BeforeInsert()
