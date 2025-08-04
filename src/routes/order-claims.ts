@@ -60,7 +60,7 @@ router.get("/:id", async (req: Request, res: Response) => {
     const claimRepository = AppDataSource.getRepository(OrderClaim);
     
     const claim = await claimRepository.findOne({
-      where: { _id: new ObjectId(id) }
+      where: { id: id }
     });
 
     if (!claim) {
@@ -111,6 +111,7 @@ router.post("/", async (req: Request, res: Response) => {
     claim.orderId = orderId;
     claim.customerId = customerId;
     claim.type = type;
+    claim.status = ClaimStatus.REQUESTED; // Explicitly set the status
     claim.items = validItems.map((item: any) => ({
       id: `clm_item_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`,
       orderItemId: item.orderItemId,
@@ -151,7 +152,7 @@ router.patch("/:id/status", async (req: Request, res: Response) => {
     const claimRepository = AppDataSource.getRepository(OrderClaim);
     
     const claim = await claimRepository.findOne({
-      where: { _id: new ObjectId(id) }
+      where: { id: id }
     });
 
     if (!claim) {
@@ -189,7 +190,7 @@ router.post("/:id/approve", async (req: Request, res: Response) => {
     const orderRepository = AppDataSource.getRepository(Order);
     
     const claim = await claimRepository.findOne({
-      where: { _id: new ObjectId(id) }
+      where: { id: id }
     });
 
     if (!claim) {
@@ -247,7 +248,7 @@ router.post("/:id/reject", async (req: Request, res: Response) => {
     const claimRepository = AppDataSource.getRepository(OrderClaim);
     
     const claim = await claimRepository.findOne({
-      where: { _id: new ObjectId(id) }
+      where: { id: id }
     });
 
     if (!claim) {
@@ -277,7 +278,7 @@ router.delete("/:id", async (req: Request, res: Response) => {
     const claimRepository = AppDataSource.getRepository(OrderClaim);
     
     const claim = await claimRepository.findOne({
-      where: { _id: new ObjectId(id) }
+      where: { id: id }
     });
 
     if (!claim) {

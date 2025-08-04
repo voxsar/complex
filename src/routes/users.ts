@@ -38,6 +38,8 @@ router.post("/register", async (req: Request, res: Response) => {
       lastName,
       phone,
       role: UserRole.CUSTOMER,
+      isActive: true,
+      isEmailVerified: false,
       emailVerificationToken: generateEmailVerificationToken(),
     });
 
@@ -71,12 +73,23 @@ router.post("/login", async (req: Request, res: Response) => {
     const { email, password } = req.body;
     const userRepository = AppDataSource.getRepository(User);
 
-    // Find user with password
-    const user = await userRepository
-      .createQueryBuilder("user")
-      .addSelect("user.password")
-      .where("user.email = :email", { email })
-      .getOne();
+    // Find user with password - MongoDB compatible query
+    const user = await userRepository.findOne({ 
+      where: { email },
+      select: {
+        id: true,
+        email: true,
+        password: true,
+        firstName: true,
+        lastName: true,
+        role: true,
+        isActive: true,
+        lastLoginAt: true,
+        lastLoginIP: true,
+        loginAttempts: true,
+        lockedUntil: true
+      }
+    });
 
     if (!user || !(await user.comparePassword(password))) {
       return res.status(401).json({ error: "Invalid email or password" });

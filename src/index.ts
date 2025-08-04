@@ -40,6 +40,7 @@ import paymentIntentRoutes from "./routes/payment-intents";
 import savedPaymentMethodRoutes from "./routes/saved-payment-methods";
 import webhookRoutes from "./routes/webhooks";
 import refundRoutes from "./routes/refunds";
+import analyticsRoutes from "./routes/analytics";
 
 // Import middleware
 import { errorHandler } from "./middleware/errorHandler";
@@ -106,6 +107,7 @@ app.use("/api/payment-intents", paymentIntentRoutes);
 app.use("/api", savedPaymentMethodRoutes); // This includes /customers/:id/payment-methods and /payment-methods/:id
 app.use("/api/webhooks", webhookRoutes);
 app.use("/api/refunds", refundRoutes);
+app.use("/api/analytics", analyticsRoutes);
 
 // Authentication & Authorization Routes
 app.use("/api/admin/auth", adminAuthRoutes);

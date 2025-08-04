@@ -1,8 +1,11 @@
 import "reflect-metadata";
 import { AppDataSource } from "../data-source";
-import { Product, ProductStatus, ProductType } from "../entities/Product";
+import { Product } from "../entities/Product";
+import { ProductStatus } from "../enums/product_status";
+import { ProductType } from "../enums/product_type";
 import { Category } from "../entities/Category";
-import { Customer, CustomerStatus } from "../entities/Customer";
+import { Customer } from "../entities/Customer";
+import { CustomerStatus } from "../enums/customer_status";
 
 async function simpleSeed() {
   try {

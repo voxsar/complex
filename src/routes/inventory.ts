@@ -55,8 +55,16 @@ router.get("/", async (req: Request, res: Response) => {
       inventory = inventory.filter(item => item.isOutOfStock);
     }
 
+    // Add computed properties to each inventory item
+    const inventoryWithComputedProps = inventory.map(item => ({
+      ...item,
+      availableQuantity: item.availableQuantity,
+      isLowStock: item.isLowStock,
+      isOutOfStock: item.isOutOfStock
+    }));
+
     res.json({
-      inventory,
+      inventory: inventoryWithComputedProps,
       pagination: {
         page: Number(page),
         limit: Number(limit),
@@ -84,7 +92,15 @@ router.get("/:id", async (req: Request, res: Response) => {
       return res.status(404).json({ error: "Inventory item not found" });
     }
 
-    res.json(inventory);
+    // Add computed properties
+    const inventoryWithComputedProps = {
+      ...inventory,
+      availableQuantity: inventory.availableQuantity,
+      isLowStock: inventory.isLowStock,
+      isOutOfStock: inventory.isOutOfStock
+    };
+
+    res.json(inventoryWithComputedProps);
   } catch (error) {
     console.error("Error fetching inventory item:", error);
     res.status(500).json({ error: "Failed to fetch inventory item" });

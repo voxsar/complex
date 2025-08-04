@@ -1,9 +1,58 @@
 import { Router, Request, Response } from "express";
 import { AppDataSource } from "../data-source";
 import { ShippingZone } from "../entities/ShippingZone";
+import { ShippingRate } from "../entities/ShippingRate";
 import { validate } from "class-validator";
 
 const router = Router();
+
+// Helper function to create shipping rates
+async function createShippingRates(ratesData: any[], shippingZoneId: string): Promise<ShippingRate[]> {
+  const rateRepository = AppDataSource.getRepository(ShippingRate);
+  const createdRates: ShippingRate[] = [];
+
+  for (const rateData of ratesData) {
+    const rate = rateRepository.create({
+      ...rateData,
+      shippingZoneId: shippingZoneId
+    });
+    
+    const errors = await validate(rate);
+    if (errors.length > 0) {
+      throw new Error(`Validation failed for shipping rate ${rateData.name}: ${errors.map(e => e.constraints).join(', ')}`);
+    }
+    
+    const savedRates = await rateRepository.save(rate);
+    const savedRate = Array.isArray(savedRates) ? savedRates[0] : savedRates;
+    createdRates.push(savedRate);
+  }
+
+  return createdRates;
+}
+
+// Helper function to add shipping rates to existing zone (PATCH)
+async function addShippingRates(ratesData: any[], shippingZoneId: string): Promise<ShippingRate[]> {
+  const rateRepository = AppDataSource.getRepository(ShippingRate);
+  const newRates: ShippingRate[] = [];
+
+  for (const rateData of ratesData) {
+    const rate = rateRepository.create({
+      ...rateData,
+      shippingZoneId: shippingZoneId
+    });
+    
+    const errors = await validate(rate);
+    if (errors.length > 0) {
+      throw new Error(`Validation failed for shipping rate ${rateData.name}: ${errors.map(e => e.constraints).join(', ')}`);
+    }
+    
+    const savedRates = await rateRepository.save(rate);
+    const savedRate = Array.isArray(savedRates) ? savedRates[0] : savedRates;
+    newRates.push(savedRate);
+  }
+
+  return newRates;
+}
 
 // Get all shipping zones
 router.get("/", async (req: Request, res: Response) => {
@@ -90,7 +139,10 @@ router.post("/", async (req: Request, res: Response) => {
   try {
     const shippingZoneRepository = AppDataSource.getRepository(ShippingZone);
     
-    const zone = shippingZoneRepository.create(req.body);
+    // Extract shippingRates from request body
+    const { shippingRates, ...zoneData } = req.body;
+    
+    const zone = shippingZoneRepository.create(zoneData);
     
     // Validate the entity
     const errors = await validate(zone);
@@ -104,8 +156,31 @@ router.post("/", async (req: Request, res: Response) => {
       });
     }
 
-    const savedZone = await shippingZoneRepository.save(zone);
-    res.status(201).json(savedZone);
+    const savedZones = await shippingZoneRepository.save(zone);
+    const savedZone = Array.isArray(savedZones) ? savedZones[0] : savedZones;
+    
+    // Create shipping rates if provided
+    let createdRates: ShippingRate[] = [];
+    if (shippingRates && Array.isArray(shippingRates) && shippingRates.length > 0) {
+      try {
+        createdRates = await createShippingRates(shippingRates, savedZone.id);
+        console.log(`✅ Created ${createdRates.length} shipping rates for zone ${savedZone.id}`);
+      } catch (rateError) {
+        console.error("Error creating shipping rates:", rateError);
+        return res.status(400).json({ 
+          error: "Failed to create shipping rates", 
+          details: rateError.message 
+        });
+      }
+    }
+
+    // Return zone with rates
+    const response = {
+      ...savedZone,
+      shippingRates: createdRates
+    };
+
+    res.status(201).json(response);
   } catch (error) {
     console.error("Error creating shipping zone:", error);
     res.status(500).json({ error: "Internal server error" });
@@ -126,8 +201,11 @@ router.put("/:id", async (req: Request, res: Response) => {
       return res.status(404).json({ error: "Shipping zone not found" });
     }
 
+    // Extract shippingRates from request body
+    const { shippingRates, ...zoneData } = req.body;
+
     // Update the zone
-    Object.assign(existingZone, req.body);
+    Object.assign(existingZone, zoneData);
     existingZone.updatedAt = new Date();
 
     // Validate the updated entity
@@ -142,7 +220,32 @@ router.put("/:id", async (req: Request, res: Response) => {
       });
     }
 
-    const updatedZone = await shippingZoneRepository.save(existingZone);
+    const updatedZones = await shippingZoneRepository.save(existingZone);
+    const updatedZone = Array.isArray(updatedZones) ? updatedZones[0] : updatedZones;
+    
+    // Replace shipping rates if provided
+    let resultRates: ShippingRate[] = [];
+    if (shippingRates && Array.isArray(shippingRates) && shippingRates.length > 0) {
+      try {
+        // Note: For PUT, we could optionally delete existing rates first
+        resultRates = await createShippingRates(shippingRates, updatedZone.id);
+        console.log(`✅ Updated ${resultRates.length} shipping rates for zone ${updatedZone.id}`);
+      } catch (rateError) {
+        console.error("Error updating shipping rates:", rateError);
+        return res.status(400).json({ 
+          error: "Failed to update shipping rates", 
+          details: rateError.message 
+        });
+      }
+    }
+
+    // Return zone with rates
+    const response = {
+      ...updatedZone,
+      shippingRates: resultRates
+    };
+
+    res.json(response);
     res.json(updatedZone);
   } catch (error) {
     console.error("Error updating shipping zone:", error);
@@ -230,6 +333,71 @@ router.post("/check-coverage", async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.error("Error checking shipping coverage:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// Partial update shipping zone (PATCH)
+router.patch("/:id", async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const shippingZoneRepository = AppDataSource.getRepository(ShippingZone);
+    
+    const existingZone = await shippingZoneRepository.findOne({
+      where: { id },
+    });
+
+    if (!existingZone) {
+      return res.status(404).json({ error: "Shipping zone not found" });
+    }
+
+    // Extract shippingRates from request body
+    const { shippingRates, ...zoneData } = req.body;
+
+    // Update only provided zone fields
+    Object.assign(existingZone, zoneData);
+    existingZone.updatedAt = new Date();
+    
+    // Validate zone if any fields were updated
+    if (Object.keys(zoneData).length > 0) {
+      const errors = await validate(existingZone);
+      if (errors.length > 0) {
+        return res.status(400).json({
+          error: "Validation failed",
+          details: errors.map(err => ({
+            property: err.property,
+            constraints: err.constraints
+          }))
+        });
+      }
+      
+      await shippingZoneRepository.save(existingZone);
+    }
+    
+    // Add new shipping rates if provided (don't replace existing ones)
+    let addedRates: ShippingRate[] = [];
+    if (shippingRates && Array.isArray(shippingRates) && shippingRates.length > 0) {
+      try {
+        addedRates = await addShippingRates(shippingRates, existingZone.id);
+        console.log(`✅ Added ${addedRates.length} new shipping rates to zone ${existingZone.id}`);
+      } catch (rateError) {
+        console.error("Error adding shipping rates:", rateError);
+        return res.status(400).json({ 
+          error: "Failed to add shipping rates", 
+          details: rateError.message 
+        });
+      }
+    }
+
+    // Return zone with newly added rates
+    const response = {
+      ...existingZone,
+      addedShippingRates: addedRates
+    };
+
+    res.json(response);
+  } catch (error) {
+    console.error("Error patching shipping zone:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });

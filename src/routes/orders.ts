@@ -1,11 +1,105 @@
 import { Router, Request, Response } from "express";
 import { AppDataSource } from "../data-source";
 import { Order } from "../entities/Order";
+import { Payment } from "../entities/Payment";
+import { Shipment } from "../entities/Shipment";
 import { OrderStatus } from "../enums/order_status";
 import { OrderFinancialStatus } from "../enums/order_financial_status";
 import { validate } from "class-validator";
 
 const router = Router();
+
+// Helper function to create payments
+async function createPayments(paymentsData: any[], orderId: string): Promise<Payment[]> {
+  const paymentRepository = AppDataSource.getRepository(Payment);
+  const createdPayments: Payment[] = [];
+
+  for (const paymentData of paymentsData) {
+    const payment = paymentRepository.create({
+      ...paymentData,
+      orderId: orderId
+    });
+    
+    const errors = await validate(payment);
+    if (errors.length > 0) {
+      throw new Error(`Validation failed for payment: ${errors.map(e => e.constraints).join(', ')}`);
+    }
+    
+    const savedPayment = await paymentRepository.save(payment);
+    createdPayments.push(savedPayment);
+  }
+
+  return createdPayments;
+}
+
+// Helper function to create shipments
+async function createShipments(shipmentsData: any[], orderId: string): Promise<Shipment[]> {
+  const shipmentRepository = AppDataSource.getRepository(Shipment);
+  const createdShipments: Shipment[] = [];
+
+  for (const shipmentData of shipmentsData) {
+    const shipment = shipmentRepository.create({
+      ...shipmentData,
+      orderId: orderId
+    });
+    
+    const errors = await validate(shipment);
+    if (errors.length > 0) {
+      throw new Error(`Validation failed for shipment: ${errors.map(e => e.constraints).join(', ')}`);
+    }
+    
+    const savedShipment = await shipmentRepository.save(shipment);
+    createdShipments.push(savedShipment);
+  }
+
+  return createdShipments;
+}
+
+// Helper function to add payments to existing order (PATCH)
+async function addPayments(paymentsData: any[], orderId: string): Promise<Payment[]> {
+  const paymentRepository = AppDataSource.getRepository(Payment);
+  const newPayments: Payment[] = [];
+
+  for (const paymentData of paymentsData) {
+    const payment = paymentRepository.create({
+      ...paymentData,
+      orderId: orderId
+    });
+    
+    const errors = await validate(payment);
+    if (errors.length > 0) {
+      throw new Error(`Validation failed for payment: ${errors.map(e => e.constraints).join(', ')}`);
+    }
+    
+    const savedPayment = await paymentRepository.save(payment);
+    newPayments.push(savedPayment);
+  }
+
+  return newPayments;
+}
+
+// Helper function to add shipments to existing order (PATCH)
+async function addShipments(shipmentsData: any[], orderId: string): Promise<Shipment[]> {
+  const shipmentRepository = AppDataSource.getRepository(Shipment);
+  const newShipments: Shipment[] = [];
+
+  for (const shipmentData of shipmentsData) {
+    const shipment = shipmentRepository.create({
+      ...shipmentData,
+      orderId: orderId
+    });
+    
+    const errors = await validate(shipment);
+    if (errors.length > 0) {
+      throw new Error(`Validation failed for shipment: ${errors.map(e => e.constraints).join(', ')}`);
+    }
+    
+    const savedShipment = await shipmentRepository.save(shipment);
+    newShipments.push(savedShipment);
+  }
+
+  return newShipments;
+}
 
 // Get all orders
 router.get("/", async (req: Request, res: Response) => {
@@ -96,16 +190,58 @@ router.post("/", async (req: Request, res: Response) => {
   try {
     const orderRepository = AppDataSource.getRepository(Order);
     
-    const order = orderRepository.create(req.body);
+    // Extract nested data from request body
+    const { payments, shipments, ...orderData } = req.body;
     
-    // Validate
+    const order = orderRepository.create(orderData);
+    
+    // Validate order
     const errors = await validate(order);
     if (errors.length > 0) {
       return res.status(400).json({ errors });
     }
 
-    const savedOrder = await orderRepository.save(order);
-    res.status(201).json(savedOrder);
+    const savedOrders = await orderRepository.save(order);
+    const savedOrder = Array.isArray(savedOrders) ? savedOrders[0] : savedOrders;
+    
+    // Create payments if provided
+    let createdPayments: Payment[] = [];
+    if (payments && Array.isArray(payments) && payments.length > 0) {
+      try {
+        createdPayments = await createPayments(payments, savedOrder.id);
+        console.log(`✅ Created ${createdPayments.length} payments for order ${savedOrder.id}`);
+      } catch (paymentError) {
+        console.error("Error creating payments:", paymentError);
+        return res.status(400).json({ 
+          error: "Failed to create payments", 
+          details: paymentError.message 
+        });
+      }
+    }
+
+    // Create shipments if provided
+    let createdShipments: Shipment[] = [];
+    if (shipments && Array.isArray(shipments) && shipments.length > 0) {
+      try {
+        createdShipments = await createShipments(shipments, savedOrder.id);
+        console.log(`✅ Created ${createdShipments.length} shipments for order ${savedOrder.id}`);
+      } catch (shipmentError) {
+        console.error("Error creating shipments:", shipmentError);
+        return res.status(400).json({ 
+          error: "Failed to create shipments", 
+          details: shipmentError.message 
+        });
+      }
+    }
+
+    // Return order with created nested objects
+    const response = {
+      ...savedOrder,
+      payments: createdPayments,
+      shipments: createdShipments
+    };
+
+    res.status(201).json(response);
   } catch (error) {
     console.error("Error creating order:", error);
     res.status(500).json({ error: "Failed to create order" });
@@ -126,17 +262,61 @@ router.put("/:id", async (req: Request, res: Response) => {
       return res.status(404).json({ error: "Order not found" });
     }
 
-    // Update fields
-    Object.assign(order, req.body);
+    // Extract nested data from request body
+    const { payments, shipments, ...orderData } = req.body;
+
+    // Update order fields
+    Object.assign(order, orderData);
     
-    // Validate
+    // Validate order
     const errors = await validate(order);
     if (errors.length > 0) {
       return res.status(400).json({ errors });
     }
 
-    const updatedOrder = await orderRepository.save(order);
-    res.json(updatedOrder);
+    const updatedOrders = await orderRepository.save(order);
+    const updatedOrder = Array.isArray(updatedOrders) ? updatedOrders[0] : updatedOrders;
+    
+    // Replace payments if provided
+    let resultPayments: Payment[] = [];
+    if (payments && Array.isArray(payments) && payments.length > 0) {
+      try {
+        // Note: For PUT, we could optionally delete existing payments first
+        resultPayments = await createPayments(payments, updatedOrder.id);
+        console.log(`✅ Updated ${resultPayments.length} payments for order ${updatedOrder.id}`);
+      } catch (paymentError) {
+        console.error("Error updating payments:", paymentError);
+        return res.status(400).json({ 
+          error: "Failed to update payments", 
+          details: paymentError.message 
+        });
+      }
+    }
+
+    // Replace shipments if provided
+    let resultShipments: Shipment[] = [];
+    if (shipments && Array.isArray(shipments) && shipments.length > 0) {
+      try {
+        // Note: For PUT, we could optionally delete existing shipments first
+        resultShipments = await createShipments(shipments, updatedOrder.id);
+        console.log(`✅ Updated ${resultShipments.length} shipments for order ${updatedOrder.id}`);
+      } catch (shipmentError) {
+        console.error("Error updating shipments:", shipmentError);
+        return res.status(400).json({ 
+          error: "Failed to update shipments", 
+          details: shipmentError.message 
+        });
+      }
+    }
+
+    // Return order with nested objects
+    const response = {
+      ...updatedOrder,
+      payments: resultPayments,
+      shipments: resultShipments
+    };
+
+    res.json(response);
   } catch (error) {
     console.error("Error updating order:", error);
     res.status(500).json({ error: "Failed to update order" });
@@ -676,6 +856,80 @@ router.get("/:id/outstanding", async (req: Request, res: Response) => {
   } catch (error) {
     console.error("Error fetching outstanding amounts:", error);
     res.status(500).json({ error: "Failed to fetch outstanding amounts" });
+  }
+});
+
+// Partial update order (PATCH)
+router.patch("/:id", async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const orderRepository = AppDataSource.getRepository(Order);
+
+    const order = await orderRepository.findOne({
+      where: { id }
+    });
+
+    if (!order) {
+      return res.status(404).json({ error: "Order not found" });
+    }
+
+    // Extract nested data from request body
+    const { payments, shipments, ...orderData } = req.body;
+
+    // Update only provided order fields
+    Object.assign(order, orderData);
+    
+    // Validate order if any fields were updated
+    if (Object.keys(orderData).length > 0) {
+      const errors = await validate(order);
+      if (errors.length > 0) {
+        return res.status(400).json({ errors });
+      }
+      
+      await orderRepository.save(order);
+    }
+    
+    // Add new payments if provided (don't replace existing ones)
+    let addedPayments: Payment[] = [];
+    if (payments && Array.isArray(payments) && payments.length > 0) {
+      try {
+        addedPayments = await addPayments(payments, order.id);
+        console.log(`✅ Added ${addedPayments.length} new payments to order ${order.id}`);
+      } catch (paymentError) {
+        console.error("Error adding payments:", paymentError);
+        return res.status(400).json({ 
+          error: "Failed to add payments", 
+          details: paymentError.message 
+        });
+      }
+    }
+
+    // Add new shipments if provided (don't replace existing ones)
+    let addedShipments: Shipment[] = [];
+    if (shipments && Array.isArray(shipments) && shipments.length > 0) {
+      try {
+        addedShipments = await addShipments(shipments, order.id);
+        console.log(`✅ Added ${addedShipments.length} new shipments to order ${order.id}`);
+      } catch (shipmentError) {
+        console.error("Error adding shipments:", shipmentError);
+        return res.status(400).json({ 
+          error: "Failed to add shipments", 
+          details: shipmentError.message 
+        });
+      }
+    }
+
+    // Return order with newly added nested objects
+    const response = {
+      ...order,
+      addedPayments: addedPayments,
+      addedShipments: addedShipments
+    };
+
+    res.json(response);
+  } catch (error) {
+    console.error("Error patching order:", error);
+    res.status(500).json({ error: "Failed to patch order" });
   }
 });
 

@@ -60,7 +60,7 @@ router.get("/:id", async (req: Request, res: Response) => {
     const returnRepository = AppDataSource.getRepository(OrderReturn);
     
     const orderReturn = await returnRepository.findOne({
-      where: { _id: new ObjectId(id) }
+      where: { id: id }
     });
 
     if (!orderReturn) {
@@ -112,6 +112,7 @@ router.post("/", async (req: Request, res: Response) => {
     orderReturn.orderId = orderId;
     orderReturn.customerId = customerId;
     orderReturn.reason = reason;
+    orderReturn.status = ReturnStatus.REQUESTED; // Explicitly set the status
     orderReturn.items = validItems.map((item: any) => ({
       id: `ret_item_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`,
       orderItemId: item.orderItemId,
@@ -150,7 +151,7 @@ router.patch("/:id/status", async (req: Request, res: Response) => {
     const returnRepository = AppDataSource.getRepository(OrderReturn);
     
     const orderReturn = await returnRepository.findOne({
-      where: { _id: new ObjectId(id) }
+      where: { id: id }
     });
 
     if (!orderReturn) {
@@ -197,7 +198,7 @@ router.post("/:id/refund", async (req: Request, res: Response) => {
     const orderRepository = AppDataSource.getRepository(Order);
     
     const orderReturn = await returnRepository.findOne({
-      where: { _id: new ObjectId(id) }
+      where: { id: id }
     });
 
     if (!orderReturn) {
@@ -253,7 +254,7 @@ router.delete("/:id", async (req: Request, res: Response) => {
     const returnRepository = AppDataSource.getRepository(OrderReturn);
     
     const orderReturn = await returnRepository.findOne({
-      where: { _id: new ObjectId(id) }
+      where: { id: id }
     });
 
     if (!orderReturn) {
