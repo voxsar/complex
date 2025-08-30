@@ -11,7 +11,10 @@
     "migration:generate": "npm run typeorm -- migration:generate src/migrations/Migration -d src/data-source.ts",
     "migration:run": "npm run typeorm -- migration:run -d src/data-source.ts",
     "migration:revert": "npm run typeorm -- migration:revert -d src/data-source.ts",
-    "seed": "ts-node src/seeds/simpleSeed.ts"
+    "seed": "ts-node src/seeds/simpleSeed.ts",
+    "test": "jest",
+    "test:unit": "jest src/__tests__/services",
+    "test:integration": "jest src/__tests__/integration"
   },
   "keywords": [
     "ecommerce",
@@ -59,12 +62,17 @@
     "@types/compression": "^1.7.2",
     "@types/cors": "^2.8.13",
     "@types/express": "^4.17.17",
+    "@types/jest": "^30.0.0",
     "@types/jsonwebtoken": "^9.0.2",
     "@types/multer": "^1.4.7",
     "@types/node": "^20.5.0",
     "@types/nodemailer": "^7.0.1",
     "@types/stripe": "^8.0.416",
+    "@types/supertest": "^6.0.3",
     "@types/uuid": "^9.0.2",
+    "jest": "^30.1.1",
+    "supertest": "^7.1.4",
+    "ts-jest": "^29.4.1",
     "ts-node": "^10.9.1",
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.1.6"
