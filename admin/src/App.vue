@@ -9,7 +9,8 @@ import {
   IconChevronRight,
   IconSearch,
   IconStack,
-  IconBell
+  IconBell,
+  IconChartBar
 } from '@tabler/icons-vue'
 import { computed, ref } from 'vue'
 import { useRoute } from 'vue-router'
@@ -41,6 +42,7 @@ const routeDescriptions: Record<string, string> = {
   'Customers': 'Manage your customers',
   'Promotions': 'Create and manage promotions',
   'PriceLists': 'Manage your price lists',
+  'Analytics': 'View store analytics',
   'Settings': 'Configure your store settings'
 }
 
@@ -109,6 +111,18 @@ const getPageDescription = computed(() => {
               </router-link>
             </div>
           </div>
+
+          <!-- Analytics -->
+          <router-link to="/analytics" class="menu-item">
+            <IconChartBar :size="18" />
+            <span>Analytics</span>
+          </router-link>
+
+          <!-- Orders -->
+          <router-link to="/orders" class="menu-item">
+            <IconShoppingCart :size="18" />
+            <span>Orders</span>
+          </router-link>
           
           <!-- Products Menu -->
           <div class="menu-group">

@@ -13,6 +13,11 @@ const routes: RouteRecordRaw[] = [
     redirect: '/products'
   },
   {
+    path: '/analytics',
+    name: 'Analytics',
+    component: () => import('../views/AnalyticsDashboard.vue'),
+  },
+  {
     path: '/products',
     name: 'Products',
     component: () => import('../views/products/ProductsList.vue'),
@@ -117,7 +122,9 @@ const routes: RouteRecordRaw[] = [
       { path: 'shipping-rates', name: 'ShippingRates', component: () => import('../views/settings/ShippingRatesList.vue') },
       { path: 'shipping-zones', name: 'ShippingZones', component: () => import('../views/settings/ShippingZonesList.vue') },
       { path: 'tax-regions', name: 'TaxRegions', component: () => import('../views/settings/TaxRegionsList.vue') },
-      { path: 'users', name: 'Users', component: () => import('../views/settings/UsersList.vue') }
+      { path: 'users', name: 'Users', component: () => import('../views/settings/UsersList.vue') },
+      { path: 'api-keys', name: 'ApiKeys', component: () => import('../views/ApiKeysList.vue') },
+      { path: 'api-keys/:id', name: 'ApiKeyDetail', component: () => import('../views/ApiKeyDetail.vue') }
     ]
   }
 ]
@@ -127,7 +134,7 @@ const router = createRouter({
   routes
 })
 
-router.beforeEach((to, from, next) => {
+router.beforeEach((to, _from, next) => {
   const token = localStorage.getItem('accessToken')
   if (to.meta.requiresAuth === false) {
     if (token && to.path === '/login') {
