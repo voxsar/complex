@@ -90,6 +90,16 @@ const routes: RouteRecordRaw[] = [
     ]
   },
   {
+    path: '/customers/:id',
+    name: 'CustomerDetail',
+    component: () => import('../views/customers/CustomerDetail.vue')
+  },
+  {
+    path: '/customers/:id/wishlist',
+    name: 'CustomerWishlist',
+    component: () => import('../views/customers/CustomerWishlist.vue')
+  },
+  {
     path: '/promotions',
     name: 'Promotions',
     component: () => import('../views/PromotionsList.vue'),
