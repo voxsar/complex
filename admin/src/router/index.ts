@@ -13,6 +13,11 @@ const routes: RouteRecordRaw[] = [
     redirect: '/products'
   },
   {
+    path: '/analytics',
+    name: 'Analytics',
+    component: () => import('../views/AnalyticsDashboard.vue'),
+  },
+  {
     path: '/products',
     name: 'Products',
     component: () => import('../views/products/ProductsList.vue'),
@@ -58,6 +63,21 @@ const routes: RouteRecordRaw[] = [
     component: () => import('../views/OrdersList.vue')
   },
   {
+    path: '/orders/claims',
+    name: 'OrderClaims',
+    component: () => import('../views/orders/ClaimsList.vue')
+  },
+  {
+    path: '/orders/exchanges',
+    name: 'OrderExchanges',
+    component: () => import('../views/orders/ExchangesList.vue')
+  },
+  {
+    path: '/orders/returns',
+    name: 'OrderReturns',
+    component: () => import('../views/orders/ReturnsList.vue')
+  },
+  {
     path: '/customers',
     name: 'Customers',
     component: () => import('../views/CustomersList.vue'),
@@ -68,6 +88,16 @@ const routes: RouteRecordRaw[] = [
         component: () => import('../views/CustomerGroupsList.vue')
       }
     ]
+  },
+  {
+    path: '/customers/:id',
+    name: 'CustomerDetail',
+    component: () => import('../views/customers/CustomerDetail.vue')
+  },
+  {
+    path: '/customers/:id/wishlist',
+    name: 'CustomerWishlist',
+    component: () => import('../views/customers/CustomerWishlist.vue')
   },
   {
     path: '/promotions',
@@ -102,7 +132,10 @@ const routes: RouteRecordRaw[] = [
       { path: 'shipping-rates', name: 'ShippingRates', component: () => import('../views/settings/ShippingRatesList.vue') },
       { path: 'shipping-zones', name: 'ShippingZones', component: () => import('../views/settings/ShippingZonesList.vue') },
       { path: 'tax-regions', name: 'TaxRegions', component: () => import('../views/settings/TaxRegionsList.vue') },
-      { path: 'users', name: 'Users', component: () => import('../views/settings/UsersList.vue') }
+      { path: 'users', name: 'Users', component: () => import('../views/settings/UsersList.vue') },
+      { path: 'webhooks', name: 'Webhooks', component: () => import('../views/settings/WebhooksList.vue') }
+      { path: 'api-keys', name: 'ApiKeys', component: () => import('../views/ApiKeysList.vue') },
+      { path: 'api-keys/:id', name: 'ApiKeyDetail', component: () => import('../views/ApiKeyDetail.vue') }
     ]
   }
 ]
@@ -112,7 +145,7 @@ const router = createRouter({
   routes
 })
 
-router.beforeEach((to, from, next) => {
+router.beforeEach((to, _from, next) => {
   const token = localStorage.getItem('accessToken')
   if (to.meta.requiresAuth === false) {
     if (token && to.path === '/login') {

@@ -9,7 +9,8 @@ import {
   IconChevronRight,
   IconSearch,
   IconStack,
-  IconBell
+  IconBell,
+  IconChartBar
 } from '@tabler/icons-vue'
 import { computed, ref } from 'vue'
 import { useRoute } from 'vue-router'
@@ -35,9 +36,13 @@ const routeDescriptions: Record<string, string> = {
   'Products': 'Manage your inventory items',
   'Inventory': 'Manage your inventory items',
   'Orders': 'Manage customer orders',
+  'OrderClaims': 'Manage order claims',
+  'OrderExchanges': 'Manage order exchanges',
+  'OrderReturns': 'Manage order returns',
   'Customers': 'Manage your customers',
   'Promotions': 'Create and manage promotions',
   'PriceLists': 'Manage your price lists',
+  'Analytics': 'View store analytics',
   'Settings': 'Configure your store settings'
 }
 
@@ -76,6 +81,43 @@ const getPageDescription = computed(() => {
             </router-link>
           </div>
           
+          <!-- Orders Menu -->
+          <div class="menu-group">
+            <button
+              @click="toggleMenu('orders')"
+              class="menu-item menu-group-toggle"
+              :class="{ 'expanded': isMenuExpanded('orders') }"
+            >
+              <IconShoppingCart :size="18" />
+              <span>Orders</span>
+              <IconChevronRight
+                :size="16"
+                class="chevron"
+                :class="{ 'rotated': isMenuExpanded('orders') }"
+              />
+            </button>
+            <div v-show="isMenuExpanded('orders')" class="sub-menu">
+              <router-link to="/orders" class="sub-menu-item">
+                <span>All Orders</span>
+              </router-link>
+              <router-link to="/orders/claims" class="sub-menu-item">
+                <span>Claims</span>
+              </router-link>
+              <router-link to="/orders/exchanges" class="sub-menu-item">
+                <span>Exchanges</span>
+              </router-link>
+              <router-link to="/orders/returns" class="sub-menu-item">
+                <span>Returns</span>
+              </router-link>
+            </div>
+          </div>
+
+          <!-- Analytics -->
+          <router-link to="/analytics" class="menu-item">
+            <IconChartBar :size="18" />
+            <span>Analytics</span>
+          </router-link>
+
           <!-- Orders -->
           <router-link to="/orders" class="menu-item">
             <IconShoppingCart :size="18" />

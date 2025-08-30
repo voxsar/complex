@@ -1,7 +1,6 @@
 import {
   Entity,
-  ObjectIdColumn,
-  ObjectId,
+  PrimaryColumn,
   Column,
   CreateDateColumn,
   UpdateDateColumn,
@@ -15,10 +14,7 @@ import * as crypto from "crypto";
 
 @Entity("api_keys")
 export class ApiKey {
-  @ObjectIdColumn()
-  _id: ObjectId;
-
-  @Column()
+  @PrimaryColumn("uuid")
   id: string;
 
   @Column()
@@ -46,11 +42,11 @@ export class ApiKey {
   })
   status: ApiKeyStatus;
 
-  @Column({ type: "array", default: [] })
+  @Column({ type: "simple-array", default: [] })
   @IsArray()
   permissions: Permission[]; // Specific permissions for this key
 
-  @Column({ type: "array", default: [] })
+  @Column({ type: "simple-array", default: [] })
   @IsArray()
   scopes: string[]; // API scopes (e.g., "orders", "products", "customers")
 
@@ -69,7 +65,7 @@ export class ApiKey {
   @IsOptional()
   rateLimitPerHour?: number; // Rate limit for this specific key
 
-  @Column({ type: "array", default: [] })
+  @Column({ type: "simple-array", default: [] })
   @IsArray()
   allowedIPs: string[]; // IP whitelist
 

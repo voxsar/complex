@@ -1,7 +1,6 @@
 import {
   Entity,
-  ObjectIdColumn,
-  ObjectId,
+  PrimaryColumn,
   Column,
   CreateDateColumn,
   UpdateDateColumn,
@@ -15,10 +14,7 @@ import { OrderFinancialStatus } from "../enums/order_financial_status"; // Assum
 
 @Entity("orders")
 export class Order {
-  @ObjectIdColumn()
-  _id: ObjectId;
-
-  @Column()
+  @PrimaryColumn("uuid")
   id: string;
 
   @Column({ unique: true })

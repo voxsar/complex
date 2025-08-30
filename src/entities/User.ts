@@ -1,22 +1,22 @@
 import {
   Entity,
-  ObjectIdColumn,
-  ObjectId,
   Column,
   CreateDateColumn,
   UpdateDateColumn,
   BeforeInsert,
   BeforeUpdate,
+  PrimaryColumn,
 } from "typeorm";
 import { IsEmail, IsNotEmpty, MinLength, IsOptional } from "class-validator";
 import * as bcrypt from "bcryptjs";
+import { v4 as uuidv4 } from "uuid";
 import { UserRole } from "../enums/user_role"; // Assuming UserRole is defined in a separate file
 import { UserAddress } from "../enums/user_address"; // Assuming UserAddress is defined in a separate file
 
 @Entity("users")
 export class User {
-  @ObjectIdColumn()
-  id!: ObjectId;
+  @PrimaryColumn("uuid")
+  id!: string;
 
   @Column()
   @IsEmail()
@@ -46,7 +46,7 @@ export class User {
   @Column({ type: "enum", enum: UserRole, default: UserRole.CUSTOMER })
   role!: UserRole;
 
-  @Column({ type: "array", default: [] })
+  @Column({ type: "simple-array", default: [] })
   roleIds: string[]; // References to Role entities for RBAC
 
   @Column({ default: true })
@@ -94,6 +94,11 @@ export class User {
 
   @UpdateDateColumn()
   updatedAt!: Date;
+
+  @BeforeInsert()
+  generateId() {
+    this.id = uuidv4();
+  }
 
   @BeforeInsert()
   @BeforeUpdate()
