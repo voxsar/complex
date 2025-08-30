@@ -5,6 +5,7 @@ import { Product } from "../entities/Product";
 import { ProductOption } from "../entities/ProductOption";
 import { ProductStatus } from "../enums/product_status";
 import { validate } from "class-validator";
+import { translateProduct } from "../utils/translation";
 
 const router = Router();
 
@@ -109,23 +110,25 @@ router.get("/", async (req: Request, res: Response) => {
       sortOrder = "desc",
     } = req.query;
 
+    const locale = (req.query.locale as string) || req.language;
+
     const productRepository = AppDataSource.getRepository(Product);
-    
+
     // Build MongoDB query
     const query: any = {};
-    
+
     if (status) {
       query.status = status;
     }
-    
+
     if (featured !== undefined) {
       query.isFeatured = featured === "true";
     }
-    
+
     if (visible !== undefined) {
       query.isVisible = visible === "true";
     }
-    
+
     if (search) {
       query.$or = [
         { title: { $regex: search, $options: "i" } },
@@ -136,7 +139,7 @@ router.get("/", async (req: Request, res: Response) => {
 
     // Calculate pagination
     const skip = (Number(page) - 1) * Number(limit);
-    
+
     // Get products
     const [products, total] = await Promise.all([
       productRepository.find({
@@ -165,7 +168,7 @@ router.get("/", async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.error("Error fetching products:", error);
-    res.status(500).json({ error: "Failed to fetch products" });
+    res.status(500).json({ error: req.t("errors.failed_to_fetch_products") });
   }
 });
 
@@ -223,6 +226,7 @@ router.get("/search", async (req: Request, res: Response) => {
 router.get("/:id", async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
+    const locale = (req.query.locale as string) || req.language;
     const productRepository = AppDataSource.getRepository(Product);
 
     const product = await productRepository.findOne({
@@ -230,7 +234,7 @@ router.get("/:id", async (req: Request, res: Response) => {
     });
 
     if (!product) {
-      return res.status(404).json({ error: "Product not found" });
+      return res.status(404).json({ error: req.t("errors.product_not_found") });
     }
 
     res.json({
@@ -242,7 +246,7 @@ router.get("/:id", async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.error("Error fetching product:", error);
-    res.status(500).json({ error: "Failed to fetch product" });
+    res.status(500).json({ error: req.t("errors.failed_to_fetch_product") });
   }
 });
 
@@ -309,7 +313,7 @@ router.put("/:id", async (req: Request, res: Response) => {
     });
 
     if (!product) {
-      return res.status(404).json({ error: "Product not found" });
+      return res.status(404).json({ error: req.t("errors.product_not_found") });
     }
 
     // Extract productOptions from request body
@@ -369,7 +373,7 @@ router.delete("/:id", async (req: Request, res: Response) => {
     const result = await productRepository.delete({ id });
 
     if (result.affected === 0) {
-      return res.status(404).json({ error: "Product not found" });
+      return res.status(404).json({ error: req.t("errors.product_not_found") });
     }
 
     res.status(204).send();
@@ -390,7 +394,7 @@ router.get("/:id/variants", async (req: Request, res: Response) => {
     });
 
     if (!product) {
-      return res.status(404).json({ error: "Product not found" });
+      return res.status(404).json({ error: req.t("errors.product_not_found") });
     }
 
     res.json(product.variants || []);
@@ -411,7 +415,7 @@ router.post("/:id/variants", async (req: Request, res: Response) => {
     });
 
     if (!product) {
-      return res.status(404).json({ error: "Product not found" });
+      return res.status(404).json({ error: req.t("errors.product_not_found") });
     }
 
     const variant = {
@@ -446,13 +450,13 @@ router.put("/:id/variants/:variantId", async (req: Request, res: Response) => {
     });
 
     if (!product) {
-      return res.status(404).json({ error: "Product not found" });
+      return res.status(404).json({ error: req.t("errors.product_not_found") });
     }
 
     const variantIndex = product.variants?.findIndex(v => v.id === variantId);
     
     if (variantIndex === -1 || variantIndex === undefined) {
-      return res.status(404).json({ error: "Variant not found" });
+      return res.status(404).json({ error: req.t("errors.variant_not_found") });
     }
 
     // Update variant
@@ -481,18 +485,18 @@ router.delete("/:id/variants/:variantId", async (req: Request, res: Response) =>
     });
 
     if (!product) {
-      return res.status(404).json({ error: "Product not found" });
+      return res.status(404).json({ error: req.t("errors.product_not_found") });
     }
 
     if (!product.variants) {
-      return res.status(404).json({ error: "Variant not found" });
+      return res.status(404).json({ error: req.t("errors.variant_not_found") });
     }
 
     const initialLength = product.variants.length;
     product.variants = product.variants.filter(v => v.id !== variantId);
 
     if (product.variants.length === initialLength) {
-      return res.status(404).json({ error: "Variant not found" });
+      return res.status(404).json({ error: req.t("errors.variant_not_found") });
     }
 
     await productRepository.save(product);
@@ -514,7 +518,7 @@ router.patch("/:id", async (req: Request, res: Response) => {
     });
 
     if (!product) {
-      return res.status(404).json({ error: "Product not found" });
+      return res.status(404).json({ error: req.t("errors.product_not_found") });
     }
 
     // Extract productOptions from request body

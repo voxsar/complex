@@ -6,6 +6,7 @@ import compression from "compression";
 import rateLimit from "express-rate-limit";
 import dotenv from "dotenv";
 import { AppDataSource } from "./data-source";
+import i18n, { i18nextMiddleware } from "./utils/i18n";
 
 // Import routes
 import productRoutes from "./routes/products";
@@ -60,12 +61,16 @@ app.set("currencyService", currencyService);
 const limiter = rateLimit({
   windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS || "900000"), // 15 minutes
   max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS || "100"), // limit each IP to 100 requests per windowMs
-  message: "Too many requests from this IP, please try again later.",
   standardHeaders: true,
   legacyHeaders: false,
+  handler: (req, res) => {
+    // @ts-ignore
+    res.status(429).json({ error: req.t("errors.too_many_requests") });
+  },
 });
 
 // Global Middleware
+app.use(i18nextMiddleware.handle(i18n));
 app.use(helmet());
 app.use(cors());
 app.use(compression());
@@ -76,7 +81,7 @@ app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 // Health check endpoint
 app.get("/health", (req, res) => {
   res.status(200).json({
-    status: "OK",
+    status: req.t("health.ok"),
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
   });
@@ -125,7 +130,7 @@ app.use("/api/admin/roles", roleRoutes);
 
 // 404 handler - simple inline handler for now
 app.use((req, res) => {
-  res.status(404).json({ error: "Route not found" });
+  res.status(404).json({ error: req.t("errors.route_not_found") });
 });
 
 // Error handler
