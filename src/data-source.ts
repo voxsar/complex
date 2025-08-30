@@ -7,6 +7,7 @@ import { Product } from "./entities/Product";
 import { Category } from "./entities/Category";
 import { Collection } from "./entities/Collection";
 import { Inventory } from "./entities/Inventory";
+import { InventoryLevel } from "./entities/InventoryLevel";
 import { Customer } from "./entities/Customer";
 import { CustomerGroup } from "./entities/CustomerGroup";
 import { Cart } from "./entities/Cart";
@@ -48,6 +49,7 @@ export const AppDataSource = new DataSource({
     Category,
     Collection,
     Inventory,
+    InventoryLevel,
     Customer,
     CustomerGroup,
     Cart,
