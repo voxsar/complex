@@ -30,6 +30,7 @@ import { Shipment } from "./entities/Shipment";
 import { Role } from "./entities/Role";
 import { ApiKey } from "./entities/ApiKey";
 import { OAuthAccount } from "./entities/OAuthAccount";
+import { Wishlist } from "./entities/Wishlist";
 
 dotenv.config();
 
@@ -70,6 +71,7 @@ export const AppDataSource = new DataSource({
     Role,
     ApiKey,
     OAuthAccount,
+    Wishlist,
   ],
   migrations: ["src/migrations/*.ts"],
   subscribers: ["src/subscribers/*.ts"],
