@@ -1,7 +1,6 @@
 import {
   Entity,
-  ObjectIdColumn,
-  ObjectId,
+  PrimaryColumn,
   Column,
   CreateDateColumn,
   UpdateDateColumn,
@@ -13,10 +12,7 @@ import { ShipmentStatus } from "../enums/shipment_status";
 
 @Entity("shipments")
 export class Shipment {
-  @ObjectIdColumn()
-  _id: ObjectId;
-
-  @Column()
+  @PrimaryColumn("uuid")
   id: string;
 
   @Column()

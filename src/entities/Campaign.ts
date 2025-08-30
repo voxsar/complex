@@ -1,7 +1,6 @@
 import {
   Entity,
-  ObjectIdColumn,
-  ObjectId,
+  PrimaryColumn,
   Column,
   CreateDateColumn,
   UpdateDateColumn,
@@ -16,10 +15,7 @@ import { CampaignTargetType } from "../enums/campaign_target_type"; // Assuming 
 
 @Entity("campaigns")
 export class Campaign {
-  @ObjectIdColumn()
-  _id: ObjectId;
-
-  @Column()
+  @PrimaryColumn("uuid")
   id: string;
 
   @Column()

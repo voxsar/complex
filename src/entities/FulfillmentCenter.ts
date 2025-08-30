@@ -1,7 +1,6 @@
 import {
   Entity,
-  ObjectIdColumn,
-  ObjectId,
+  PrimaryColumn,
   Column,
   CreateDateColumn,
   UpdateDateColumn,
@@ -13,10 +12,7 @@ import { FulfillmentCenterStatus } from "../enums/fulfillment_center_status";
 
 @Entity("fulfillment_centers")
 export class FulfillmentCenter {
-  @ObjectIdColumn()
-  _id: ObjectId;
-
-  @Column()
+  @PrimaryColumn("uuid")
   id: string;
 
   @Column()
@@ -104,7 +100,7 @@ export class FulfillmentCenter {
   isDefault: boolean; // Default fulfillment center
 
   // Supported shipping zones
-  @Column({ type: "array", default: [] })
+  @Column({ type: "simple-array", default: [] })
   supportedShippingZones: string[]; // Array of shipping zone IDs
 
   // Priority for order routing

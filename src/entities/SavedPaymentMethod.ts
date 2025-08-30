@@ -1,7 +1,6 @@
 import {
   Entity,
-  ObjectIdColumn,
-  ObjectId,
+  PrimaryColumn,
   Column,
   CreateDateColumn,
   UpdateDateColumn,
@@ -29,10 +28,7 @@ export enum PaymentMethodType {
 
 @Entity("saved_payment_methods")
 export class SavedPaymentMethod {
-  @ObjectIdColumn()
-  _id: ObjectId;
-
-  @Column()
+  @PrimaryColumn("uuid")
   id: string;
 
   @Column()

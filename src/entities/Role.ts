@@ -1,7 +1,6 @@
 import {
   Entity,
-  ObjectIdColumn,
-  ObjectId,
+  PrimaryColumn,
   Column,
   CreateDateColumn,
   UpdateDateColumn,
@@ -13,10 +12,7 @@ import { Permission } from "../enums/permission";
 
 @Entity("roles")
 export class Role {
-  @ObjectIdColumn()
-  _id: ObjectId;
-
-  @Column()
+  @PrimaryColumn("uuid")
   id: string;
 
   @Column({ unique: true })
@@ -27,7 +23,7 @@ export class Role {
   @IsOptional()
   description?: string;
 
-  @Column({ type: "array" })
+  @Column({ type: "simple-array" })
   @IsArray()
   permissions: Permission[];
 
