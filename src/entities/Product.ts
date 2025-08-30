@@ -108,6 +108,12 @@ export class Product {
   @IsBoolean()
   trackInventory: boolean;
 
+  @Column({ type: "decimal", precision: 3, scale: 2, default: 0 })
+  averageRating: number;
+
+  @Column({ default: 0 })
+  reviewCount: number;
+
   @CreateDateColumn()
   createdAt: Date;
 
