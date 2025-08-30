@@ -1,7 +1,6 @@
 import {
   Entity,
-  ObjectIdColumn,
-  ObjectId,
+  PrimaryColumn,
   Column,
   CreateDateColumn,
   BeforeInsert,
@@ -64,10 +63,7 @@ export enum WebhookStatus {
 
 @Entity("webhook_events")
 export class WebhookEvent {
-  @ObjectIdColumn()
-  _id: ObjectId;
-
-  @Column()
+  @PrimaryColumn("uuid")
   id: string;
 
   @Column({
