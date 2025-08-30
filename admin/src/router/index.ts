@@ -102,7 +102,9 @@ const routes: RouteRecordRaw[] = [
       { path: 'shipping-rates', name: 'ShippingRates', component: () => import('../views/settings/ShippingRatesList.vue') },
       { path: 'shipping-zones', name: 'ShippingZones', component: () => import('../views/settings/ShippingZonesList.vue') },
       { path: 'tax-regions', name: 'TaxRegions', component: () => import('../views/settings/TaxRegionsList.vue') },
-      { path: 'users', name: 'Users', component: () => import('../views/settings/UsersList.vue') }
+      { path: 'users', name: 'Users', component: () => import('../views/settings/UsersList.vue') },
+      { path: 'api-keys', name: 'ApiKeys', component: () => import('../views/ApiKeysList.vue') },
+      { path: 'api-keys/:id', name: 'ApiKeyDetail', component: () => import('../views/ApiKeyDetail.vue') }
     ]
   }
 ]
