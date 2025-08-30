@@ -159,7 +159,7 @@ router.get("/", async (req: Request, res: Response) => {
       },
     });
   } catch (error) {
-    console.error("Error fetching orders:", error);
+    logger.error("Error fetching orders:", error);
     res.status(500).json({ error: "Failed to fetch orders" });
   }
 });
@@ -180,7 +180,7 @@ router.get("/:id", async (req: Request, res: Response) => {
 
     res.json(order);
   } catch (error) {
-    console.error("Error fetching order:", error);
+    logger.error("Error fetching order:", error);
     res.status(500).json({ error: "Failed to fetch order" });
   }
 });
@@ -209,9 +209,9 @@ router.post("/", async (req: Request, res: Response) => {
     if (payments && Array.isArray(payments) && payments.length > 0) {
       try {
         createdPayments = await createPayments(payments, savedOrder.id);
-        console.log(`✅ Created ${createdPayments.length} payments for order ${savedOrder.id}`);
+        logger.info(`✅ Created ${createdPayments.length} payments for order ${savedOrder.id}`);
       } catch (paymentError) {
-        console.error("Error creating payments:", paymentError);
+        logger.error("Error creating payments:", paymentError);
         return res.status(400).json({ 
           error: "Failed to create payments", 
           details: paymentError.message 
@@ -224,9 +224,9 @@ router.post("/", async (req: Request, res: Response) => {
     if (shipments && Array.isArray(shipments) && shipments.length > 0) {
       try {
         createdShipments = await createShipments(shipments, savedOrder.id);
-        console.log(`✅ Created ${createdShipments.length} shipments for order ${savedOrder.id}`);
+        logger.info(`✅ Created ${createdShipments.length} shipments for order ${savedOrder.id}`);
       } catch (shipmentError) {
-        console.error("Error creating shipments:", shipmentError);
+        logger.error("Error creating shipments:", shipmentError);
         return res.status(400).json({ 
           error: "Failed to create shipments", 
           details: shipmentError.message 
@@ -243,7 +243,7 @@ router.post("/", async (req: Request, res: Response) => {
 
     res.status(201).json(response);
   } catch (error) {
-    console.error("Error creating order:", error);
+    logger.error("Error creating order:", error);
     res.status(500).json({ error: "Failed to create order" });
   }
 });
@@ -283,9 +283,9 @@ router.put("/:id", async (req: Request, res: Response) => {
       try {
         // Note: For PUT, we could optionally delete existing payments first
         resultPayments = await createPayments(payments, updatedOrder.id);
-        console.log(`✅ Updated ${resultPayments.length} payments for order ${updatedOrder.id}`);
+        logger.info(`✅ Updated ${resultPayments.length} payments for order ${updatedOrder.id}`);
       } catch (paymentError) {
-        console.error("Error updating payments:", paymentError);
+        logger.error("Error updating payments:", paymentError);
         return res.status(400).json({ 
           error: "Failed to update payments", 
           details: paymentError.message 
@@ -299,9 +299,9 @@ router.put("/:id", async (req: Request, res: Response) => {
       try {
         // Note: For PUT, we could optionally delete existing shipments first
         resultShipments = await createShipments(shipments, updatedOrder.id);
-        console.log(`✅ Updated ${resultShipments.length} shipments for order ${updatedOrder.id}`);
+        logger.info(`✅ Updated ${resultShipments.length} shipments for order ${updatedOrder.id}`);
       } catch (shipmentError) {
-        console.error("Error updating shipments:", shipmentError);
+        logger.error("Error updating shipments:", shipmentError);
         return res.status(400).json({ 
           error: "Failed to update shipments", 
           details: shipmentError.message 
@@ -318,7 +318,7 @@ router.put("/:id", async (req: Request, res: Response) => {
 
     res.json(response);
   } catch (error) {
-    console.error("Error updating order:", error);
+    logger.error("Error updating order:", error);
     res.status(500).json({ error: "Failed to update order" });
   }
 });
@@ -345,7 +345,7 @@ router.post("/:id/cancel", async (req: Request, res: Response) => {
     const updatedOrder = await orderRepository.save(order);
     res.json(updatedOrder);
   } catch (error) {
-    console.error("Error cancelling order:", error);
+    logger.error("Error cancelling order:", error);
     res.status(500).json({ error: "Failed to cancel order" });
   }
 });
@@ -381,7 +381,7 @@ router.post("/:id/payments", async (req: Request, res: Response) => {
       payment
     });
   } catch (error) {
-    console.error("Error adding payment:", error);
+    logger.error("Error adding payment:", error);
     res.status(500).json({ error: "Failed to add payment" });
   }
 });
@@ -417,7 +417,7 @@ router.patch("/:id/payments/:paymentId", async (req: Request, res: Response) => 
       order: updatedOrder
     });
   } catch (error) {
-    console.error("Error updating payment status:", error);
+    logger.error("Error updating payment status:", error);
     res.status(500).json({ error: "Failed to update payment status" });
   }
 });
@@ -463,7 +463,7 @@ router.post("/:id/fulfillments", async (req: Request, res: Response) => {
       fulfillment
     });
   } catch (error) {
-    console.error("Error adding fulfillment:", error);
+    logger.error("Error adding fulfillment:", error);
     res.status(500).json({ error: "Failed to add fulfillment" });
   }
 });
@@ -504,7 +504,7 @@ router.patch("/:id/fulfillments/:fulfillmentId", async (req: Request, res: Respo
       order: updatedOrder
     });
   } catch (error) {
-    console.error("Error updating fulfillment status:", error);
+    logger.error("Error updating fulfillment status:", error);
     res.status(500).json({ error: "Failed to update fulfillment status" });
   }
 });
@@ -544,7 +544,7 @@ router.get("/:id/financial-summary", async (req: Request, res: Response) => {
 
     res.json(summary);
   } catch (error) {
-    console.error("Error fetching financial summary:", error);
+    logger.error("Error fetching financial summary:", error);
     res.status(500).json({ error: "Failed to fetch financial summary" });
   }
 });
@@ -593,7 +593,7 @@ router.get("/:id/fulfillment-summary", async (req: Request, res: Response) => {
 
     res.json(summary);
   } catch (error) {
-    console.error("Error fetching fulfillment summary:", error);
+    logger.error("Error fetching fulfillment summary:", error);
     res.status(500).json({ error: "Failed to fetch fulfillment summary" });
   }
 });
@@ -628,7 +628,7 @@ router.get("/:id/returns-claims-exchanges", async (req: Request, res: Response) 
 
     res.json(summary);
   } catch (error) {
-    console.error("Error fetching returns/claims/exchanges summary:", error);
+    logger.error("Error fetching returns/claims/exchanges summary:", error);
     res.status(500).json({ error: "Failed to fetch returns/claims/exchanges summary" });
   }
 });
@@ -680,7 +680,7 @@ router.post("/:id/capture-payment", async (req: Request, res: Response) => {
       order: updatedOrder
     });
   } catch (error) {
-    console.error("Error capturing payment:", error);
+    logger.error("Error capturing payment:", error);
     res.status(500).json({ error: "Failed to capture payment" });
   }
 });
@@ -734,7 +734,7 @@ router.post("/:id/refund-payment", async (req: Request, res: Response) => {
       refundAmount
     });
   } catch (error) {
-    console.error("Error refunding payment:", error);
+    logger.error("Error refunding payment:", error);
     res.status(500).json({ error: "Failed to refund payment" });
   }
 });
@@ -781,7 +781,7 @@ router.post("/:id/mark-paid", async (req: Request, res: Response) => {
       payment
     });
   } catch (error) {
-    console.error("Error marking order as paid:", error);
+    logger.error("Error marking order as paid:", error);
     res.status(500).json({ error: "Failed to mark order as paid" });
   }
 });
@@ -814,7 +814,7 @@ router.get("/:id/payment-link", async (req: Request, res: Response) => {
       orderNumber: order.orderNumber
     });
   } catch (error) {
-    console.error("Error generating payment link:", error);
+    logger.error("Error generating payment link:", error);
     res.status(500).json({ error: "Failed to generate payment link" });
   }
 });
@@ -854,7 +854,7 @@ router.get("/:id/outstanding", async (req: Request, res: Response) => {
       }))
     });
   } catch (error) {
-    console.error("Error fetching outstanding amounts:", error);
+    logger.error("Error fetching outstanding amounts:", error);
     res.status(500).json({ error: "Failed to fetch outstanding amounts" });
   }
 });
@@ -894,9 +894,9 @@ router.patch("/:id", async (req: Request, res: Response) => {
     if (payments && Array.isArray(payments) && payments.length > 0) {
       try {
         addedPayments = await addPayments(payments, order.id);
-        console.log(`✅ Added ${addedPayments.length} new payments to order ${order.id}`);
+        logger.info(`✅ Added ${addedPayments.length} new payments to order ${order.id}`);
       } catch (paymentError) {
-        console.error("Error adding payments:", paymentError);
+        logger.error("Error adding payments:", paymentError);
         return res.status(400).json({ 
           error: "Failed to add payments", 
           details: paymentError.message 
@@ -909,9 +909,9 @@ router.patch("/:id", async (req: Request, res: Response) => {
     if (shipments && Array.isArray(shipments) && shipments.length > 0) {
       try {
         addedShipments = await addShipments(shipments, order.id);
-        console.log(`✅ Added ${addedShipments.length} new shipments to order ${order.id}`);
+        logger.info(`✅ Added ${addedShipments.length} new shipments to order ${order.id}`);
       } catch (shipmentError) {
-        console.error("Error adding shipments:", shipmentError);
+        logger.error("Error adding shipments:", shipmentError);
         return res.status(400).json({ 
           error: "Failed to add shipments", 
           details: shipmentError.message 
@@ -928,7 +928,7 @@ router.patch("/:id", async (req: Request, res: Response) => {
 
     res.json(response);
   } catch (error) {
-    console.error("Error patching order:", error);
+    logger.error("Error patching order:", error);
     res.status(500).json({ error: "Failed to patch order" });
   }
 });

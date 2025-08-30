@@ -167,7 +167,7 @@ router.get("/", async (req: Request, res: Response) => {
       },
     });
   } catch (error) {
-    console.error("Error fetching products:", error);
+    logger.error("Error fetching products:", error);
     res.status(500).json({ error: req.t("errors.failed_to_fetch_products") });
   }
 });
@@ -217,7 +217,7 @@ router.get("/search", async (req: Request, res: Response) => {
       },
     });
   } catch (error) {
-    console.error("Error searching products:", error);
+    logger.error("Error searching products:", error);
     res.status(500).json({ error: "Failed to search products" });
   }
 });
@@ -245,7 +245,7 @@ router.get("/:id", async (req: Request, res: Response) => {
       },
     });
   } catch (error) {
-    console.error("Error fetching product:", error);
+    logger.error("Error fetching product:", error);
     res.status(500).json({ error: req.t("errors.failed_to_fetch_product") });
   }
 });
@@ -279,9 +279,9 @@ router.post("/", async (req: Request, res: Response) => {
         savedProduct.optionIds = createdOptions.map(opt => opt.id);
         await productRepository.save(savedProduct);
         
-        console.log(`✅ Created ${createdOptions.length} product options for product ${savedProduct.id}`);
+        logger.info(`✅ Created ${createdOptions.length} product options for product ${savedProduct.id}`);
       } catch (optionError) {
-        console.error("Error creating product options:", optionError);
+        logger.error("Error creating product options:", optionError);
         return res.status(400).json({ 
           error: "Failed to create product options", 
           details: optionError.message 
@@ -297,7 +297,7 @@ router.post("/", async (req: Request, res: Response) => {
 
     res.status(201).json(response);
   } catch (error) {
-    console.error("Error creating product:", error);
+    logger.error("Error creating product:", error);
     res.status(500).json({ error: "Failed to create product" });
   }
 });
@@ -341,9 +341,9 @@ router.put("/:id", async (req: Request, res: Response) => {
         updatedProduct.optionIds = resultOptions.map(opt => opt.id);
         await productRepository.save(updatedProduct);
         
-        console.log(`✅ Updated ${resultOptions.length} product options for product ${updatedProduct.id}`);
+        logger.info(`✅ Updated ${resultOptions.length} product options for product ${updatedProduct.id}`);
       } catch (optionError) {
-        console.error("Error updating product options:", optionError);
+        logger.error("Error updating product options:", optionError);
         return res.status(400).json({ 
           error: "Failed to update product options", 
           details: optionError.message 
@@ -359,7 +359,7 @@ router.put("/:id", async (req: Request, res: Response) => {
 
     res.json(response);
   } catch (error) {
-    console.error("Error updating product:", error);
+    logger.error("Error updating product:", error);
     res.status(500).json({ error: "Failed to update product" });
   }
 });
@@ -378,7 +378,7 @@ router.delete("/:id", async (req: Request, res: Response) => {
 
     res.status(204).send();
   } catch (error) {
-    console.error("Error deleting product:", error);
+    logger.error("Error deleting product:", error);
     res.status(500).json({ error: "Failed to delete product" });
   }
 });
@@ -399,7 +399,7 @@ router.get("/:id/variants", async (req: Request, res: Response) => {
 
     res.json(product.variants || []);
   } catch (error) {
-    console.error("Error fetching product variants:", error);
+    logger.error("Error fetching product variants:", error);
     res.status(500).json({ error: "Failed to fetch product variants" });
   }
 });
@@ -434,7 +434,7 @@ router.post("/:id/variants", async (req: Request, res: Response) => {
     const updatedProduct = await productRepository.save(product);
     res.status(201).json(variant);
   } catch (error) {
-    console.error("Error adding product variant:", error);
+    logger.error("Error adding product variant:", error);
     res.status(500).json({ error: "Failed to add product variant" });
   }
 });
@@ -469,7 +469,7 @@ router.put("/:id/variants/:variantId", async (req: Request, res: Response) => {
     const updatedProduct = await productRepository.save(product);
     res.json(product.variants![variantIndex]);
   } catch (error) {
-    console.error("Error updating product variant:", error);
+    logger.error("Error updating product variant:", error);
     res.status(500).json({ error: "Failed to update product variant" });
   }
 });
@@ -502,7 +502,7 @@ router.delete("/:id/variants/:variantId", async (req: Request, res: Response) =>
     await productRepository.save(product);
     res.status(204).send();
   } catch (error) {
-    console.error("Error deleting product variant:", error);
+    logger.error("Error deleting product variant:", error);
     res.status(500).json({ error: "Failed to delete product variant" });
   }
 });
@@ -549,9 +549,9 @@ router.patch("/:id", async (req: Request, res: Response) => {
         product.optionIds = [...existingOptionIds, ...newOptionIds];
         await productRepository.save(product);
         
-        console.log(`✅ Added ${addedOptions.length} new product options to product ${product.id}`);
+        logger.info(`✅ Added ${addedOptions.length} new product options to product ${product.id}`);
       } catch (optionError) {
-        console.error("Error adding product options:", optionError);
+        logger.error("Error adding product options:", optionError);
         return res.status(400).json({ 
           error: "Failed to add product options", 
           details: optionError.message 
@@ -567,7 +567,7 @@ router.patch("/:id", async (req: Request, res: Response) => {
 
     res.json(response);
   } catch (error) {
-    console.error("Error patching product:", error);
+    logger.error("Error patching product:", error);
     res.status(500).json({ error: "Failed to patch product" });
   }
 });

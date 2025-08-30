@@ -66,7 +66,7 @@ router.get("/", async (req: Request, res: Response) => {
       },
     });
   } catch (error) {
-    console.error("Error fetching shipping rates:", error);
+    logger.error("Error fetching shipping rates:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
@@ -87,7 +87,7 @@ router.get("/:id", async (req: Request, res: Response) => {
 
     res.json(rate);
   } catch (error) {
-    console.error("Error fetching shipping rate:", error);
+    logger.error("Error fetching shipping rate:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
@@ -114,7 +114,7 @@ router.post("/", async (req: Request, res: Response) => {
     const savedRate = await shippingRateRepository.save(rate);
     res.status(201).json(savedRate);
   } catch (error) {
-    console.error("Error creating shipping rate:", error);
+    logger.error("Error creating shipping rate:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
@@ -152,7 +152,7 @@ router.put("/:id", async (req: Request, res: Response) => {
     const updatedRate = await shippingRateRepository.save(existingRate);
     res.json(updatedRate);
   } catch (error) {
-    console.error("Error updating shipping rate:", error);
+    logger.error("Error updating shipping rate:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
@@ -174,7 +174,7 @@ router.delete("/:id", async (req: Request, res: Response) => {
     await shippingRateRepository.remove(rate);
     res.status(204).send();
   } catch (error) {
-    console.error("Error deleting shipping rate:", error);
+    logger.error("Error deleting shipping rate:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
@@ -347,7 +347,7 @@ router.post("/calculate", async (req: Request, res: Response) => {
       weight,
     });
   } catch (error) {
-    console.error("Error calculating shipping rates:", error);
+    logger.error("Error calculating shipping rates:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });

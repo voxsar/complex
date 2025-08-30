@@ -71,7 +71,7 @@ router.get(
         }))
       });
     } catch (error) {
-      console.error("Error fetching saved payment methods:", error);
+      logger.error("Error fetching saved payment methods:", error);
       res.status(500).json({
         success: false,
         error: "Failed to fetch payment methods"
@@ -146,7 +146,7 @@ router.post(
             };
           }
         } catch (error) {
-          console.error("Error fetching Stripe payment method:", error);
+          logger.error("Error fetching Stripe payment method:", error);
           return res.status(400).json({
             success: false,
             error: "Invalid Stripe payment method ID"
@@ -185,7 +185,7 @@ router.post(
         }
       });
     } catch (error) {
-      console.error("Error saving payment method:", error);
+      logger.error("Error saving payment method:", error);
       res.status(500).json({
         success: false,
         error: "Failed to save payment method"
@@ -228,7 +228,7 @@ router.delete(
         try {
           await stripeService.detachPaymentMethod(savedPaymentMethod.stripePaymentMethodId);
         } catch (error) {
-          console.error("Error detaching Stripe payment method:", error);
+          logger.error("Error detaching Stripe payment method:", error);
           // Continue with deletion even if detachment fails
         }
       }
@@ -240,7 +240,7 @@ router.delete(
         message: "Payment method deleted successfully"
       });
     } catch (error) {
-      console.error("Error deleting payment method:", error);
+      logger.error("Error deleting payment method:", error);
       res.status(500).json({
         success: false,
         error: "Failed to delete payment method"
@@ -305,7 +305,7 @@ router.patch(
         }
       });
     } catch (error) {
-      console.error("Error updating default payment method:", error);
+      logger.error("Error updating default payment method:", error);
       res.status(500).json({
         success: false,
         error: "Failed to update default payment method"
@@ -375,7 +375,7 @@ router.get(
         }
       });
     } catch (error) {
-      console.error("Error fetching payment methods (admin):", error);
+      logger.error("Error fetching payment methods (admin):", error);
       res.status(500).json({
         success: false,
         error: "Failed to fetch payment methods"

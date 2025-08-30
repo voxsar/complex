@@ -60,7 +60,7 @@ router.get("/", async (req: Request, res: Response) => {
       },
     });
   } catch (error) {
-    console.error("Error fetching payments:", error);
+    logger.error("Error fetching payments:", error);
     res.status(500).json({ error: "Failed to fetch payments" });
   }
 });
@@ -81,7 +81,7 @@ router.get("/:id", async (req: Request, res: Response) => {
 
     res.json(payment);
   } catch (error) {
-    console.error("Error fetching payment:", error);
+    logger.error("Error fetching payment:", error);
     res.status(500).json({ error: "Failed to fetch payment" });
   }
 });
@@ -102,7 +102,7 @@ router.post("/", async (req: Request, res: Response) => {
     const savedPayment = await paymentRepository.save(payment);
     res.status(201).json(savedPayment);
   } catch (error) {
-    console.error("Error creating payment:", error);
+    logger.error("Error creating payment:", error);
     res.status(500).json({ error: "Failed to create payment" });
   }
 });
@@ -130,7 +130,7 @@ router.put("/:id/status", async (req: Request, res: Response) => {
     const updatedPayment = await paymentRepository.save(payment);
     res.json(updatedPayment);
   } catch (error) {
-    console.error("Error updating payment:", error);
+    logger.error("Error updating payment:", error);
     res.status(500).json({ error: "Failed to update payment" });
   }
 });
@@ -172,7 +172,7 @@ router.post("/:id/refund", async (req: Request, res: Response) => {
     const updatedPayment = await paymentRepository.save(payment);
     res.json(updatedPayment);
   } catch (error) {
-    console.error("Error refunding payment:", error);
+    logger.error("Error refunding payment:", error);
     res.status(500).json({ error: "Failed to refund payment" });
   }
 });
@@ -219,7 +219,7 @@ router.post("/:id/capture", async (req: Request, res: Response) => {
       payment: updatedPayment
     });
   } catch (error) {
-    console.error("Error capturing payment:", error);
+    logger.error("Error capturing payment:", error);
     res.status(500).json({ error: "Failed to capture payment" });
   }
 });

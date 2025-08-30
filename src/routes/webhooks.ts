@@ -16,7 +16,7 @@ router.post("/stripe", async (req: Request, res: Response) => {
     const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
     if (!sig || !endpointSecret) {
-      console.error('Missing Stripe signature or webhook secret');
+      logger.error('Missing Stripe signature or webhook secret');
       return res.status(400).json({ error: 'Missing required headers' });
     }
 
@@ -25,7 +25,7 @@ router.post("/stripe", async (req: Request, res: Response) => {
       // Verify webhook signature
       event = stripeService.constructWebhookEvent(req.body, sig, endpointSecret);
     } catch (err) {
-      console.error('Webhook signature verification failed:', err);
+      logger.error({ err }, 'Webhook signature verification failed');
       return res.status(400).json({ error: 'Invalid signature' });
     }
 
@@ -50,7 +50,7 @@ router.post("/stripe", async (req: Request, res: Response) => {
       await webhookRepository.save(webhookEvent);
 
     } catch (error) {
-      console.error('Error processing Stripe webhook:', error);
+      logger.error({ err: error }, 'Error processing Stripe webhook');
       
       // Update webhook status to failed
       webhookEvent.status = WebhookStatus.FAILED;
@@ -63,7 +63,7 @@ router.post("/stripe", async (req: Request, res: Response) => {
 
     res.status(200).json({ received: true });
   } catch (error) {
-    console.error('Stripe webhook error:', error);
+    logger.error({ err: error }, 'Stripe webhook error');
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -74,7 +74,7 @@ router.post("/paypal", async (req: Request, res: Response) => {
     const webhookId = process.env.PAYPAL_WEBHOOK_ID;
     
     if (!webhookId) {
-      console.error('Missing PayPal webhook ID');
+      logger.error('Missing PayPal webhook ID');
       return res.status(400).json({ error: 'Webhook not configured' });
     }
 
@@ -87,7 +87,7 @@ router.post("/paypal", async (req: Request, res: Response) => {
     );
 
     if (!isValid) {
-      console.error('PayPal webhook signature verification failed');
+      logger.error('PayPal webhook signature verification failed');
       return res.status(400).json({ error: 'Invalid signature' });
     }
 
@@ -114,7 +114,7 @@ router.post("/paypal", async (req: Request, res: Response) => {
       await webhookRepository.save(webhookEvent);
 
     } catch (error) {
-      console.error('Error processing PayPal webhook:', error);
+      logger.error({ err: error }, 'Error processing PayPal webhook');
       
       // Update webhook status to failed
       webhookEvent.status = WebhookStatus.FAILED;
@@ -127,7 +127,7 @@ router.post("/paypal", async (req: Request, res: Response) => {
 
     res.status(200).json({ received: true });
   } catch (error) {
-    console.error('PayPal webhook error:', error);
+    logger.error({ err: error }, 'PayPal webhook error');
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -149,7 +149,7 @@ async function handleStripeWebhookEvent(event: any, webhookEventId: string) {
           paymentIntent.updatedAt = new Date();
           await paymentIntentRepository.save(paymentIntent);
 
-          console.log(`Payment intent ${paymentIntent.id} succeeded via webhook`);
+          logger.info(`Payment intent ${paymentIntent.id} succeeded via webhook`);
         }
       }
       break;
@@ -166,7 +166,7 @@ async function handleStripeWebhookEvent(event: any, webhookEventId: string) {
           paymentIntent.updatedAt = new Date();
           await paymentIntentRepository.save(paymentIntent);
 
-          console.log(`Payment intent ${paymentIntent.id} failed via webhook`);
+          logger.info(`Payment intent ${paymentIntent.id} failed via webhook`);
         }
       }
       break;
@@ -183,7 +183,7 @@ async function handleStripeWebhookEvent(event: any, webhookEventId: string) {
           paymentIntent.updatedAt = new Date();
           await paymentIntentRepository.save(paymentIntent);
 
-          console.log(`Payment intent ${paymentIntent.id} canceled via webhook`);
+          logger.info(`Payment intent ${paymentIntent.id} canceled via webhook`);
         }
       }
       break;
@@ -200,13 +200,13 @@ async function handleStripeWebhookEvent(event: any, webhookEventId: string) {
           paymentIntent.updatedAt = new Date();
           await paymentIntentRepository.save(paymentIntent);
 
-          console.log(`Payment intent ${paymentIntent.id} requires action via webhook`);
+          logger.info(`Payment intent ${paymentIntent.id} requires action via webhook`);
         }
       }
       break;
 
     default:
-      console.log(`Unhandled Stripe event type: ${event.type}`);
+      logger.info(`Unhandled Stripe event type: ${event.type}`);
   }
 }
 
@@ -231,7 +231,7 @@ async function handlePayPalWebhookEvent(webhookData: any, webhookEventId: string
             paymentIntent.updatedAt = new Date();
             await paymentIntentRepository.save(paymentIntent);
 
-            console.log(`PayPal payment intent ${paymentIntent.id} succeeded via webhook`);
+            logger.info(`PayPal payment intent ${paymentIntent.id} succeeded via webhook`);
           }
         }
       }
@@ -253,7 +253,7 @@ async function handlePayPalWebhookEvent(webhookData: any, webhookEventId: string
             paymentIntent.updatedAt = new Date();
             await paymentIntentRepository.save(paymentIntent);
 
-            console.log(`PayPal payment intent ${paymentIntent.id} failed via webhook`);
+            logger.info(`PayPal payment intent ${paymentIntent.id} failed via webhook`);
           }
         }
       }
@@ -273,13 +273,13 @@ async function handlePayPalWebhookEvent(webhookData: any, webhookEventId: string
           paymentIntent.updatedAt = new Date();
           await paymentIntentRepository.save(paymentIntent);
 
-          console.log(`PayPal payment intent ${paymentIntent.id} approved and requires confirmation via webhook`);
+          logger.info(`PayPal payment intent ${paymentIntent.id} approved and requires confirmation via webhook`);
         }
       }
       break;
 
     default:
-      console.log(`Unhandled PayPal event type: ${webhookData.event_type}`);
+      logger.info(`Unhandled PayPal event type: ${webhookData.event_type}`);
   }
 }
 
@@ -328,7 +328,7 @@ router.get("/events", async (req: Request, res: Response) => {
       }
     });
   } catch (error) {
-    console.error("Error fetching webhook events:", error);
+    logger.error({ err: error }, "Error fetching webhook events");
     res.status(500).json({
       success: false,
       error: "Failed to fetch webhook events"
@@ -395,7 +395,7 @@ router.post("/events/:eventId/retry", async (req: Request, res: Response) => {
       });
     }
   } catch (error) {
-    console.error("Error retrying webhook event:", error);
+    logger.error({ err: error }, "Error retrying webhook event");
     res.status(500).json({
       success: false,
       error: "Failed to retry webhook event"

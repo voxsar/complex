@@ -108,7 +108,7 @@ router.get("/", async (req: Request, res: Response) => {
       },
     });
   } catch (error) {
-    console.error("Error fetching shipping zones:", error);
+    logger.error("Error fetching shipping zones:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
@@ -129,7 +129,7 @@ router.get("/:id", async (req: Request, res: Response) => {
 
     res.json(zone);
   } catch (error) {
-    console.error("Error fetching shipping zone:", error);
+    logger.error("Error fetching shipping zone:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
@@ -164,9 +164,9 @@ router.post("/", async (req: Request, res: Response) => {
     if (shippingRates && Array.isArray(shippingRates) && shippingRates.length > 0) {
       try {
         createdRates = await createShippingRates(shippingRates, savedZone.id);
-        console.log(`✅ Created ${createdRates.length} shipping rates for zone ${savedZone.id}`);
+        logger.info(`✅ Created ${createdRates.length} shipping rates for zone ${savedZone.id}`);
       } catch (rateError) {
-        console.error("Error creating shipping rates:", rateError);
+        logger.error("Error creating shipping rates:", rateError);
         return res.status(400).json({ 
           error: "Failed to create shipping rates", 
           details: rateError.message 
@@ -182,7 +182,7 @@ router.post("/", async (req: Request, res: Response) => {
 
     res.status(201).json(response);
   } catch (error) {
-    console.error("Error creating shipping zone:", error);
+    logger.error("Error creating shipping zone:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
@@ -229,9 +229,9 @@ router.put("/:id", async (req: Request, res: Response) => {
       try {
         // Note: For PUT, we could optionally delete existing rates first
         resultRates = await createShippingRates(shippingRates, updatedZone.id);
-        console.log(`✅ Updated ${resultRates.length} shipping rates for zone ${updatedZone.id}`);
+        logger.info(`✅ Updated ${resultRates.length} shipping rates for zone ${updatedZone.id}`);
       } catch (rateError) {
-        console.error("Error updating shipping rates:", rateError);
+        logger.error("Error updating shipping rates:", rateError);
         return res.status(400).json({ 
           error: "Failed to update shipping rates", 
           details: rateError.message 
@@ -248,7 +248,7 @@ router.put("/:id", async (req: Request, res: Response) => {
     res.json(response);
     res.json(updatedZone);
   } catch (error) {
-    console.error("Error updating shipping zone:", error);
+    logger.error("Error updating shipping zone:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
@@ -270,7 +270,7 @@ router.delete("/:id", async (req: Request, res: Response) => {
     await shippingZoneRepository.remove(zone);
     res.status(204).send();
   } catch (error) {
-    console.error("Error deleting shipping zone:", error);
+    logger.error("Error deleting shipping zone:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
@@ -332,7 +332,7 @@ router.post("/check-coverage", async (req: Request, res: Response) => {
       zones: matchingZones,
     });
   } catch (error) {
-    console.error("Error checking shipping coverage:", error);
+    logger.error("Error checking shipping coverage:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
@@ -379,9 +379,9 @@ router.patch("/:id", async (req: Request, res: Response) => {
     if (shippingRates && Array.isArray(shippingRates) && shippingRates.length > 0) {
       try {
         addedRates = await addShippingRates(shippingRates, existingZone.id);
-        console.log(`✅ Added ${addedRates.length} new shipping rates to zone ${existingZone.id}`);
+        logger.info(`✅ Added ${addedRates.length} new shipping rates to zone ${existingZone.id}`);
       } catch (rateError) {
-        console.error("Error adding shipping rates:", rateError);
+        logger.error("Error adding shipping rates:", rateError);
         return res.status(400).json({ 
           error: "Failed to add shipping rates", 
           details: rateError.message 
@@ -397,7 +397,7 @@ router.patch("/:id", async (req: Request, res: Response) => {
 
     res.json(response);
   } catch (error) {
-    console.error("Error patching shipping zone:", error);
+    logger.error("Error patching shipping zone:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });

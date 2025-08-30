@@ -55,7 +55,7 @@ router.get("/", async (req: Request, res: Response) => {
       },
     });
   } catch (error) {
-    console.error("Error fetching campaigns:", error);
+    logger.error("Error fetching campaigns:", error);
     res.status(500).json({ error: "Failed to fetch campaigns" });
   }
 });
@@ -76,7 +76,7 @@ router.get("/:id", async (req: Request, res: Response) => {
 
     res.json(campaign);
   } catch (error) {
-    console.error("Error fetching campaign:", error);
+    logger.error("Error fetching campaign:", error);
     res.status(500).json({ error: "Failed to fetch campaign" });
   }
 });
@@ -97,7 +97,7 @@ router.post("/", async (req: Request, res: Response) => {
     const savedCampaign = await campaignRepository.save(campaign);
     res.status(201).json(savedCampaign);
   } catch (error) {
-    console.error("Error creating campaign:", error);
+    logger.error("Error creating campaign:", error);
     res.status(500).json({ error: "Failed to create campaign" });
   }
 });
@@ -128,7 +128,7 @@ router.put("/:id", async (req: Request, res: Response) => {
     const updatedCampaign = await campaignRepository.save(campaign);
     res.json(updatedCampaign);
   } catch (error) {
-    console.error("Error updating campaign:", error);
+    logger.error("Error updating campaign:", error);
     res.status(500).json({ error: "Failed to update campaign" });
   }
 });
@@ -153,7 +153,7 @@ router.post("/:id/start", async (req: Request, res: Response) => {
     const updatedCampaign = await campaignRepository.save(campaign);
     res.json(updatedCampaign);
   } catch (error) {
-    console.error("Error starting campaign:", error);
+    logger.error("Error starting campaign:", error);
     res.status(500).json({ error: "Failed to start campaign" });
   }
 });
@@ -177,7 +177,7 @@ router.post("/:id/pause", async (req: Request, res: Response) => {
     const updatedCampaign = await campaignRepository.save(campaign);
     res.json(updatedCampaign);
   } catch (error) {
-    console.error("Error pausing campaign:", error);
+    logger.error("Error pausing campaign:", error);
     res.status(500).json({ error: "Failed to pause campaign" });
   }
 });
@@ -212,7 +212,7 @@ router.get("/:id/analytics", async (req: Request, res: Response) => {
 
     res.json(analytics);
   } catch (error) {
-    console.error("Error fetching campaign analytics:", error);
+    logger.error("Error fetching campaign analytics:", error);
     res.status(500).json({ error: "Failed to fetch campaign analytics" });
   }
 });

@@ -56,7 +56,7 @@ router.get("/", async (req: Request, res: Response) => {
       }
     });
   } catch (error) {
-    console.error("Error fetching tax regions:", error);
+    logger.error("Error fetching tax regions:", error);
     res.status(500).json({ error: "Failed to fetch tax regions" });
   }
 });
@@ -88,7 +88,7 @@ router.get("/:id", async (req: Request, res: Response) => {
       subregions
     });
   } catch (error) {
-    console.error("Error fetching tax region:", error);
+    logger.error("Error fetching tax region:", error);
     res.status(500).json({ error: "Failed to fetch tax region" });
   }
 });
@@ -156,7 +156,7 @@ router.post("/", async (req: Request, res: Response) => {
       taxRegion: savedTaxRegion
     });
   } catch (error) {
-    console.error("Error creating tax region:", error);
+    logger.error("Error creating tax region:", error);
     res.status(500).json({ error: "Failed to create tax region" });
   }
 });
@@ -220,7 +220,7 @@ router.put("/:id", async (req: Request, res: Response) => {
       taxRegion: updatedTaxRegion
     });
   } catch (error) {
-    console.error("Error updating tax region:", error);
+    logger.error("Error updating tax region:", error);
     res.status(500).json({ error: "Failed to update tax region" });
   }
 });
@@ -257,7 +257,7 @@ router.post("/:id/overrides", async (req: Request, res: Response) => {
       override: newOverride
     });
   } catch (error) {
-    console.error("Error creating tax rate override:", error);
+    logger.error("Error creating tax rate override:", error);
     res.status(500).json({ error: "Failed to create tax rate override" });
   }
 });
@@ -298,7 +298,7 @@ router.put("/:id/overrides/:overrideId", async (req: Request, res: Response) => 
       override: updatedOverride
     });
   } catch (error) {
-    console.error("Error updating tax rate override:", error);
+    logger.error("Error updating tax rate override:", error);
     res.status(500).json({ error: "Failed to update tax rate override" });
   }
 });
@@ -331,7 +331,7 @@ router.delete("/:id/overrides/:overrideId", async (req: Request, res: Response) 
       taxRegion: updatedTaxRegion
     });
   } catch (error) {
-    console.error("Error deleting tax rate override:", error);
+    logger.error("Error deleting tax rate override:", error);
     res.status(500).json({ error: "Failed to delete tax rate override" });
   }
 });
@@ -365,7 +365,7 @@ router.get("/:id/subregions", async (req: Request, res: Response) => {
       subregions
     });
   } catch (error) {
-    console.error("Error fetching subregions:", error);
+    logger.error("Error fetching subregions:", error);
     res.status(500).json({ error: "Failed to fetch subregions" });
   }
 });
@@ -396,7 +396,7 @@ router.post("/:id/enable-sublevels", async (req: Request, res: Response) => {
       taxRegion: updatedTaxRegion
     });
   } catch (error) {
-    console.error("Error enabling sublevels:", error);
+    logger.error("Error enabling sublevels:", error);
     res.status(500).json({ error: "Failed to enable sublevels" });
   }
 });
@@ -432,7 +432,7 @@ router.post("/:id/calculate", async (req: Request, res: Response) => {
       totalAmount: amount + taxAmount
     });
   } catch (error) {
-    console.error("Error calculating tax:", error);
+    logger.error("Error calculating tax:", error);
     res.status(500).json({ error: "Failed to calculate tax" });
   }
 });
@@ -466,7 +466,7 @@ router.delete("/:id", async (req: Request, res: Response) => {
 
     res.json({ message: "Tax region deleted successfully" });
   } catch (error) {
-    console.error("Error deleting tax region:", error);
+    logger.error("Error deleting tax region:", error);
     res.status(500).json({ error: "Failed to delete tax region" });
   }
 });

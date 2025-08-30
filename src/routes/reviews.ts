@@ -67,7 +67,7 @@ router.get("/", async (req: Request, res: Response) => {
       },
     });
   } catch (error) {
-    console.error("Error fetching reviews:", error);
+    logger.error("Error fetching reviews:", error);
     res.status(500).json({ error: "Failed to fetch reviews" });
   }
 });
@@ -86,7 +86,7 @@ router.get("/:id", async (req: Request, res: Response) => {
 
     res.json(review);
   } catch (error) {
-    console.error("Error fetching review:", error);
+    logger.error("Error fetching review:", error);
     res.status(500).json({ error: "Failed to fetch review" });
   }
 });
@@ -108,7 +108,7 @@ router.post("/", async (req: Request, res: Response) => {
 
     res.status(201).json(savedReview);
   } catch (error) {
-    console.error("Error creating review:", error);
+    logger.error("Error creating review:", error);
     res.status(500).json({ error: "Failed to create review" });
   }
 });
@@ -135,7 +135,7 @@ router.put("/:id", async (req: Request, res: Response) => {
 
     res.json(updatedReview);
   } catch (error) {
-    console.error("Error updating review:", error);
+    logger.error("Error updating review:", error);
     res.status(500).json({ error: "Failed to update review" });
   }
 });
@@ -156,7 +156,7 @@ router.delete("/:id", async (req: Request, res: Response) => {
 
     res.status(204).send();
   } catch (error) {
-    console.error("Error deleting review:", error);
+    logger.error("Error deleting review:", error);
     res.status(500).json({ error: "Failed to delete review" });
   }
 });

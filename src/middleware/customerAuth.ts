@@ -43,7 +43,7 @@ export const authenticateCustomer = async (
 
     const JWT_SECRET = process.env.JWT_SECRET;
     if (!JWT_SECRET) {
-      console.error("JWT_SECRET is not configured");
+      logger.error("JWT_SECRET is not configured");
       return res.status(500).json({ error: "Server configuration error" });
     }
 
@@ -98,7 +98,7 @@ export const authenticateCustomer = async (
         code: "INVALID_TOKEN"
       });
     } else {
-      console.error("Customer authentication error:", error);
+      logger.error("Customer authentication error:", error);
       return res.status(500).json({ 
         error: "Authentication failed.",
         code: "AUTH_ERROR"
@@ -146,7 +146,7 @@ export const optionalCustomerAuth = async (
 
     next();
   } catch (error) {
-    console.error("Optional customer auth error:", error);
+    logger.error("Optional customer auth error:", error);
     next();
   }
 };

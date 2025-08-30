@@ -104,7 +104,7 @@ router.get("/", authenticate, authorize([Permission.ADMIN_API_KEYS]), async (req
       },
     });
   } catch (error) {
-    console.error("Error fetching API keys:", error);
+    logger.error("Error fetching API keys:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
@@ -158,7 +158,7 @@ router.get("/:id", authenticate, authorize([Permission.ADMIN_API_KEYS]), async (
       } : null,
     });
   } catch (error) {
-    console.error("Error fetching API key:", error);
+    logger.error("Error fetching API key:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
@@ -245,7 +245,7 @@ router.post("/", authenticate, authorize([Permission.ADMIN_API_KEYS]), async (re
       warning: "Store this API key securely. You won't be able to see it again.",
     });
   } catch (error) {
-    console.error("Error creating API key:", error);
+    logger.error("Error creating API key:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
@@ -324,7 +324,7 @@ router.put("/:id", authenticate, authorize([Permission.ADMIN_API_KEYS]), async (
       },
     });
   } catch (error) {
-    console.error("Error updating API key:", error);
+    logger.error("Error updating API key:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
@@ -372,7 +372,7 @@ router.patch("/:id/status", authenticate, authorize([Permission.ADMIN_API_KEYS])
       },
     });
   } catch (error) {
-    console.error("Error updating API key status:", error);
+    logger.error("Error updating API key status:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
@@ -406,7 +406,7 @@ router.delete("/:id", authenticate, authorize([Permission.ADMIN_API_KEYS]), asyn
       },
     });
   } catch (error) {
-    console.error("Error deleting API key:", error);
+    logger.error("Error deleting API key:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
@@ -460,7 +460,7 @@ router.get("/:id/usage", authenticate, authorize([Permission.ADMIN_API_KEYS]), a
       },
     });
   } catch (error) {
-    console.error("Error fetching API key usage:", error);
+    logger.error("Error fetching API key usage:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
@@ -509,7 +509,7 @@ router.post("/:id/regenerate", authenticate, authorize([Permission.ADMIN_API_KEY
       warning: "Store this new API key securely. The old key is now invalid.",
     });
   } catch (error) {
-    console.error("Error regenerating API key:", error);
+    logger.error("Error regenerating API key:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });

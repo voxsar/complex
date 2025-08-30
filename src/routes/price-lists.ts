@@ -54,7 +54,7 @@ router.get("/", async (req: Request, res: Response) => {
       }
     });
   } catch (error) {
-    console.error("Error fetching price lists:", error);
+    logger.error("Error fetching price lists:", error);
     res.status(500).json({ error: "Failed to fetch price lists" });
   }
 });
@@ -75,7 +75,7 @@ router.get("/:id", async (req: Request, res: Response) => {
 
     res.json(priceList);
   } catch (error) {
-    console.error("Error fetching price list:", error);
+    logger.error("Error fetching price list:", error);
     res.status(500).json({ error: "Failed to fetch price list" });
   }
 });
@@ -123,7 +123,7 @@ router.post("/", async (req: Request, res: Response) => {
       priceList: savedPriceList
     });
   } catch (error) {
-    console.error("Error creating price list:", error);
+    logger.error("Error creating price list:", error);
     res.status(500).json({ error: "Failed to create price list" });
   }
 });
@@ -182,7 +182,7 @@ router.put("/:id", async (req: Request, res: Response) => {
       priceList: updatedPriceList
     });
   } catch (error) {
-    console.error("Error updating price list:", error);
+    logger.error("Error updating price list:", error);
     res.status(500).json({ error: "Failed to update price list" });
   }
 });
@@ -223,7 +223,7 @@ router.post("/:id/prices", async (req: Request, res: Response) => {
       price: newPrice
     });
   } catch (error) {
-    console.error("Error adding price:", error);
+    logger.error("Error adding price:", error);
     res.status(500).json({ error: "Failed to add price" });
   }
 });
@@ -266,7 +266,7 @@ router.put("/:id/prices/:priceId", async (req: Request, res: Response) => {
       price: priceList.prices[priceIndex]
     });
   } catch (error) {
-    console.error("Error updating price:", error);
+    logger.error("Error updating price:", error);
     res.status(500).json({ error: "Failed to update price" });
   }
 });
@@ -295,7 +295,7 @@ router.delete("/:id/prices/:priceId", async (req: Request, res: Response) => {
       priceList: updatedPriceList
     });
   } catch (error) {
-    console.error("Error removing price:", error);
+    logger.error("Error removing price:", error);
     res.status(500).json({ error: "Failed to remove price" });
   }
 });
@@ -365,7 +365,7 @@ router.get("/product/:productId/prices", async (req: Request, res: Response) => 
       prices: applicablePrices
     });
   } catch (error) {
-    console.error("Error fetching product prices:", error);
+    logger.error("Error fetching product prices:", error);
     res.status(500).json({ error: "Failed to fetch product prices" });
   }
 });
@@ -388,7 +388,7 @@ router.delete("/:id", async (req: Request, res: Response) => {
 
     res.json({ message: "Price list deleted successfully" });
   } catch (error) {
-    console.error("Error deleting price list:", error);
+    logger.error("Error deleting price list:", error);
     res.status(500).json({ error: "Failed to delete price list" });
   }
 });

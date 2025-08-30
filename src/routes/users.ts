@@ -63,7 +63,7 @@ router.post("/register", async (req: Request, res: Response) => {
       refreshToken,
     });
   } catch (error) {
-    console.error("Error registering user:", error);
+    logger.error({ err: error }, "Error registering user");
     res.status(500).json({ error: "Failed to register user" });
   }
 });
@@ -115,7 +115,7 @@ router.post("/login", async (req: Request, res: Response) => {
       refreshToken,
     });
   } catch (error) {
-    console.error("Error logging in:", error);
+    logger.error({ err: error }, "Error logging in");
     res.status(500).json({ error: "Failed to login" });
   }
 });
@@ -173,7 +173,7 @@ router.post("/forgot-password", async (req: Request, res: Response) => {
       message: "Password reset link sent to email"
     });
   } catch (error) {
-    console.error("Error in forgot password:", error);
+    logger.error({ err: error }, "Error in forgot password");
     res.status(500).json({ error: "Failed to process request" });
   }
 });
@@ -204,7 +204,7 @@ router.post("/reset-password", async (req: Request, res: Response) => {
 
     res.json({ message: "Password reset successful" });
   } catch (error) {
-    console.error("Error resetting password:", error);
+    logger.error({ err: error }, "Error resetting password");
     res.status(500).json({ error: "Failed to reset password" });
   }
 });
@@ -229,7 +229,7 @@ router.get("/verify-email/:token", async (req: Request, res: Response) => {
 
     res.json({ message: "Email verified successfully" });
   } catch (error) {
-    console.error("Error verifying email:", error);
+    logger.error({ err: error }, "Error verifying email");
     res.status(500).json({ error: "Failed to verify email" });
   }
 });
@@ -257,7 +257,7 @@ router.post("/resend-verification", authenticate, async (req: AuthRequest, res: 
       message: "Verification email sent"
     });
   } catch (error) {
-    console.error("Error resending verification:", error);
+    logger.error({ err: error }, "Error resending verification");
     res.status(500).json({ error: "Failed to resend verification email" });
   }
 });
@@ -286,7 +286,7 @@ router.get("/auth/status", authenticate, async (req: AuthRequest, res: Response)
       }
     });
   } catch (error) {
-    console.error("Error checking auth status:", error);
+    logger.error({ err: error }, "Error checking auth status");
     res.status(500).json({ error: "Failed to check auth status" });
   }
 });
@@ -301,7 +301,7 @@ router.post("/logout", authenticate, async (req: AuthRequest, res: Response) => 
     
     res.json({ message: "Logout successful" });
   } catch (error) {
-    console.error("Error logging out:", error);
+    logger.error({ err: error }, "Error logging out");
     res.status(500).json({ error: "Failed to logout" });
   }
 });
@@ -336,7 +336,7 @@ router.put("/profile", authenticate, async (req: AuthRequest, res: Response) => 
     await userRepository.save(user);
     res.json(user.toJSON());
   } catch (error) {
-    console.error("Error updating profile:", error);
+    logger.error({ err: error }, "Error updating profile");
     res.status(500).json({ error: "Failed to update profile" });
   }
 });
@@ -362,7 +362,7 @@ router.post("/change-password", authenticate, async (req: AuthRequest, res: Resp
 
     res.json({ message: "Password changed successfully" });
   } catch (error) {
-    console.error("Error changing password:", error);
+    logger.error({ err: error }, "Error changing password");
     res.status(500).json({ error: "Failed to change password" });
   }
 });
@@ -426,7 +426,7 @@ router.get("/", authenticate, authorize(UserRole.ADMIN, UserRole.MANAGER), async
       },
     });
   } catch (error) {
-    console.error("Error fetching users:", error);
+    logger.error({ err: error }, "Error fetching users");
     res.status(500).json({ error: "Failed to fetch users" });
   }
 });
@@ -445,7 +445,7 @@ router.get("/:id", authenticate, authorize(UserRole.ADMIN, UserRole.MANAGER), as
 
     res.json(user);
   } catch (error) {
-    console.error("Error fetching user:", error);
+    logger.error({ err: error }, "Error fetching user");
     res.status(500).json({ error: "Failed to fetch user" });
   }
 });
@@ -476,7 +476,7 @@ router.put("/:id", authenticate, authorize(UserRole.ADMIN), async (req: Request,
     const updatedUser = await userRepository.save(user);
     res.json(updatedUser);
   } catch (error) {
-    console.error("Error updating user:", error);
+    logger.error({ err: error }, "Error updating user");
     res.status(500).json({ error: "Failed to update user" });
   }
 });
@@ -499,7 +499,7 @@ router.patch("/:id/status", authenticate, authorize(UserRole.ADMIN), async (req:
 
     res.json({ message: `User ${isActive ? 'activated' : 'deactivated'} successfully` });
   } catch (error) {
-    console.error("Error updating user status:", error);
+    logger.error({ err: error }, "Error updating user status");
     res.status(500).json({ error: "Failed to update user status" });
   }
 });
@@ -518,7 +518,7 @@ router.delete("/:id", authenticate, authorize(UserRole.ADMIN), async (req: Reque
 
     res.status(204).send();
   } catch (error) {
-    console.error("Error deleting user:", error);
+    logger.error({ err: error }, "Error deleting user");
     res.status(500).json({ error: "Failed to delete user" });
   }
 });

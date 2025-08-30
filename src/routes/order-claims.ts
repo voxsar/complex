@@ -48,7 +48,7 @@ router.get("/", async (req: Request, res: Response) => {
       }
     });
   } catch (error) {
-    console.error("Error fetching claims:", error);
+    logger.error("Error fetching claims:", error);
     res.status(500).json({ error: "Failed to fetch claims" });
   }
 });
@@ -69,7 +69,7 @@ router.get("/:id", async (req: Request, res: Response) => {
 
     res.json(claim);
   } catch (error) {
-    console.error("Error fetching claim:", error);
+    logger.error("Error fetching claim:", error);
     res.status(500).json({ error: "Failed to fetch claim" });
   }
 });
@@ -138,7 +138,7 @@ router.post("/", async (req: Request, res: Response) => {
       claim: savedClaim
     });
   } catch (error) {
-    console.error("Error creating claim:", error);
+    logger.error("Error creating claim:", error);
     res.status(500).json({ error: "Failed to create claim" });
   }
 });
@@ -175,7 +175,7 @@ router.patch("/:id/status", async (req: Request, res: Response) => {
       claim: updatedClaim
     });
   } catch (error) {
-    console.error("Error updating claim status:", error);
+    logger.error("Error updating claim status:", error);
     res.status(500).json({ error: "Failed to update claim status" });
   }
 });
@@ -234,7 +234,7 @@ router.post("/:id/approve", async (req: Request, res: Response) => {
       claim: updatedClaim
     });
   } catch (error) {
-    console.error("Error approving claim:", error);
+    logger.error("Error approving claim:", error);
     res.status(500).json({ error: "Failed to approve claim" });
   }
 });
@@ -266,7 +266,7 @@ router.post("/:id/reject", async (req: Request, res: Response) => {
       claim: updatedClaim
     });
   } catch (error) {
-    console.error("Error rejecting claim:", error);
+    logger.error("Error rejecting claim:", error);
     res.status(500).json({ error: "Failed to reject claim" });
   }
 });
@@ -293,7 +293,7 @@ router.delete("/:id", async (req: Request, res: Response) => {
 
     res.json({ message: "Claim deleted successfully" });
   } catch (error) {
-    console.error("Error deleting claim:", error);
+    logger.error("Error deleting claim:", error);
     res.status(500).json({ error: "Failed to delete claim" });
   }
 });

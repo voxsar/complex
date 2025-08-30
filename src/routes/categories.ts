@@ -66,7 +66,7 @@ router.get("/", async (req: Request, res: Response) => {
       },
     });
   } catch (error) {
-    console.error("Error fetching categories:", error);
+    logger.error("Error fetching categories:", error);
     res.status(500).json({ error: req.t("errors.failed_to_fetch_categories") });
   }
 });
@@ -88,7 +88,7 @@ router.get("/:id", async (req: Request, res: Response) => {
 
     res.json(translateCategory(category, locale));
   } catch (error) {
-    console.error("Error fetching category:", error);
+    logger.error("Error fetching category:", error);
     res.status(500).json({ error: req.t("errors.failed_to_fetch_category") });
   }
 });
@@ -110,7 +110,7 @@ router.get("/slug/:slug", async (req: Request, res: Response) => {
 
     res.json(translateCategory(category, locale));
   } catch (error) {
-    console.error("Error fetching category:", error);
+    logger.error("Error fetching category:", error);
     res.status(500).json({ error: req.t("errors.failed_to_fetch_category") });
   }
 });
@@ -150,7 +150,7 @@ router.post("/", async (req: Request, res: Response) => {
 
     res.status(201).json(savedCategory);
   } catch (error) {
-    console.error("Error creating category:", error);
+    logger.error("Error creating category:", error);
     res.status(500).json({ error: "Failed to create category" });
   }
 });
@@ -214,7 +214,7 @@ router.put("/:id", async (req: Request, res: Response) => {
 
     res.json(updatedCategory);
   } catch (error) {
-    console.error("Error updating category:", error);
+    logger.error("Error updating category:", error);
     res.status(500).json({ error: "Failed to update category" });
   }
 });
@@ -254,7 +254,7 @@ router.delete("/:id", async (req: Request, res: Response) => {
     await categoryRepository.delete({ id });
     res.status(204).send();
   } catch (error) {
-    console.error("Error deleting category:", error);
+    logger.error("Error deleting category:", error);
     res.status(500).json({ error: "Failed to delete category" });
   }
 });
@@ -284,7 +284,7 @@ router.get("/:id/children", async (req: Request, res: Response) => {
 
     res.json(children);
   } catch (error) {
-    console.error("Error fetching category children:", error);
+    logger.error("Error fetching category children:", error);
     res.status(500).json({ error: "Failed to fetch category children" });
   }
 });

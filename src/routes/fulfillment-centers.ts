@@ -75,7 +75,7 @@ router.get("/", async (req: Request, res: Response) => {
       },
     });
   } catch (error) {
-    console.error("Error fetching fulfillment centers:", error);
+    logger.error("Error fetching fulfillment centers:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
@@ -96,7 +96,7 @@ router.get("/:id", async (req: Request, res: Response) => {
 
     res.json(center);
   } catch (error) {
-    console.error("Error fetching fulfillment center:", error);
+    logger.error("Error fetching fulfillment center:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
@@ -123,7 +123,7 @@ router.post("/", async (req: Request, res: Response) => {
     const savedCenter = await fulfillmentCenterRepository.save(center);
     res.status(201).json(savedCenter);
   } catch (error) {
-    console.error("Error creating fulfillment center:", error);
+    logger.error("Error creating fulfillment center:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
@@ -161,7 +161,7 @@ router.put("/:id", async (req: Request, res: Response) => {
     const updatedCenter = await fulfillmentCenterRepository.save(existingCenter);
     res.json(updatedCenter);
   } catch (error) {
-    console.error("Error updating fulfillment center:", error);
+    logger.error("Error updating fulfillment center:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
@@ -183,7 +183,7 @@ router.delete("/:id", async (req: Request, res: Response) => {
     await fulfillmentCenterRepository.remove(center);
     res.status(204).send();
   } catch (error) {
-    console.error("Error deleting fulfillment center:", error);
+    logger.error("Error deleting fulfillment center:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
@@ -245,7 +245,7 @@ router.post("/find-optimal", async (req: Request, res: Response) => {
       recommendationReason: optimalCenter.isDefault ? "Default center" : "Highest priority center",
     });
   } catch (error) {
-    console.error("Error finding optimal fulfillment center:", error);
+    logger.error("Error finding optimal fulfillment center:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
@@ -306,7 +306,7 @@ router.get("/:id/inventory", async (req: Request, res: Response) => {
       },
     });
   } catch (error) {
-    console.error("Error fetching fulfillment center inventory:", error);
+    logger.error("Error fetching fulfillment center inventory:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });

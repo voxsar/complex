@@ -165,7 +165,7 @@ router.get("/login/:provider", async (req: Request, res: Response) => {
     });
 
   } catch (error) {
-    console.error("OAuth initiation error:", error);
+    logger.error("OAuth initiation error:", error);
     res.status(500).json({
       error: "Failed to initiate OAuth",
       code: "OAUTH_INITIATION_ERROR"
@@ -432,7 +432,7 @@ router.post("/callback/:provider", async (req: Request, res: Response) => {
     });
 
   } catch (error) {
-    console.error("OAuth callback error:", error);
+    logger.error("OAuth callback error:", error);
     res.status(500).json({
       error: "OAuth authentication failed",
       code: "OAUTH_CALLBACK_ERROR"
@@ -497,7 +497,7 @@ router.delete("/unlink/:provider", authenticate, async (req: AuthRequest, res: R
     });
 
   } catch (error) {
-    console.error("OAuth unlink error:", error);
+    logger.error("OAuth unlink error:", error);
     res.status(500).json({
       error: "Failed to unlink OAuth account",
       code: "OAUTH_UNLINK_ERROR"
@@ -527,7 +527,7 @@ router.get("/accounts", authenticate, async (req: AuthRequest, res: Response) =>
     });
 
   } catch (error) {
-    console.error("Get OAuth accounts error:", error);
+    logger.error("Get OAuth accounts error:", error);
     res.status(500).json({
       error: "Failed to get OAuth accounts",
       code: "GET_OAUTH_ACCOUNTS_ERROR"

@@ -21,11 +21,11 @@ export class CurrencyService {
 
     // Initial fetch and scheduled refresh
     this.fetchRates().catch(err => {
-      console.error('Failed to load initial exchange rates:', err.message);
+      logger.error({ err }, 'Failed to load initial exchange rates');
     });
     this.refreshTimer = setInterval(() => {
       this.fetchRates(true).catch(err => {
-        console.error('Failed to refresh exchange rates:', err.message);
+        logger.error({ err }, 'Failed to refresh exchange rates');
       });
     }, this.refreshInterval);
   }
@@ -54,7 +54,7 @@ export class CurrencyService {
       }
     } catch (error: any) {
       // Don't throw to avoid crashing callers; keep last known rates
-      console.error('Error fetching exchange rates:', error.message);
+      logger.error({ err: error }, 'Error fetching exchange rates');
     }
   }
 

@@ -39,7 +39,7 @@ export const authenticate = async (
     // Fallback to JWT authentication
     return await authenticateJWT(req, res, next);
   } catch (error) {
-    console.error("Authentication error:", error);
+    logger.error("Authentication error:", error);
     return res.status(500).json({ error: "Authentication service error" });
   }
 };
@@ -66,7 +66,7 @@ const authenticateJWT = async (
 
     const JWT_SECRET = process.env.JWT_SECRET;
     if (!JWT_SECRET) {
-      console.error("JWT_SECRET is not configured");
+      logger.error("JWT_SECRET is not configured");
       return res.status(500).json({ error: "Server configuration error" });
     }
 
@@ -206,7 +206,7 @@ const authenticateApiKey = async (
     req.authType = 'api_key';
     next();
   } catch (error) {
-    console.error("API Key authentication error:", error);
+    logger.error("API Key authentication error:", error);
     return res.status(500).json({ error: "API key authentication service error" });
   }
 };
@@ -276,7 +276,7 @@ export const authorize = (requiredPermissions: Permission | Permission[]) => {
         userRole: req.user.role,
       });
     } catch (error) {
-      console.error("Authorization error:", error);
+      logger.error("Authorization error:", error);
       return res.status(500).json({ error: "Authorization service error" });
     }
   };
@@ -367,13 +367,13 @@ export const optionalAuth = async (
     await authenticate(req, res, (error) => {
       if (error) {
         // Log the error but don't fail the request
-        console.warn("Optional auth failed:", error);
+        logger.warn("Optional auth failed:", error);
       }
       next();
     });
   } catch (error) {
     // Log error but don't fail
-    console.warn("Optional auth error:", error);
+    logger.warn("Optional auth error:", error);
     next();
   }
 };

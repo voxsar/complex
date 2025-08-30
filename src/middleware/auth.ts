@@ -41,7 +41,7 @@ export const authenticate = async (
 
     const JWT_SECRET = process.env.JWT_SECRET;
     if (!JWT_SECRET) {
-      console.error("JWT_SECRET is not configured");
+      logger.error("JWT_SECRET is not configured");
       return res.status(500).json({ error: "Server configuration error" });
     }
 
@@ -105,7 +105,7 @@ export const authenticate = async (
         code: "INVALID_TOKEN",
       });
     } else {
-      console.error("Authentication error:", error);
+      logger.error("Authentication error:", error);
       return res.status(500).json({
         error: "Authentication failed.",
         code: "AUTH_ERROR",
@@ -152,7 +152,7 @@ export const optionalAuth = async (
     if (token) {
       const JWT_SECRET = process.env.JWT_SECRET;
       if (!JWT_SECRET) {
-        console.error("JWT_SECRET is not configured");
+        logger.error("JWT_SECRET is not configured");
         // Continue without authentication if JWT_SECRET is not configured
         return next();
       }
@@ -188,7 +188,7 @@ export const optionalAuth = async (
     next();
   } catch (error) {
     // Continue without authentication if any error occurs
-    console.error("Optional auth error:", error);
+    logger.error("Optional auth error:", error);
     next();
   }
 };
@@ -239,13 +239,13 @@ export const logAuthEvents = (
   res.json = function (data: any) {
     // Log successful authentications
     if (req.user && res.statusCode === 200) {
-      console.log(
+      logger.info(
         `Auth success: ${req.user.email} - ${req.method} ${req.path}`
       );
     }
     // Log failed authentications
     else if (res.statusCode === 401 || res.statusCode === 403) {
-      console.log(
+      logger.info(
         `Auth failed: ${req.ip} - ${req.method} ${req.path} - ${res.statusCode}`
       );
     }

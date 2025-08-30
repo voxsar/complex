@@ -57,7 +57,7 @@ router.get("/", async (req: Request, res: Response) => {
       },
     });
   } catch (error) {
-    console.error("Error fetching product options:", error);
+    logger.error("Error fetching product options:", error);
     res.status(500).json({ error: "Failed to fetch product options" });
   }
 });
@@ -78,7 +78,7 @@ router.get("/:id", async (req: Request, res: Response) => {
 
     res.json(option);
   } catch (error) {
-    console.error("Error fetching product option:", error);
+    logger.error("Error fetching product option:", error);
     res.status(500).json({ error: "Failed to fetch product option" });
   }
 });
@@ -99,7 +99,7 @@ router.post("/", async (req: Request, res: Response) => {
     const savedOption = await optionRepository.save(option);
     res.status(201).json(savedOption);
   } catch (error) {
-    console.error("Error creating product option:", error);
+    logger.error("Error creating product option:", error);
     res.status(500).json({ error: "Failed to create product option" });
   }
 });
@@ -130,7 +130,7 @@ router.put("/:id", async (req: Request, res: Response) => {
     const updatedOption = await optionRepository.save(option);
     res.json(updatedOption);
   } catch (error) {
-    console.error("Error updating product option:", error);
+    logger.error("Error updating product option:", error);
     res.status(500).json({ error: "Failed to update product option" });
   }
 });
@@ -149,7 +149,7 @@ router.delete("/:id", async (req: Request, res: Response) => {
 
     res.status(204).send();
   } catch (error) {
-    console.error("Error deleting product option:", error);
+    logger.error("Error deleting product option:", error);
     res.status(500).json({ error: "Failed to delete product option" });
   }
 });
@@ -174,7 +174,7 @@ router.post("/:id/values", async (req: Request, res: Response) => {
     const updatedOption = await optionRepository.save(option);
     res.status(201).json(optionValue);
   } catch (error) {
-    console.error("Error adding option value:", error);
+    logger.error("Error adding option value:", error);
     res.status(500).json({ error: "Failed to add option value" });
   }
 });
@@ -208,7 +208,7 @@ router.put("/:id/values/:valueId", async (req: Request, res: Response) => {
     await optionRepository.save(option);
     res.json(option.values[valueIndex]);
   } catch (error) {
-    console.error("Error updating option value:", error);
+    logger.error("Error updating option value:", error);
     res.status(500).json({ error: "Failed to update option value" });
   }
 });
@@ -232,7 +232,7 @@ router.delete("/:id/values/:valueId", async (req: Request, res: Response) => {
     await optionRepository.save(option);
     res.status(204).send();
   } catch (error) {
-    console.error("Error deleting option value:", error);
+    logger.error("Error deleting option value:", error);
     res.status(500).json({ error: "Failed to delete option value" });
   }
 });

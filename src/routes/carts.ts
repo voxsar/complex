@@ -39,7 +39,7 @@ router.post("/", async (req: Request, res: Response) => {
 
     res.status(201).json({ cart });
   } catch (error) {
-    console.error("Error creating cart:", error);
+    logger.error("Error creating cart:", error);
     res.status(500).json({ error: "Failed to create cart" });
   }
 });
@@ -81,7 +81,7 @@ router.get("/", async (req: Request, res: Response) => {
       }
     });
   } catch (error) {
-    console.error("Error fetching carts:", error);
+    logger.error("Error fetching carts:", error);
     res.status(500).json({ error: "Failed to fetch carts" });
   }
 });
@@ -98,7 +98,7 @@ router.get("/:id", async (req: Request, res: Response) => {
 
     res.json({ cart });
   } catch (error) {
-    console.error("Error fetching cart:", error);
+    logger.error("Error fetching cart:", error);
     res.status(500).json({ error: "Failed to fetch cart" });
   }
 });
@@ -115,7 +115,7 @@ router.get("/customer/:customerId/active", async (req: Request, res: Response) =
 
     res.json({ cart });
   } catch (error) {
-    console.error("Error fetching customer cart:", error);
+    logger.error("Error fetching customer cart:", error);
     res.status(500).json({ error: "Failed to fetch customer cart" });
   }
 });
@@ -132,7 +132,7 @@ router.get("/session/:sessionId/active", async (req: Request, res: Response) => 
 
     res.json({ cart });
   } catch (error) {
-    console.error("Error fetching session cart:", error);
+    logger.error("Error fetching session cart:", error);
     res.status(500).json({ error: "Failed to fetch session cart" });
   }
 });
@@ -162,7 +162,7 @@ router.post("/:id/line-items", async (req: Request, res: Response) => {
 
     res.json({ cart });
   } catch (error) {
-    console.error("Error adding line item:", error);
+    logger.error("Error adding line item:", error);
     if (error.message.includes("not found")) {
       res.status(404).json({ error: error.message });
     } else {
@@ -187,7 +187,7 @@ router.patch("/:id/line-items/:itemId", async (req: Request, res: Response) => {
 
     res.json({ cart });
   } catch (error) {
-    console.error("Error updating line item:", error);
+    logger.error("Error updating line item:", error);
     if (error.message.includes("not found")) {
       res.status(404).json({ error: error.message });
     } else {
@@ -204,7 +204,7 @@ router.delete("/:id/line-items/:itemId", async (req: Request, res: Response) => 
 
     res.json({ cart });
   } catch (error) {
-    console.error("Error removing line item:", error);
+    logger.error("Error removing line item:", error);
     if (error.message.includes("not found")) {
       res.status(404).json({ error: error.message });
     } else {
@@ -227,7 +227,7 @@ router.post("/:id/discounts", async (req: Request, res: Response) => {
 
     res.json({ cart });
   } catch (error) {
-    console.error("Error applying discount:", error);
+    logger.error("Error applying discount:", error);
     if (error.message.includes("not found") || error.message.includes("Invalid")) {
       res.status(404).json({ error: error.message });
     } else {
@@ -244,7 +244,7 @@ router.delete("/:id/discounts/:discountId", async (req: Request, res: Response) 
 
     res.json({ cart });
   } catch (error) {
-    console.error("Error removing discount:", error);
+    logger.error("Error removing discount:", error);
     if (error.message.includes("not found")) {
       res.status(404).json({ error: error.message });
     } else {
@@ -272,7 +272,7 @@ router.patch("/:id/addresses", async (req: Request, res: Response) => {
 
     res.json({ cart });
   } catch (error) {
-    console.error("Error updating addresses:", error);
+    logger.error("Error updating addresses:", error);
     if (error.message.includes("not found")) {
       res.status(404).json({ error: error.message });
     } else {
@@ -302,7 +302,7 @@ router.post("/:id/shipping-methods", async (req: Request, res: Response) => {
 
     res.json({ cart });
   } catch (error) {
-    console.error("Error setting shipping method:", error);
+    logger.error("Error setting shipping method:", error);
     if (error.message.includes("not found")) {
       res.status(404).json({ error: error.message });
     } else {
@@ -343,7 +343,7 @@ router.patch("/:id", async (req: Request, res: Response) => {
 
     res.json({ cart: updatedCart });
   } catch (error) {
-    console.error("Error updating cart:", error);
+    logger.error("Error updating cart:", error);
     res.status(500).json({ error: "Failed to update cart" });
   }
 });
@@ -362,7 +362,7 @@ router.post("/:id/complete", async (req: Request, res: Response) => {
 
     res.json({ cart });
   } catch (error) {
-    console.error("Error completing cart:", error);
+    logger.error("Error completing cart:", error);
     if (error.message.includes("not found")) {
       res.status(404).json({ error: error.message });
     } else {
@@ -379,7 +379,7 @@ router.post("/:id/abandon", async (req: Request, res: Response) => {
 
     res.json({ cart });
   } catch (error) {
-    console.error("Error abandoning cart:", error);
+    logger.error("Error abandoning cart:", error);
     if (error.message.includes("not found")) {
       res.status(404).json({ error: error.message });
     } else {
@@ -403,7 +403,7 @@ router.delete("/:id", async (req: Request, res: Response) => {
 
     res.json({ message: "Cart deleted successfully" });
   } catch (error) {
-    console.error("Error deleting cart:", error);
+    logger.error("Error deleting cart:", error);
     res.status(500).json({ error: "Failed to delete cart" });
   }
 });
@@ -418,7 +418,7 @@ router.post("/cleanup/expired", async (req: Request, res: Response) => {
       count 
     });
   } catch (error) {
-    console.error("Error cleaning up expired carts:", error);
+    logger.error("Error cleaning up expired carts:", error);
     res.status(500).json({ error: "Failed to cleanup expired carts" });
   }
 });
@@ -431,7 +431,7 @@ router.get("/:id/checkout-summary", async (req: Request, res: Response) => {
 
     res.json(summary);
   } catch (error) {
-    console.error("Error getting checkout summary:", error);
+    logger.error("Error getting checkout summary:", error);
     if (error.message.includes("not found")) {
       res.status(404).json({ error: error.message });
     } else {
@@ -448,7 +448,7 @@ router.get("/:id/validate", async (req: Request, res: Response) => {
 
     res.json(validation);
   } catch (error) {
-    console.error("Error validating cart:", error);
+    logger.error("Error validating cart:", error);
     res.status(500).json({ error: "Failed to validate cart" });
   }
 });
@@ -484,7 +484,7 @@ router.post("/:id/checkout", async (req: Request, res: Response) => {
 
     res.status(201).json({ order });
   } catch (error) {
-    console.error("Error creating order from cart:", error);
+    logger.error("Error creating order from cart:", error);
     if (error.message.includes("not found") || error.message.includes("required")) {
       res.status(400).json({ error: error.message });
     } else {

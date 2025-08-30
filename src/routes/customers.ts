@@ -86,7 +86,7 @@ router.post("/register", customerAuthRateLimit, async (req: Request, res: Respon
       verificationRequired: !customer.isEmailVerified
     });
   } catch (error) {
-    console.error("Error registering customer:", error);
+    logger.error("Error registering customer:", error);
     res.status(500).json({ error: "Failed to register customer" });
   }
 });
@@ -133,7 +133,7 @@ router.post("/login", customerAuthRateLimit, async (req: Request, res: Response)
       }
     });
   } catch (error) {
-    console.error("Error logging in customer:", error);
+    logger.error("Error logging in customer:", error);
     res.status(500).json({ error: "Failed to login" });
   }
 });
@@ -191,7 +191,7 @@ router.post("/forgot-password", async (req: Request, res: Response) => {
       message: "Password reset link sent to email"
     });
   } catch (error) {
-    console.error("Error in forgot password:", error);
+    logger.error("Error in forgot password:", error);
     res.status(500).json({ error: "Failed to process request" });
   }
 });
@@ -220,7 +220,7 @@ router.post("/reset-password", async (req: Request, res: Response) => {
 
     res.json({ message: "Password reset successful" });
   } catch (error) {
-    console.error("Error resetting password:", error);
+    logger.error("Error resetting password:", error);
     res.status(500).json({ error: "Failed to reset password" });
   }
 });
@@ -256,7 +256,7 @@ router.get("/verify-email/:token", async (req: Request, res: Response) => {
       }
     });
   } catch (error) {
-    console.error("Error verifying email:", error);
+    logger.error("Error verifying email:", error);
     res.status(500).json({ error: "Failed to verify email" });
   }
 });
@@ -310,7 +310,7 @@ router.put("/profile", authenticateCustomer, async (req: CustomerAuthRequest, re
     await customerRepository.save(customer);
     res.json(customer.toJSON());
   } catch (error) {
-    console.error("Error updating customer profile:", error);
+    logger.error("Error updating customer profile:", error);
     res.status(500).json({ error: "Failed to update profile" });
   }
 });
@@ -336,7 +336,7 @@ router.post("/change-password", authenticateCustomer, async (req: CustomerAuthRe
 
     res.json({ message: "Password changed successfully" });
   } catch (error) {
-    console.error("Error changing password:", error);
+    logger.error("Error changing password:", error);
     res.status(500).json({ error: "Failed to change password" });
   }
 });
@@ -363,7 +363,7 @@ router.post("/resend-verification", authenticateCustomer, async (req: CustomerAu
       message: "Verification email sent"
     });
   } catch (error) {
-    console.error("Error resending verification:", error);
+    logger.error("Error resending verification:", error);
     res.status(500).json({ error: "Failed to resend verification email" });
   }
 });
@@ -436,7 +436,7 @@ router.post("/loyalty/redeem", authenticateCustomer, async (req: CustomerAuthReq
       remainingPoints: customer.loyaltyPoints
     });
   } catch (error) {
-    console.error("Error redeeming points:", error);
+    logger.error("Error redeeming points:", error);
     res.status(500).json({ error: "Failed to redeem points" });
   }
 });
@@ -496,7 +496,7 @@ router.get("/", async (req: Request, res: Response) => {
       },
     });
   } catch (error) {
-    console.error("Error fetching customers:", error);
+    logger.error("Error fetching customers:", error);
     res.status(500).json({ error: "Failed to fetch customers" });
   }
 });
@@ -517,7 +517,7 @@ router.get("/:id", async (req: Request, res: Response) => {
 
     res.json(customer);
   } catch (error) {
-    console.error("Error fetching customer:", error);
+    logger.error("Error fetching customer:", error);
     res.status(500).json({ error: "Failed to fetch customer" });
   }
 });
@@ -538,7 +538,7 @@ router.post("/", async (req: Request, res: Response) => {
     const savedCustomer = await customerRepository.save(customer);
     res.status(201).json(savedCustomer);
   } catch (error) {
-    console.error("Error creating customer:", error);
+    logger.error("Error creating customer:", error);
     res.status(500).json({ error: "Failed to create customer" });
   }
 });
@@ -569,7 +569,7 @@ router.put("/:id", async (req: Request, res: Response) => {
     const updatedCustomer = await customerRepository.save(customer);
     res.json(updatedCustomer);
   } catch (error) {
-    console.error("Error updating customer:", error);
+    logger.error("Error updating customer:", error);
     res.status(500).json({ error: "Failed to update customer" });
   }
 });
@@ -588,7 +588,7 @@ router.delete("/:id", async (req: Request, res: Response) => {
 
     res.status(204).send();
   } catch (error) {
-    console.error("Error deleting customer:", error);
+    logger.error("Error deleting customer:", error);
     res.status(500).json({ error: "Failed to delete customer" });
   }
 });
@@ -621,7 +621,7 @@ router.post("/:id/addresses", async (req: Request, res: Response) => {
     const updatedCustomer = await customerRepository.save(customer);
     res.status(201).json(address);
   } catch (error) {
-    console.error("Error adding customer address:", error);
+    logger.error("Error adding customer address:", error);
     res.status(500).json({ error: "Failed to add customer address" });
   }
 });
@@ -655,7 +655,7 @@ router.put("/:id/addresses/:addressId", async (req: Request, res: Response) => {
     await customerRepository.save(customer);
     res.json(customer.addresses![addressIndex]);
   } catch (error) {
-    console.error("Error updating customer address:", error);
+    logger.error("Error updating customer address:", error);
     res.status(500).json({ error: "Failed to update customer address" });
   }
 });
@@ -688,7 +688,7 @@ router.delete("/:id/addresses/:addressId", async (req: Request, res: Response) =
     await customerRepository.save(customer);
     res.status(204).send();
   } catch (error) {
-    console.error("Error deleting customer address:", error);
+    logger.error("Error deleting customer address:", error);
     res.status(500).json({ error: "Failed to delete customer address" });
   }
 });

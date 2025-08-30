@@ -174,7 +174,7 @@ router.post("/", authenticate, async (req: AuthRequest, res: Response) => {
       res.status(201).json(response);
 
     } catch (gatewayError) {
-      console.error(`${gateway} payment intent creation failed:`, gatewayError);
+      logger.error(`${gateway} payment intent creation failed:`, gatewayError);
       
       // Still save the payment intent with failed status
       paymentIntent.status = PaymentIntentStatus.REQUIRES_PAYMENT_METHOD;
@@ -191,7 +191,7 @@ router.post("/", authenticate, async (req: AuthRequest, res: Response) => {
     }
 
   } catch (error) {
-    console.error("Payment intent creation error:", error);
+    logger.error("Payment intent creation error:", error);
     res.status(500).json({
       error: "Failed to create payment intent",
       code: "PAYMENT_INTENT_CREATION_ERROR"
@@ -247,7 +247,7 @@ router.get("/:id", authenticate, async (req: AuthRequest, res: Response) => {
     });
 
   } catch (error) {
-    console.error("Get payment intent error:", error);
+    logger.error("Get payment intent error:", error);
     res.status(500).json({
       error: "Failed to retrieve payment intent",
       code: "PAYMENT_INTENT_RETRIEVAL_ERROR"
@@ -346,7 +346,7 @@ router.post("/:id/confirm", authenticate, async (req: AuthRequest, res: Response
       });
 
     } catch (gatewayError) {
-      console.error(`${paymentIntent.gateway} confirmation failed:`, gatewayError);
+      logger.error(`${paymentIntent.gateway} confirmation failed:`, gatewayError);
 
       paymentIntent.lastPaymentError = {
         type: "gateway_error",
@@ -361,7 +361,7 @@ router.post("/:id/confirm", authenticate, async (req: AuthRequest, res: Response
     }
 
   } catch (error) {
-    console.error("Payment intent confirmation error:", error);
+    logger.error("Payment intent confirmation error:", error);
     res.status(500).json({
       error: "Failed to confirm payment intent",
       code: "PAYMENT_INTENT_CONFIRMATION_ERROR"
@@ -430,7 +430,7 @@ router.post("/:id/capture", authenticate, authorize([Permission.PAYMENT_PROCESS]
       });
 
     } catch (gatewayError) {
-      console.error(`${paymentIntent.gateway} capture failed:`, gatewayError);
+      logger.error(`${paymentIntent.gateway} capture failed:`, gatewayError);
 
       return res.status(400).json({
         error: `Payment capture failed: ${gatewayError.message}`,
@@ -439,7 +439,7 @@ router.post("/:id/capture", authenticate, authorize([Permission.PAYMENT_PROCESS]
     }
 
   } catch (error) {
-    console.error("Payment intent capture error:", error);
+    logger.error("Payment intent capture error:", error);
     res.status(500).json({
       error: "Failed to capture payment intent",
       code: "PAYMENT_INTENT_CAPTURE_ERROR"
@@ -500,7 +500,7 @@ router.post("/:id/cancel", authenticate, authorize([Permission.PAYMENT_PROCESS])
       });
 
     } catch (gatewayError) {
-      console.error(`${paymentIntent.gateway} cancellation failed:`, gatewayError);
+      logger.error(`${paymentIntent.gateway} cancellation failed:`, gatewayError);
 
       return res.status(400).json({
         error: `Payment cancellation failed: ${gatewayError.message}`,
@@ -509,7 +509,7 @@ router.post("/:id/cancel", authenticate, authorize([Permission.PAYMENT_PROCESS])
     }
 
   } catch (error) {
-    console.error("Payment intent cancellation error:", error);
+    logger.error("Payment intent cancellation error:", error);
     res.status(500).json({
       error: "Failed to cancel payment intent",
       code: "PAYMENT_INTENT_CANCELLATION_ERROR"
@@ -580,7 +580,7 @@ router.get("/", authenticate, async (req: AuthRequest, res: Response) => {
     });
 
   } catch (error) {
-    console.error("List payment intents error:", error);
+    logger.error("List payment intents error:", error);
     res.status(500).json({
       error: "Failed to list payment intents",
       code: "PAYMENT_INTENTS_LIST_ERROR"
