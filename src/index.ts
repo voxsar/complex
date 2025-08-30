@@ -41,6 +41,8 @@ import savedPaymentMethodRoutes from "./routes/saved-payment-methods";
 import webhookRoutes from "./routes/webhooks";
 import refundRoutes from "./routes/refunds";
 import analyticsRoutes from "./routes/analytics";
+import wishlistRoutes from "./routes/wishlists";
+import reviewRoutes from "./routes/reviews";
 
 // Import middleware
 import { errorHandler } from "./middleware/errorHandler";
@@ -108,6 +110,8 @@ app.use("/api", savedPaymentMethodRoutes); // This includes /customers/:id/payme
 app.use("/api/webhooks", webhookRoutes);
 app.use("/api/refunds", refundRoutes);
 app.use("/api/analytics", analyticsRoutes);
+app.use("/api", wishlistRoutes);
+app.use("/api/reviews", reviewRoutes);
 
 // Authentication & Authorization Routes
 app.use("/api/admin/auth", adminAuthRoutes);

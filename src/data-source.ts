@@ -7,6 +7,7 @@ import { Product } from "./entities/Product";
 import { Category } from "./entities/Category";
 import { Collection } from "./entities/Collection";
 import { Inventory } from "./entities/Inventory";
+import { InventoryLevel } from "./entities/InventoryLevel";
 import { Customer } from "./entities/Customer";
 import { CustomerGroup } from "./entities/CustomerGroup";
 import { Cart } from "./entities/Cart";
@@ -30,6 +31,8 @@ import { Shipment } from "./entities/Shipment";
 import { Role } from "./entities/Role";
 import { ApiKey } from "./entities/ApiKey";
 import { OAuthAccount } from "./entities/OAuthAccount";
+import { Wishlist } from "./entities/Wishlist";
+import { Review } from "./entities/Review";
 
 dotenv.config();
 
@@ -48,6 +51,7 @@ export const AppDataSource = new DataSource({
     Category,
     Collection,
     Inventory,
+    InventoryLevel,
     Customer,
     CustomerGroup,
     Cart,
@@ -70,6 +74,8 @@ export const AppDataSource = new DataSource({
     Role,
     ApiKey,
     OAuthAccount,
+    Wishlist,
+    Review,
   ],
   migrations: ["src/migrations/*.ts"],
   subscribers: ["src/subscribers/*.ts"],
