@@ -1,0 +1,206 @@
+<template>
+  <div class="create-category">
+    <h2>Create Category</h2>
+    <p>Create a new category to organize your products.</p>
+
+    <form @submit.prevent="createCategory">
+      <div class="form-group">
+        <label for="title">Title</label>
+        <input 
+          id="title" 
+          type="text" 
+          v-model="categoryForm.title" 
+          class="form-control" 
+          required
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="handle">
+          Handle 
+          <span class="info-icon" title="Optional unique identifier for the category">ⓘ</span>
+          <span class="optional">(Optional)</span>
+        </label>
+        <div class="handle-input">
+          <span class="handle-prefix">/</span>
+          <input 
+            id="handle" 
+            type="text" 
+            v-model="categoryForm.handle" 
+            class="form-control" 
+            placeholder=""
+          />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="description">
+          Description
+          <span class="optional">(Optional)</span>
+        </label>
+        <textarea 
+          id="description" 
+          v-model="categoryForm.description" 
+          class="form-control text-area" 
+          rows="5"
+        ></textarea>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group half-width">
+          <label for="status">Status</label>
+          <select id="status" v-model="categoryForm.status" class="form-control">
+            <option value="Active">Active</option>
+            <option value="Draft">Draft</option>
+          </select>
+        </div>
+
+        <div class="form-group half-width">
+          <label for="visibility">Visibility</label>
+          <select id="visibility" v-model="categoryForm.visibility" class="form-control">
+            <option value="Public">Public</option>
+            <option value="Private">Private</option>
+            <option value="Hidden">Hidden</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn btn-secondary" @click="cancel">Cancel</button>
+        <button type="submit" class="btn btn-primary">Create Category</button>
+      </div>
+    </form>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { ref } from 'vue';
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
+
+const categoryForm = ref({
+  title: '',
+  handle: '',
+  description: '',
+  status: 'Active',
+  visibility: 'Public'
+});
+
+const createCategory = async () => {
+  try {
+    // TODO: Implement API call to create category
+    console.log('Creating category:', categoryForm.value);
+    // After successful creation, navigate back to categories list
+    router.push('/products/categories');
+  } catch (error) {
+    console.error('Failed to create category:', error);
+  }
+};
+
+const cancel = () => {
+  router.push('/products/categories');
+};
+</script>
+
+<style scoped>
+.create-category {
+  padding: 20px;
+}
+
+h2 {
+  margin-bottom: 10px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-row {
+  display: flex;
+  gap: 20px;
+}
+
+.half-width {
+  width: 50%;
+}
+
+label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.form-control {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.text-area {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.info-icon {
+  color: #777;
+  cursor: help;
+}
+
+.optional {
+  color: #777;
+  font-weight: normal;
+  font-size: 0.9em;
+}
+
+.handle-input {
+  display: flex;
+  align-items: center;
+}
+
+.handle-prefix {
+  padding: 8px;
+  background-color: #f5f5f5;
+  border: 1px solid #ccc;
+  border-right: none;
+  border-radius: 4px 0 0 4px;
+}
+
+.handle-input .form-control {
+  border-radius: 0 4px 4px 0;
+}
+
+select.form-control {
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23333' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 30px;
+}
+
+.form-actions {
+  margin-top: 30px;
+  display: flex;
+  gap: 10px;
+}
+
+.btn {
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.btn-primary {
+  background-color: #4a6cf7;
+  color: white;
+  border: none;
+}
+
+.btn-secondary {
+  background-color: #f5f5f5;
+  border: 1px solid #ccc;
+}
+</style>
