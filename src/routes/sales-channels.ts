@@ -46,7 +46,7 @@ router.get("/", async (req: Request, res: Response) => {
       }
     });
   } catch (error) {
-    console.error("Error fetching sales channels:", error);
+    logger.error("Error fetching sales channels:", error);
     res.status(500).json({ error: "Failed to fetch sales channels" });
   }
 });
@@ -67,7 +67,7 @@ router.get("/:id", async (req: Request, res: Response) => {
 
     res.json(salesChannel);
   } catch (error) {
-    console.error("Error fetching sales channel:", error);
+    logger.error("Error fetching sales channel:", error);
     res.status(500).json({ error: "Failed to fetch sales channel" });
   }
 });
@@ -87,7 +87,7 @@ router.get("/default/channel", async (req: Request, res: Response) => {
 
     res.json(defaultChannel);
   } catch (error) {
-    console.error("Error fetching default sales channel:", error);
+    logger.error("Error fetching default sales channel:", error);
     res.status(500).json({ error: "Failed to fetch default sales channel" });
   }
 });
@@ -133,7 +133,7 @@ router.post("/", async (req: Request, res: Response) => {
       salesChannel: savedSalesChannel
     });
   } catch (error) {
-    console.error("Error creating sales channel:", error);
+    logger.error("Error creating sales channel:", error);
     res.status(500).json({ error: "Failed to create sales channel" });
   }
 });
@@ -188,7 +188,7 @@ router.put("/:id", async (req: Request, res: Response) => {
       salesChannel: updatedSalesChannel
     });
   } catch (error) {
-    console.error("Error updating sales channel:", error);
+    logger.error("Error updating sales channel:", error);
     res.status(500).json({ error: "Failed to update sales channel" });
   }
 });
@@ -226,7 +226,7 @@ router.post("/:id/set-default", async (req: Request, res: Response) => {
       salesChannel: updatedSalesChannel
     });
   } catch (error) {
-    console.error("Error setting default sales channel:", error);
+    logger.error("Error setting default sales channel:", error);
     res.status(500).json({ error: "Failed to set default sales channel" });
   }
 });
@@ -251,7 +251,7 @@ router.get("/:id/currencies", async (req: Request, res: Response) => {
       defaultCurrency: salesChannel.defaultCurrency
     });
   } catch (error) {
-    console.error("Error fetching sales channel currencies:", error);
+    logger.error("Error fetching sales channel currencies:", error);
     res.status(500).json({ error: "Failed to fetch sales channel currencies" });
   }
 });
@@ -287,7 +287,7 @@ router.post("/:id/currencies", async (req: Request, res: Response) => {
       salesChannel: updatedSalesChannel
     });
   } catch (error) {
-    console.error("Error adding currency:", error);
+    logger.error("Error adding currency:", error);
     res.status(500).json({ error: "Failed to add currency" });
   }
 });
@@ -324,7 +324,7 @@ router.delete("/:id/currencies/:currency", async (req: Request, res: Response) =
       salesChannel: updatedSalesChannel
     });
   } catch (error) {
-    console.error("Error removing currency:", error);
+    logger.error("Error removing currency:", error);
     res.status(500).json({ error: "Failed to remove currency" });
   }
 });
@@ -351,7 +351,7 @@ router.delete("/:id", async (req: Request, res: Response) => {
 
     res.json({ message: "Sales channel deleted successfully" });
   } catch (error) {
-    console.error("Error deleting sales channel:", error);
+    logger.error("Error deleting sales channel:", error);
     res.status(500).json({ error: "Failed to delete sales channel" });
   }
 });

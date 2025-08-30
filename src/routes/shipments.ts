@@ -70,7 +70,7 @@ router.get("/", async (req: Request, res: Response) => {
       },
     });
   } catch (error) {
-    console.error("Error fetching shipments:", error);
+    logger.error("Error fetching shipments:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
@@ -91,7 +91,7 @@ router.get("/:id", async (req: Request, res: Response) => {
 
     res.json(shipment);
   } catch (error) {
-    console.error("Error fetching shipment:", error);
+    logger.error("Error fetching shipment:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
@@ -118,7 +118,7 @@ router.post("/", async (req: Request, res: Response) => {
     const savedShipment = await shipmentRepository.save(shipment);
     res.status(201).json(savedShipment);
   } catch (error) {
-    console.error("Error creating shipment:", error);
+    logger.error("Error creating shipment:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
@@ -156,7 +156,7 @@ router.put("/:id", async (req: Request, res: Response) => {
     const updatedShipment = await shipmentRepository.save(existingShipment);
     res.json(updatedShipment);
   } catch (error) {
-    console.error("Error updating shipment:", error);
+    logger.error("Error updating shipment:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
@@ -201,7 +201,7 @@ router.patch("/:id/status", async (req: Request, res: Response) => {
     const updatedShipment = await shipmentRepository.save(shipment);
     res.json(updatedShipment);
   } catch (error) {
-    console.error("Error updating shipment status:", error);
+    logger.error("Error updating shipment status:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
@@ -249,7 +249,7 @@ router.get("/:id/track", async (req: Request, res: Response) => {
       })),
     });
   } catch (error) {
-    console.error("Error tracking shipment:", error);
+    logger.error("Error tracking shipment:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
@@ -296,7 +296,7 @@ router.post("/:id/generate-label", async (req: Request, res: Response) => {
       trackingNumber: shipment.trackingNumber,
     });
   } catch (error) {
-    console.error("Error generating shipping label:", error);
+    logger.error("Error generating shipping label:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
@@ -339,7 +339,7 @@ router.post("/:id/cancel", async (req: Request, res: Response) => {
     const updatedShipment = await shipmentRepository.save(shipment);
     res.json(updatedShipment);
   } catch (error) {
-    console.error("Error cancelling shipment:", error);
+    logger.error("Error cancelling shipment:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });

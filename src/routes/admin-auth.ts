@@ -162,7 +162,7 @@ router.post("/login", adminLoginLimiter, async (req: Request, res: Response) => 
       },
     });
   } catch (error) {
-    console.error("Admin login error:", error);
+    logger.error("Admin login error:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
@@ -219,7 +219,7 @@ router.post("/refresh", async (req: Request, res: Response) => {
       });
     }
   } catch (error) {
-    console.error("Token refresh error:", error);
+    logger.error("Token refresh error:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
@@ -274,7 +274,7 @@ router.get("/profile", authenticate, authorize([Permission.ADMIN_SETTINGS]), asy
       } : null,
     });
   } catch (error) {
-    console.error("Get admin profile error:", error);
+    logger.error("Get admin profile error:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
@@ -317,7 +317,7 @@ router.put("/profile", authenticate, authorize([Permission.ADMIN_SETTINGS]), asy
       },
     });
   } catch (error) {
-    console.error("Update admin profile error:", error);
+    logger.error("Update admin profile error:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
@@ -368,7 +368,7 @@ router.post("/change-password", authenticate, authorize([Permission.ADMIN_SETTIN
       message: "Password changed successfully"
     });
   } catch (error) {
-    console.error("Change password error:", error);
+    logger.error("Change password error:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
@@ -382,7 +382,7 @@ router.post("/logout", authenticate, async (req: AuthRequest, res: Response) => 
       message: "Logged out successfully"
     });
   } catch (error) {
-    console.error("Admin logout error:", error);
+    logger.error("Admin logout error:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });

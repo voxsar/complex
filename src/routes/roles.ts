@@ -82,7 +82,7 @@ router.get("/", authenticate, authorize([Permission.ADMIN_ROLES]), async (req: A
       },
     });
   } catch (error) {
-    console.error("Error fetching roles:", error);
+    logger.error("Error fetching roles:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
@@ -122,7 +122,7 @@ router.get("/:id", authenticate, authorize([Permission.ADMIN_ROLES]), async (req
       userCount: users.length,
     });
   } catch (error) {
-    console.error("Error fetching role:", error);
+    logger.error("Error fetching role:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
@@ -197,7 +197,7 @@ router.post("/", authenticate, authorize([Permission.ADMIN_ROLES]), async (req: 
       role: savedRole,
     });
   } catch (error) {
-    console.error("Error creating role:", error);
+    logger.error("Error creating role:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
@@ -286,7 +286,7 @@ router.put("/:id", authenticate, authorize([Permission.ADMIN_ROLES]), async (req
       role: updatedRole,
     });
   } catch (error) {
-    console.error("Error updating role:", error);
+    logger.error("Error updating role:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
@@ -337,7 +337,7 @@ router.delete("/:id", authenticate, authorize([Permission.ADMIN_ROLES]), async (
       },
     });
   } catch (error) {
-    console.error("Error deleting role:", error);
+    logger.error("Error deleting role:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
@@ -395,7 +395,7 @@ router.post("/:roleId/assign/:userId", authenticate, authorize([Permission.ADMIN
       },
     });
   } catch (error) {
-    console.error("Error assigning role:", error);
+    logger.error("Error assigning role:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
@@ -440,7 +440,7 @@ router.delete("/:roleId/unassign/:userId", authenticate, authorize([Permission.A
       },
     });
   } catch (error) {
-    console.error("Error removing role:", error);
+    logger.error("Error removing role:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
@@ -472,7 +472,7 @@ router.get("/permissions/list", authenticate, authorize([Permission.ADMIN_ROLES]
       totalCount: permissions.length,
     });
   } catch (error) {
-    console.error("Error fetching permissions:", error);
+    logger.error("Error fetching permissions:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });

@@ -32,7 +32,7 @@ router.get("/dashboard", async (req: Request, res: Response) => {
 
     res.json(stats);
   } catch (error) {
-    console.error("Error fetching dashboard stats:", error);
+    logger.error("Error fetching dashboard stats:", error);
     res.status(500).json({ error: "Failed to fetch dashboard statistics" });
   }
 });
@@ -87,7 +87,7 @@ router.get("/sales", async (req: Request, res: Response) => {
       data: salesData
     });
   } catch (error) {
-    console.error("Error fetching sales data:", error);
+    logger.error("Error fetching sales data:", error);
     res.status(500).json({ error: "Failed to fetch sales data" });
   }
 });
@@ -131,7 +131,7 @@ router.get("/top-products", async (req: Request, res: Response) => {
 
     res.json(topProducts);
   } catch (error) {
-    console.error("Error fetching top products:", error);
+    logger.error("Error fetching top products:", error);
     res.status(500).json({ error: "Failed to fetch top products" });
   }
 });
@@ -173,7 +173,7 @@ router.get("/customers", async (req: Request, res: Response) => {
 
     res.json(customerStats);
   } catch (error) {
-    console.error("Error fetching customer stats:", error);
+    logger.error("Error fetching customer stats:", error);
     res.status(500).json({ error: "Failed to fetch customer statistics" });
   }
 });

@@ -45,7 +45,7 @@ router.get("/", async (req: Request, res: Response) => {
       }
     });
   } catch (error) {
-    console.error("Error fetching exchanges:", error);
+    logger.error("Error fetching exchanges:", error);
     res.status(500).json({ error: "Failed to fetch exchanges" });
   }
 });
@@ -66,7 +66,7 @@ router.get("/:id", async (req: Request, res: Response) => {
 
     res.json(exchange);
   } catch (error) {
-    console.error("Error fetching exchange:", error);
+    logger.error("Error fetching exchange:", error);
     res.status(500).json({ error: "Failed to fetch exchange" });
   }
 });
@@ -162,7 +162,7 @@ router.post("/", async (req: Request, res: Response) => {
       exchange: savedExchange
     });
   } catch (error) {
-    console.error("Error creating exchange:", error);
+    logger.error("Error creating exchange:", error);
     res.status(500).json({ error: "Failed to create exchange request" });
   }
 });
@@ -207,7 +207,7 @@ router.patch("/:id/status", async (req: Request, res: Response) => {
       exchange: updatedExchange
     });
   } catch (error) {
-    console.error("Error updating exchange status:", error);
+    logger.error("Error updating exchange status:", error);
     res.status(500).json({ error: "Failed to update exchange status" });
   }
 });
@@ -242,7 +242,7 @@ router.post("/:id/approve", async (req: Request, res: Response) => {
       exchange: updatedExchange
     });
   } catch (error) {
-    console.error("Error approving exchange:", error);
+    logger.error("Error approving exchange:", error);
     res.status(500).json({ error: "Failed to approve exchange" });
   }
 });
@@ -315,7 +315,7 @@ router.post("/:id/payment", async (req: Request, res: Response) => {
       exchange: updatedExchange
     });
   } catch (error) {
-    console.error("Error processing exchange payment:", error);
+    logger.error("Error processing exchange payment:", error);
     res.status(500).json({ error: "Failed to process exchange payment" });
   }
 });
@@ -342,7 +342,7 @@ router.delete("/:id", async (req: Request, res: Response) => {
 
     res.json({ message: "Exchange deleted successfully" });
   } catch (error) {
-    console.error("Error deleting exchange:", error);
+    logger.error("Error deleting exchange:", error);
     res.status(500).json({ error: "Failed to delete exchange" });
   }
 });

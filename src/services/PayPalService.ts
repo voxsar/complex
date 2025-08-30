@@ -314,7 +314,7 @@ export class PayPalService {
 
       return response.data.verification_status === "SUCCESS";
     } catch (error) {
-      console.error("PayPal webhook verification failed:", error);
+      logger.error({ err: error }, "PayPal webhook verification failed");
       return false;
     }
   }

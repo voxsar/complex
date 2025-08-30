@@ -155,7 +155,7 @@ router.post("/", authenticate, async (req: Request, res: Response) => {
         }
       });
     } catch (error) {
-      console.error("Error processing refund:", error);
+      logger.error("Error processing refund:", error);
       
       // Update refund status to failed
       refund.status = RefundStatus.FAILED;
@@ -168,7 +168,7 @@ router.post("/", authenticate, async (req: Request, res: Response) => {
       });
     }
   } catch (error) {
-    console.error("Error creating refund:", error);
+    logger.error("Error creating refund:", error);
     res.status(500).json({
       success: false,
       error: "Failed to create refund"
@@ -212,7 +212,7 @@ router.get("/:refundId", authenticate, async (req: Request, res: Response) => {
       }
     });
   } catch (error) {
-    console.error("Error fetching refund:", error);
+    logger.error("Error fetching refund:", error);
     res.status(500).json({
       success: false,
       error: "Failed to fetch refund"
@@ -254,7 +254,7 @@ router.get("/payment-intent/:paymentIntentId", authenticate, async (req: Request
       }
     });
   } catch (error) {
-    console.error("Error fetching refunds:", error);
+    logger.error("Error fetching refunds:", error);
     res.status(500).json({
       success: false,
       error: "Failed to fetch refunds"
@@ -323,7 +323,7 @@ router.get("/", authenticate, async (req: Request, res: Response) => {
       }
     });
   } catch (error) {
-    console.error("Error fetching refunds:", error);
+    logger.error("Error fetching refunds:", error);
     res.status(500).json({
       success: false,
       error: "Failed to fetch refunds"
@@ -382,14 +382,14 @@ router.post("/:refundId/cancel", authenticate, async (req: Request, res: Respons
         }
       });
     } catch (error) {
-      console.error("Error cancelling refund:", error);
+      logger.error("Error cancelling refund:", error);
       res.status(500).json({
         success: false,
         error: "Failed to cancel refund"
       });
     }
   } catch (error) {
-    console.error("Error cancelling refund:", error);
+    logger.error("Error cancelling refund:", error);
     res.status(500).json({
       success: false,
       error: "Failed to cancel refund"

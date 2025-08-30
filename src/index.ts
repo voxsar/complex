@@ -7,6 +7,8 @@ import rateLimit from "express-rate-limit";
 import dotenv from "dotenv";
 import { AppDataSource } from "./data-source";
 import i18n, { i18nextMiddleware } from "./utils/i18n";
+import logger from "./utils/logger";
+import { requestLogger } from "./middleware/requestLogger";
 
 // Import routes
 import productRoutes from "./routes/products";
@@ -55,6 +57,20 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Optional APM initialization
+let apm: any;
+if (process.env.APM_SERVICE_NAME) {
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    apm = require('elastic-apm-node').start({
+      serviceName: process.env.APM_SERVICE_NAME,
+    });
+    logger.info('APM initialized');
+  } catch (err) {
+    logger.warn('APM initialization failed', err);
+  }
+}
+
 // Make currency service available to routes and start rate refresh
 app.set("currencyService", currencyService);
 
@@ -78,6 +94,7 @@ app.use(compression());
 app.use(limiter);
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
+app.use(requestLogger(apm));
 
 // Health check endpoint
 app.get("/health", (req, res) => {
@@ -141,16 +158,16 @@ app.use(errorHandler);
 // Database connection and server startup
 AppDataSource.initialize()
   .then(async () => {
-    console.log("✅ Database connected successfully");
-    
+    logger.info("✅ Database connected successfully");
+
     app.listen(PORT, () => {
-      console.log(`🚀 Server is running on port ${PORT}`);
-      console.log(`📊 Environment: ${process.env.NODE_ENV || "development"}`);
-      console.log(`🔗 Health check: http://localhost:${PORT}/health`);
+      logger.info({ port: PORT }, "🚀 Server is running");
+      logger.info({ env: process.env.NODE_ENV || "development" }, "📊 Environment");
+      logger.info({ url: `http://localhost:${PORT}/health` }, "🔗 Health check");
     });
   })
   .catch((error) => {
-    console.error("❌ Database connection failed:", error);
+    logger.error({ err: error }, "❌ Database connection failed");
     process.exit(1);
   });
 

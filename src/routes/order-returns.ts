@@ -48,7 +48,7 @@ router.get("/", async (req: Request, res: Response) => {
       }
     });
   } catch (error) {
-    console.error("Error fetching returns:", error);
+    logger.error("Error fetching returns:", error);
     res.status(500).json({ error: "Failed to fetch returns" });
   }
 });
@@ -69,7 +69,7 @@ router.get("/:id", async (req: Request, res: Response) => {
 
     res.json(orderReturn);
   } catch (error) {
-    console.error("Error fetching return:", error);
+    logger.error("Error fetching return:", error);
     res.status(500).json({ error: "Failed to fetch return" });
   }
 });
@@ -137,7 +137,7 @@ router.post("/", async (req: Request, res: Response) => {
       return: savedReturn
     });
   } catch (error) {
-    console.error("Error creating return:", error);
+    logger.error("Error creating return:", error);
     res.status(500).json({ error: "Failed to create return request" });
   }
 });
@@ -183,7 +183,7 @@ router.patch("/:id/status", async (req: Request, res: Response) => {
       return: updatedReturn
     });
   } catch (error) {
-    console.error("Error updating return status:", error);
+    logger.error("Error updating return status:", error);
     res.status(500).json({ error: "Failed to update return status" });
   }
 });
@@ -242,7 +242,7 @@ router.post("/:id/refund", async (req: Request, res: Response) => {
       return: updatedReturn
     });
   } catch (error) {
-    console.error("Error processing refund:", error);
+    logger.error("Error processing refund:", error);
     res.status(500).json({ error: "Failed to process refund" });
   }
 });
@@ -269,7 +269,7 @@ router.delete("/:id", async (req: Request, res: Response) => {
 
     res.json({ message: "Return deleted successfully" });
   } catch (error) {
-    console.error("Error deleting return:", error);
+    logger.error("Error deleting return:", error);
     res.status(500).json({ error: "Failed to delete return" });
   }
 });

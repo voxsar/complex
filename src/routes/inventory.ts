@@ -73,7 +73,7 @@ router.get("/", async (req: Request, res: Response) => {
       },
     });
   } catch (error) {
-    console.error("Error fetching inventory:", error);
+    logger.error("Error fetching inventory:", error);
     res.status(500).json({ error: "Failed to fetch inventory" });
   }
 });
@@ -102,7 +102,7 @@ router.get("/:id", async (req: Request, res: Response) => {
 
     res.json(inventoryWithComputedProps);
   } catch (error) {
-    console.error("Error fetching inventory item:", error);
+    logger.error("Error fetching inventory item:", error);
     res.status(500).json({ error: "Failed to fetch inventory item" });
   }
 });
@@ -123,7 +123,7 @@ router.post("/", async (req: Request, res: Response) => {
     const savedInventory = await inventoryRepository.save(inventory);
     res.status(201).json(savedInventory);
   } catch (error) {
-    console.error("Error creating inventory item:", error);
+    logger.error("Error creating inventory item:", error);
     res.status(500).json({ error: "Failed to create inventory item" });
   }
 });
@@ -154,7 +154,7 @@ router.put("/:id", async (req: Request, res: Response) => {
     const updatedInventory = await inventoryRepository.save(inventory);
     res.json(updatedInventory);
   } catch (error) {
-    console.error("Error updating inventory item:", error);
+    logger.error("Error updating inventory item:", error);
     res.status(500).json({ error: "Failed to update inventory item" });
   }
 });
@@ -179,7 +179,7 @@ router.post("/:id/adjust", async (req: Request, res: Response) => {
     const updatedInventory = await inventoryRepository.save(inventory);
     res.json(updatedInventory);
   } catch (error) {
-    console.error("Error adjusting inventory:", error);
+    logger.error("Error adjusting inventory:", error);
     res.status(500).json({ error: "Failed to adjust inventory" });
   }
 });
@@ -208,7 +208,7 @@ router.post("/:id/reserve", async (req: Request, res: Response) => {
     const updatedInventory = await inventoryRepository.save(inventory);
     res.json(updatedInventory);
   } catch (error) {
-    console.error("Error reserving inventory:", error);
+    logger.error("Error reserving inventory:", error);
     res.status(500).json({ error: "Failed to reserve inventory" });
   }
 });
@@ -233,7 +233,7 @@ router.post("/:id/release", async (req: Request, res: Response) => {
     const updatedInventory = await inventoryRepository.save(inventory);
     res.json(updatedInventory);
   } catch (error) {
-    console.error("Error releasing inventory:", error);
+    logger.error("Error releasing inventory:", error);
     res.status(500).json({ error: "Failed to release inventory" });
   }
 });

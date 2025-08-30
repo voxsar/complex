@@ -218,7 +218,7 @@ export class StripeService {
     try {
       return await this.stripe.paymentMethods.retrieve(paymentMethodId);
     } catch (error) {
-      console.error('Error retrieving Stripe payment method:', error);
+      logger.error({ err: error }, 'Error retrieving Stripe payment method');
       throw error;
     }
   }
@@ -230,7 +230,7 @@ export class StripeService {
     try {
       return await this.stripe.paymentMethods.detach(paymentMethodId);
     } catch (error) {
-      console.error('Error detaching Stripe payment method:', error);
+      logger.error({ err: error }, 'Error detaching Stripe payment method');
       throw error;
     }
   }

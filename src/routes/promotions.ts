@@ -61,7 +61,7 @@ router.get("/", async (req: Request, res: Response) => {
       },
     });
   } catch (error) {
-    console.error("Error fetching promotions:", error);
+    logger.error("Error fetching promotions:", error);
     res.status(500).json({ error: "Failed to fetch promotions" });
   }
 });
@@ -82,7 +82,7 @@ router.get("/:id", async (req: Request, res: Response) => {
 
     res.json(promotion);
   } catch (error) {
-    console.error("Error fetching promotion:", error);
+    logger.error("Error fetching promotion:", error);
     res.status(500).json({ error: "Failed to fetch promotion" });
   }
 });
@@ -103,7 +103,7 @@ router.post("/", async (req: Request, res: Response) => {
     const savedPromotion = await promotionRepository.save(promotion);
     res.status(201).json(savedPromotion);
   } catch (error) {
-    console.error("Error creating promotion:", error);
+    logger.error("Error creating promotion:", error);
     res.status(500).json({ error: "Failed to create promotion" });
   }
 });
@@ -134,7 +134,7 @@ router.put("/:id", async (req: Request, res: Response) => {
     const updatedPromotion = await promotionRepository.save(promotion);
     res.json(updatedPromotion);
   } catch (error) {
-    console.error("Error updating promotion:", error);
+    logger.error("Error updating promotion:", error);
     res.status(500).json({ error: "Failed to update promotion" });
   }
 });
@@ -158,7 +158,7 @@ router.post("/:id/activate", async (req: Request, res: Response) => {
     const updatedPromotion = await promotionRepository.save(promotion);
     res.json(updatedPromotion);
   } catch (error) {
-    console.error("Error activating promotion:", error);
+    logger.error("Error activating promotion:", error);
     res.status(500).json({ error: "Failed to activate promotion" });
   }
 });
@@ -182,7 +182,7 @@ router.post("/:id/deactivate", async (req: Request, res: Response) => {
     const updatedPromotion = await promotionRepository.save(promotion);
     res.json(updatedPromotion);
   } catch (error) {
-    console.error("Error deactivating promotion:", error);
+    logger.error("Error deactivating promotion:", error);
     res.status(500).json({ error: "Failed to deactivate promotion" });
   }
 });
