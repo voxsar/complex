@@ -58,7 +58,8 @@ A comprehensive headless e-commerce API built with Node.js, Express, TypeScript,
 ## API Endpoints
 
 ### Products
-- `GET /api/products` - List products with filtering, pagination, and review summary
+- `GET /api/products` - List products with filtering and pagination
+- `GET /api/products/search?q=term` - Search products by title, description, and tags
 - `GET /api/products/:id` - Get single product with variants and review summary
 - `POST /api/products` - Create new product
 - `PUT /api/products/:id` - Update product
@@ -100,6 +101,23 @@ A comprehensive headless e-commerce API built with Node.js, Express, TypeScript,
 - `DELETE /api/reviews/:id` - Delete review
 
 ### Additional endpoints for payments, promotions, campaigns, inventory, and product options.
+
+#### Product Search Example
+
+```http
+GET /api/products/search?q=shirt&page=1&limit=5
+```
+
+Response:
+
+```json
+{
+  "products": [
+    { "id": "prod_123", "title": "Blue Shirt", "score": 1.5 }
+  ],
+  "pagination": { "page": 1, "limit": 5, "total": 1, "pages": 1 }
+}
+```
 
 ## Setup & Installation
 
