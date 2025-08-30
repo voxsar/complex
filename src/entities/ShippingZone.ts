@@ -22,19 +22,19 @@ export class ShippingZone {
   @IsOptional()
   description?: string;
 
-  @Column()
+  @Column("simple-array")
   @IsArray()
   countries: string[]; // Array of country codes (e.g., ["US", "CA", "MX"])
 
-  @Column()
+  @Column("simple-array")
   @IsArray()
   states: string[]; // Array of state/province codes
 
-  @Column()
+  @Column("simple-array")
   @IsArray()
   cities: string[]; // Array of cities (optional, empty array means all cities)
 
-  @Column()
+  @Column("simple-array")
   @IsArray()
   postalCodes: string[]; // Array of postal code patterns
 

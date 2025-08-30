@@ -27,19 +27,19 @@ export class SalesChannel {
   @Column({ default: false })
   isDefault: boolean;
 
-  @Column({ default: [] })
+  @Column("simple-array")
   supportedCurrencies: string[];
 
   @Column({ nullable: true })
   defaultCurrency?: string;
 
-  @Column({ default: [] })
+  @Column("simple-array")
   stockLocationIds: string[];
 
-  @Column({ default: [] })
+  @Column("simple-array")
   shippingProfileIds: string[];
 
-  @Column({ nullable: true })
+  @Column({ type: "simple-json", nullable: true })
   metadata?: Record<string, any>;
 
   @CreateDateColumn()

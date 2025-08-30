@@ -46,11 +46,11 @@ export class Collection {
   @IsOptional()
   image?: string;
 
-  @Column({ default: [] })
+  @Column("simple-array")
   productIds: string[];
 
   // For automated collections - condition rules
-  @Column({ nullable: true })
+  @Column({ type: "simple-json", nullable: true })
   conditions?: {
     type: "all" | "any";
     rules: Array<{
@@ -60,7 +60,7 @@ export class Collection {
     }>;
   };
 
-  @Column({ nullable: true })
+  @Column({ type: "simple-json", nullable: true })
   metadata?: Record<string, any>;
 
   @Column({ nullable: true })

@@ -42,13 +42,13 @@ export class Category {
   @IsOptional()
   parentId?: string;
 
-  @Column({ default: [] })
+  @Column("simple-array")
   childrenIds: string[];
 
-  @Column({ default: [] })
+  @Column("simple-array")
   productIds: string[];
 
-  @Column({ nullable: true })
+  @Column({ type: "simple-json", nullable: true })
   metadata?: Record<string, any>;
 
   @Column({ nullable: true })

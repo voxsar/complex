@@ -100,7 +100,7 @@ export class FulfillmentCenter {
   isDefault: boolean; // Default fulfillment center
 
   // Supported shipping zones
-  @Column({ type: "simple-array", default: [] })
+  @Column("simple-array")
   supportedShippingZones: string[]; // Array of shipping zone IDs
 
   // Priority for order routing

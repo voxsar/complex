@@ -127,7 +127,7 @@ export class Shipment {
   labelFormat?: string; // "PDF", "PNG", "ZPL"
 
   // Tracking events
-  @Column({ type: "json", default: [] })
+  @Column({ type: "json", nullable: true })
   trackingEvents: {
     status: string;
     description: string;

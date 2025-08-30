@@ -23,7 +23,7 @@ export class Role {
   @IsOptional()
   description?: string;
 
-  @Column({ type: "simple-array" })
+  @Column({ type: "simple-array", nullable: true })
   @IsArray()
   permissions: Permission[];
 

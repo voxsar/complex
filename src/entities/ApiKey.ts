@@ -42,11 +42,11 @@ export class ApiKey {
   })
   status: ApiKeyStatus;
 
-  @Column({ type: "simple-array", default: [] })
+  @Column("simple-array")
   @IsArray()
   permissions: Permission[]; // Specific permissions for this key
 
-  @Column({ type: "simple-array", default: [] })
+  @Column("simple-array")
   @IsArray()
   scopes: string[]; // API scopes (e.g., "orders", "products", "customers")
 
@@ -65,7 +65,7 @@ export class ApiKey {
   @IsOptional()
   rateLimitPerHour?: number; // Rate limit for this specific key
 
-  @Column({ type: "simple-array", default: [] })
+  @Column("simple-array")
   @IsArray()
   allowedIPs: string[]; // IP whitelist
 

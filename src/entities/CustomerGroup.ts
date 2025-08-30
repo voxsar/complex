@@ -29,11 +29,11 @@ export class CustomerGroup {
   @IsBoolean()
   isActive: boolean;
 
-  @Column({ default: [] })
+  @Column("simple-array")
   customerIds: string[];
 
   // Automatic group criteria
-  @Column({ nullable: true })
+  @Column({ type: "simple-json", nullable: true })
   criteria?: {
     type: "all" | "any";
     rules: Array<{
@@ -43,7 +43,7 @@ export class CustomerGroup {
     }>;
   };
 
-  @Column({ nullable: true })
+  @Column({ type: "simple-json", nullable: true })
   metadata?: Record<string, any>;
 
   @CreateDateColumn()

@@ -133,7 +133,7 @@ const routes: RouteRecordRaw[] = [
       { path: 'shipping-zones', name: 'ShippingZones', component: () => import('../views/settings/ShippingZonesList.vue') },
       { path: 'tax-regions', name: 'TaxRegions', component: () => import('../views/settings/TaxRegionsList.vue') },
       { path: 'users', name: 'Users', component: () => import('../views/settings/UsersList.vue') },
-      { path: 'webhooks', name: 'Webhooks', component: () => import('../views/settings/WebhooksList.vue') }
+      { path: 'webhooks', name: 'Webhooks', component: () => import('../views/settings/WebhooksList.vue') },
       { path: 'api-keys', name: 'ApiKeys', component: () => import('../views/ApiKeysList.vue') },
       { path: 'api-keys/:id', name: 'ApiKeyDetail', component: () => import('../views/ApiKeyDetail.vue') }
     ]

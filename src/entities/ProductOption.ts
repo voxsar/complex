@@ -34,7 +34,7 @@ export class ProductOption {
   @Column({ default: "select" })
   inputType: string; // "select", "radio", "color", "text"
 
-  @Column({ default: [] })
+  @Column({ type: "simple-json", nullable: true })
   values: Array<{
     id: string;
     value: string;
@@ -45,10 +45,10 @@ export class ProductOption {
     sortOrder?: number;
   }>;
 
-  @Column({ default: [] })
+  @Column("simple-array")
   productIds: string[]; // Products that use this option
 
-  @Column({ nullable: true })
+  @Column({ type: "simple-json", nullable: true })
   metadata?: Record<string, any>;
 
   @CreateDateColumn()

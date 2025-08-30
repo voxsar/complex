@@ -38,10 +38,10 @@ export class PriceList {
   })
   type: PriceListType;
 
-  @Column({ default: [] })
+  @Column("simple-array")
   customerGroupIds: string[];
 
-  @Column({ default: [] })
+  @Column("simple-array")
   salesChannelIds: string[];
 
   @Column({ nullable: true })
@@ -52,7 +52,7 @@ export class PriceList {
   @IsOptional()
   endsAt?: Date;
 
-  @Column({ default: [] })
+  @Column({ type: "simple-json", nullable: true })
   prices: Array<{
     id: string;
     productId: string;
@@ -63,7 +63,7 @@ export class PriceList {
     maxQuantity?: number;
   }>;
 
-  @Column({ nullable: true })
+  @Column({ type: "simple-json", nullable: true })
   metadata?: Record<string, any>;
 
   @CreateDateColumn()

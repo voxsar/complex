@@ -46,7 +46,7 @@ export class User {
   @Column({ type: "enum", enum: UserRole, default: UserRole.CUSTOMER })
   role!: UserRole;
 
-  @Column({ type: "simple-array", default: [] })
+  @Column("simple-array")
   roleIds: string[]; // References to Role entities for RBAC
 
   @Column({ default: true })

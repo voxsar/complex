@@ -61,7 +61,7 @@ export class OrderClaim {
   @IsOptional()
   resolutionNote?: string;
 
-  @Column({ default: [] })
+  @Column({ type: "simple-json", nullable: true })
   items: Array<{
     id: string;
     orderItemId: string;
@@ -75,7 +75,7 @@ export class OrderClaim {
     };
   }>;
 
-  @Column({ default: [] })
+  @Column({ type: "simple-json", nullable: true })
   attachments: Array<{
     id: string;
     url: string;
@@ -88,7 +88,7 @@ export class OrderClaim {
   @IsOptional()
   resolvedAt?: Date;
 
-  @Column({ nullable: true })
+  @Column({ type: "simple-json", nullable: true })
   metadata?: Record<string, any>;
 
   @CreateDateColumn()

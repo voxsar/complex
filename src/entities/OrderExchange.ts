@@ -59,7 +59,7 @@ export class OrderExchange {
   @IsOptional()
   reason?: string;
 
-  @Column({ default: [] })
+  @Column({ type: "simple-json", nullable: true })
   returnItems: Array<{
     id: string;
     orderItemId: string;
@@ -68,7 +68,7 @@ export class OrderExchange {
     condition?: string;
   }>;
 
-  @Column({ default: [] })
+  @Column({ type: "simple-json", nullable: true })
   exchangeItems: Array<{
     id: string;
     productId: string;
@@ -80,7 +80,7 @@ export class OrderExchange {
     variantTitle: string;
   }>;
 
-  @Column({ nullable: true })
+  @Column({ type: "simple-json", nullable: true })
   shippingAddress?: {
     firstName: string;
     lastName: string;
@@ -106,7 +106,7 @@ export class OrderExchange {
   @IsOptional()
   completedAt?: Date;
 
-  @Column({ nullable: true })
+  @Column({ type: "simple-json", nullable: true })
   metadata?: Record<string, any>;
 
   @CreateDateColumn()

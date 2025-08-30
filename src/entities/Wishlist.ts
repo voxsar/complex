@@ -18,7 +18,7 @@ export class Wishlist {
   @IsNotEmpty()
   customerId: string;
 
-  @Column({ default: [] })
+  @Column("simple-array")
   @IsArray()
   productIds: string[];
 

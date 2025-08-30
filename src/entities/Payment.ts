@@ -69,7 +69,7 @@ export class Payment {
   @Column({ nullable: true })
   customerId?: string;
 
-  @Column({ nullable: true })
+  @Column({ type: "simple-json", nullable: true })
   billingAddress?: {
     firstName: string;
     lastName: string;
@@ -83,7 +83,7 @@ export class Payment {
     phone?: string;
   };
 
-  @Column({ nullable: true })
+  @Column({ type: "simple-json", nullable: true })
   cardInfo?: {
     last4: string;
     brand: string;
@@ -97,10 +97,10 @@ export class Payment {
   @Column({ nullable: true })
   processingFee?: number;
 
-  @Column({ nullable: true })
+  @Column({ type: "simple-json", nullable: true })
   gatewayResponse?: Record<string, any>;
 
-  @Column({ nullable: true })
+  @Column({ type: "simple-json", nullable: true })
   metadata?: Record<string, any>;
 
   @CreateDateColumn()

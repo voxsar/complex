@@ -61,7 +61,7 @@ export class OrderReturn {
   @IsOptional()
   rejectionReason?: string;
 
-  @Column({ default: [] })
+  @Column({ type: "simple-json", nullable: true })
   items: Array<{
     id: string;
     orderItemId: string;
@@ -72,7 +72,7 @@ export class OrderReturn {
     refundAmount: number;
   }>;
 
-  @Column({ default: [] })
+  @Column({ type: "simple-json", nullable: true })
   attachments: Array<{
     id: string;
     url: string;
@@ -93,7 +93,7 @@ export class OrderReturn {
   @IsOptional()
   refundedAt?: Date;
 
-  @Column({ nullable: true })
+  @Column({ type: "simple-json", nullable: true })
   metadata?: Record<string, any>;
 
   @CreateDateColumn()

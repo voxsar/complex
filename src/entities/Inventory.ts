@@ -57,7 +57,7 @@ export class Inventory {
   @Column({ nullable: true })
   notes?: string;
 
-  @Column({ nullable: true })
+  @Column({ type: "simple-json", nullable: true })
   metadata?: Record<string, any>;
 
   @CreateDateColumn()

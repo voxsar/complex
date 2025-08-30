@@ -50,7 +50,7 @@ export class Customer {
   @Column({ default: false })
   acceptsMarketing: boolean;
 
-  @Column({ default: [] })
+  @Column({ type: "simple-json", nullable: true })
   addresses: Array<{
     id: string;
     firstName: string;
@@ -62,7 +62,6 @@ export class Customer {
     province: string;
     country: string;
     zip: string;
-    phone?: string;
     isDefault: boolean;
   }>;
 
@@ -70,7 +69,7 @@ export class Customer {
   @IsOptional()
   taxExempt?: boolean;
 
-  @Column({ nullable: true })
+  @Column({ type: "simple-json", nullable: true })
   metadata?: Record<string, any>;
 
   @Column({ nullable: true })

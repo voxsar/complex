@@ -71,14 +71,14 @@ export class Product {
   @Min(0)
   height?: number;
 
-  @Column({ default: [] })
+  @Column({ type: "simple-json", nullable: true })
   images: string[];
 
   @Column({ nullable: true })
   @IsOptional()
   thumbnail?: string;
 
-  @Column({ nullable: true })
+  @Column({ type: "simple-json", nullable: true })
   metadata?: Record<string, any>;
 
   @Column({ nullable: true })
@@ -89,7 +89,7 @@ export class Product {
   @IsOptional()
   seoDescription?: string;
 
-  @Column({ default: [] })
+  @Column("simple-array")
   tags: string[];
 
   @Column({ default: false })
@@ -117,7 +117,7 @@ export class Product {
   updatedAt: Date;
 
   // Embedded variants array (for MongoDB, we embed related data)
-  @Column({ default: [] })
+  @Column({ type: "simple-json", nullable: true })
   variants: Array<{
     id: string;
     title: string;
@@ -154,13 +154,13 @@ export class Product {
   }>;
 
   // Category and collection references (stored as IDs for MongoDB)
-  @Column({ default: [] })
+  @Column("simple-array")
   categoryIds: string[];
 
-  @Column({ default: [] })
+  @Column("simple-array")
   collectionIds: string[];
 
-  @Column({ default: [] })
+  @Column("simple-array")
   optionIds: string[];
 
   @BeforeInsert()

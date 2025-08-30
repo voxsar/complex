@@ -70,8 +70,8 @@ export class Order {
   @IsNotEmpty()
   currency: string;
 
-  @Column()
-  billingAddress: {
+  @Column({ type: "simple-json", nullable: true })
+  billingAddress?: {
     firstName: string;
     lastName: string;
     company?: string;
@@ -84,7 +84,7 @@ export class Order {
     phone?: string;
   };
 
-  @Column({ nullable: true })
+  @Column({ type: "simple-json", nullable: true })
   shippingAddress?: {
     firstName: string;
     lastName: string;
@@ -106,10 +106,10 @@ export class Order {
   @IsOptional()
   adminNote?: string;
 
-  @Column({ default: [] })
+  @Column("simple-array")
   tags: string[];
 
-  @Column({ nullable: true })
+  @Column({ type: "simple-json", nullable: true })
   metadata?: Record<string, any>;
 
   @Column({ nullable: true })
@@ -120,7 +120,7 @@ export class Order {
   @IsOptional()
   deliveredAt?: Date;
 
-  @Column({ nullable: true })
+    @Column({ type: "simple-json", nullable: true })
   @IsOptional()
   cancelledAt?: Date;
 
@@ -145,7 +145,7 @@ export class Order {
   priceListId?: string;
 
   // Embedded items and payments arrays
-  @Column({ default: [] })
+  @Column({ type: "simple-json", nullable: true })
   items: Array<{
     id: string;
     quantity: number;
@@ -174,7 +174,7 @@ export class Order {
     };
   }>;
 
-  @Column({ default: [] })
+  @Column({ type: "simple-json", nullable: true })
   payments: Array<{
     id: string;
     amount: number;
@@ -191,7 +191,7 @@ export class Order {
     createdAt: Date;
   }>;
 
-  @Column({ default: [] })
+  @Column({ type: "simple-json", nullable: true })
   fulfillments: Array<{
     id: string;
     status: string;
@@ -208,20 +208,20 @@ export class Order {
     createdAt: Date;
   }>;
 
-  @Column({ default: [] })
+  @Column("simple-array")
   returnIds: string[];
 
-  @Column({ default: [] })
+  @Column("simple-array")
   claimIds: string[];
 
-  @Column({ default: [] })
+  @Column("simple-array")
   exchangeIds: string[];
 
   @Column({ nullable: true })
   @IsOptional()
   taxRegionId?: string; // ID of the tax region used for this order
 
-  @Column({ default: [] })
+  @Column({ type: "simple-json", nullable: true })
   taxBreakdown: Array<{
     name: string;
     rate: number;

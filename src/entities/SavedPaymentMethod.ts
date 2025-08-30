@@ -80,7 +80,7 @@ export class SavedPaymentMethod {
     status: string;
   };
 
-  @Column({ type: "json", nullable: true })
+  @Column({ type: "simple-json", nullable: true })
   @IsOptional()
   billingDetails?: {
     name?: string;
@@ -106,7 +106,7 @@ export class SavedPaymentMethod {
   @IsOptional()
   nickname?: string; // User-friendly name for the payment method
 
-  @Column({ type: "json", nullable: true })
+  @Column({ type: "simple-json", nullable: true })
   @IsOptional()
   metadata?: Record<string, any>;
 

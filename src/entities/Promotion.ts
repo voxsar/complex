@@ -86,23 +86,23 @@ export class Promotion {
   })
   targetType: PromotionTargetType;
 
-  @Column({ default: [] })
+  @Column("simple-array")
   targetIds: string[]; // Product, Category, Collection, or CustomerGroup IDs
 
-  @Column({ default: [] })
+  @Column("simple-array")
   applicableProductIds: string[];
 
-  @Column({ default: [] })
+  @Column("simple-array")
   excludedProductIds: string[];
 
-  @Column({ default: [] })
+  @Column("simple-array")
   applicableCustomerGroupIds: string[];
 
-  @Column({ default: [] })
+  @Column("simple-array")
   excludedCustomerIds: string[];
 
   // For Buy X Get Y promotions
-  @Column({ nullable: true })
+  @Column({ type: "simple-json", nullable: true })
   buyXGetYRules?: {
     buyQuantity: number;
     getQuantity: number;
@@ -119,7 +119,7 @@ export class Promotion {
   @Column({ default: 0 })
   priority: number; // Higher number = higher priority
 
-  @Column({ nullable: true })
+  @Column({ type: "simple-json", nullable: true })
   metadata?: Record<string, any>;
 
   @CreateDateColumn()

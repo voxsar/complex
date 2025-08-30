@@ -49,7 +49,7 @@ export class Cart {
   @Min(0)
   shippingAmount: number;
 
-  @Column("decimal", { precision: 10, scale: 2, default: 0 })
+    @Column({ type: "simple-json", nullable: true })
   @IsNumber()
   @Min(0)
   discountAmount: number;
@@ -70,7 +70,7 @@ export class Cart {
   email?: string;
 
   // Billing address
-  @Column({ nullable: true })
+  @Column({ type: "simple-json", nullable: true })
   billingAddress?: {
     firstName?: string;
     lastName?: string;
@@ -85,7 +85,7 @@ export class Cart {
   };
 
   // Shipping address
-  @Column({ nullable: true })
+  @Column({ type: "simple-json", nullable: true })
   shippingAddress?: {
     firstName?: string;
     lastName?: string;
@@ -117,7 +117,7 @@ export class Cart {
   priceListId?: string;
 
   // Line items
-  @Column({ default: [] })
+  @Column({ type: "simple-json", nullable: true })
   items: Array<{
     id: string;
     productId: string;
@@ -159,7 +159,7 @@ export class Cart {
   }>;
 
   // Applied promotions/discounts
-  @Column({ default: [] })
+  @Column({ type: "simple-json", nullable: true })
   discounts: Array<{
     id: string;
     code?: string;
@@ -173,7 +173,7 @@ export class Cart {
   }>;
 
   // Shipping methods
-  @Column({ default: [] })
+  @Column({ type: "simple-json", nullable: true })
   shippingMethods: Array<{
     id: string;
     shippingOptionId: string;
@@ -184,7 +184,7 @@ export class Cart {
   }>;
 
   // Payment sessions (for payment providers)
-  @Column({ default: [] })
+  @Column({ type: "simple-json", nullable: true })
   paymentSessions: Array<{
     id: string;
     providerId: string;
@@ -196,7 +196,7 @@ export class Cart {
   }>;
 
   // Tax breakdown
-  @Column({ default: [] })
+  @Column({ type: "simple-json", nullable: true })
   taxBreakdown: Array<{
     name: string;
     rate: number;
@@ -209,7 +209,7 @@ export class Cart {
   @IsOptional()
   customerNote?: string;
 
-  @Column({ nullable: true })
+  @Column({ type: "simple-json", nullable: true })
   metadata?: Record<string, any>;
 
   // Session and expiry

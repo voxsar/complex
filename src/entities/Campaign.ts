@@ -45,13 +45,13 @@ export class Campaign {
   })
   targetType: CampaignTargetType;
 
-  @Column({ default: [] })
+  @Column("simple-array")
   targetCustomerIds: string[];
 
-  @Column({ default: [] })
+  @Column("simple-array")
   targetCustomerGroupIds: string[];
 
-  @Column({ nullable: true })
+  @Column({ type: "simple-json", nullable: true })
   targetCriteria?: {
     type: "all" | "any";
     rules: Array<{
@@ -133,10 +133,10 @@ export class Campaign {
   @IsOptional()
   costPerAction?: number;
 
-  @Column({ default: [] })
+  @Column("simple-array")
   tags: string[];
 
-  @Column({ nullable: true })
+  @Column({ type: "simple-json", nullable: true })
   metadata?: Record<string, any>;
 
   @CreateDateColumn()

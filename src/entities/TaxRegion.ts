@@ -64,7 +64,7 @@ export class TaxRegion {
   defaultCombinableWithParent: boolean; // Whether default rate combines with parent
 
   // Tax rate overrides for specific products/types
-  @Column({ default: [] })
+  @Column({ type: "simple-json", nullable: true })
   taxOverrides: Array<{
     id: string;
     name: string;
@@ -77,7 +77,7 @@ export class TaxRegion {
     }>;
   }>;
 
-  @Column({ nullable: true })
+  @Column({ type: "simple-json", nullable: true })
   metadata?: Record<string, any>;
 
   @CreateDateColumn()
