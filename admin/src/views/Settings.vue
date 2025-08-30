@@ -17,6 +17,17 @@
       <router-link to="/settings/webhooks">Webhooks</router-link>
     </nav>
     <router-view />
+  <div class="settings-layout">
+    <aside class="settings-sidebar">
+      <nav>
+        <ul>
+          <li><router-link to="/settings/api-keys">API Keys</router-link></li>
+        </ul>
+      </nav>
+    </aside>
+    <main class="settings-content">
+      <router-view />
+    </main>
   </div>
 </template>
 
@@ -42,5 +53,16 @@
 
 .settings-nav a.router-link-active {
   background-color: #f3f4f6;
+.settings-layout {
+  display: flex;
+  gap: 1rem;
+}
+
+.settings-sidebar {
+  width: 200px;
+}
+
+.settings-content {
+  flex: 1;
 }
 </style>

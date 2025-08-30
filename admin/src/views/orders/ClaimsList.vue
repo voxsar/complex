@@ -1,0 +1,159 @@
+<template>
+  <div class="claims-list">
+    <h1>Order Claims</h1>
+
+    <div v-if="loading" class="state">Loading...</div>
+    <div v-else-if="error" class="state error">{{ error }}</div>
+    <table v-else class="claims-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Order ID</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="claim in claims" :key="claim.id">
+          <td>{{ claim.id }}</td>
+          <td>{{ claim.orderId }}</td>
+          <td>{{ claim.status }}</td>
+          <td>
+            <select v-model="statusUpdates[claim.id]">
+              <option disabled value="">Select</option>
+              <option v-for="s in statusOptions" :key="s" :value="s">{{ s }}</option>
+            </select>
+            <button @click="updateStatus(claim.id)">Update</button>
+          </td>
+        </tr>
+        <tr v-if="claims.length === 0">
+          <td colspan="4">No claims found</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>Create Claim</h2>
+    <div class="create-form">
+      <input v-model="newClaim.orderId" placeholder="Order ID" />
+      <input v-model="newClaim.customerId" placeholder="Customer ID" />
+      <input v-model="newClaim.type" placeholder="Type" />
+      <textarea v-model="newClaim.items" placeholder='Items JSON'></textarea>
+      <input v-model="newClaim.customerNote" placeholder="Customer note" />
+      <button @click="createClaim">Create</button>
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { ref, onMounted } from 'vue'
+
+interface Claim {
+  id: string
+  orderId: string
+  customerId: string
+  status: string
+}
+
+const claims = ref<Claim[]>([])
+const loading = ref(false)
+const error = ref('')
+
+const statusOptions = ['requested','in_review','approved','rejected','resolved','cancelled']
+const statusUpdates = ref<Record<string, string>>({})
+
+const newClaim = ref({ orderId:'', customerId:'', type:'refund', items:'[]', customerNote:'' })
+
+onMounted(() => {
+  fetchClaims()
+})
+
+async function fetchClaims() {
+  loading.value = true
+  error.value = ''
+  try {
+    const res = await fetch('/api/order-claims')
+    if (!res.ok) throw new Error('Failed to fetch claims')
+    const data = await res.json()
+    claims.value = data.claims ?? []
+  } catch (err: any) {
+    error.value = err.message || 'Error fetching claims'
+  } finally {
+    loading.value = false
+  }
+}
+
+async function createClaim() {
+  try {
+    const body = {
+      orderId: newClaim.value.orderId,
+      customerId: newClaim.value.customerId,
+      type: newClaim.value.type,
+      customerNote: newClaim.value.customerNote,
+      items: JSON.parse(newClaim.value.items || '[]')
+    }
+    const res = await fetch('/api/order-claims', {
+      method:'POST',
+      headers:{ 'Content-Type':'application/json' },
+      body: JSON.stringify(body)
+    })
+    if (!res.ok) throw new Error('Failed to create claim')
+    await res.json()
+    newClaim.value = { orderId:'', customerId:'', type:'refund', items:'[]', customerNote:'' }
+    fetchClaims()
+  } catch (err) {
+    console.error(err)
+  }
+}
+
+async function updateStatus(id: string) {
+  const status = statusUpdates.value[id]
+  if (!status) return
+  try {
+    const res = await fetch(`/api/order-claims/${id}/status`, {
+      method:'PATCH',
+      headers:{ 'Content-Type':'application/json' },
+      body: JSON.stringify({ status })
+    })
+    if (!res.ok) throw new Error('Failed to update status')
+    await res.json()
+    fetchClaims()
+  } catch (err) {
+    console.error(err)
+  }
+}
+</script>
+
+<style scoped>
+.claims-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.claims-table th,
+.claims-table td {
+  padding: 8px;
+  border: 1px solid #ddd;
+  text-align: left;
+}
+
+.state {
+  margin: 20px 0;
+}
+
+.state.error {
+  color: red;
+}
+
+.create-form {
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.create-form input,
+.create-form textarea {
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+}
+</style>
