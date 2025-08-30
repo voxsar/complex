@@ -44,11 +44,15 @@ import analyticsRoutes from "./routes/analytics";
 
 // Import middleware
 import { errorHandler } from "./middleware/errorHandler";
+import currencyService from "./services/CurrencyService";
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// Make currency service available to routes and start rate refresh
+app.set("currencyService", currencyService);
 
 // Rate limiting
 const limiter = rateLimit({
