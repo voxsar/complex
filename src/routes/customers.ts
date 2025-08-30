@@ -24,6 +24,7 @@ import {
   getPointsRedemptionOptions
 } from "../utils/customerAuth";
 import * as bcrypt from "bcryptjs";
+import emailService from "../utils/emailService";
 
 const router = Router();
 
@@ -184,11 +185,10 @@ router.post("/forgot-password", async (req: Request, res: Response) => {
     customer.passwordResetExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 
     await customerRepository.save(customer);
+    await emailService.sendPasswordReset(customer.email, resetToken);
 
-    // TODO: Send email with reset link containing resetToken
     res.json({
-      message: "Password reset link sent to email",
-      resetToken, // Remove this in production
+      message: "Password reset link sent to email"
     });
   } catch (error) {
     console.error("Error in forgot password:", error);
@@ -357,11 +357,10 @@ router.post("/resend-verification", authenticateCustomer, async (req: CustomerAu
 
     customer.emailVerificationToken = generateCustomerEmailVerificationToken();
     await customerRepository.save(customer);
+    await emailService.sendVerification(customer.email, customer.emailVerificationToken!);
 
-    // TODO: Send verification email
     res.json({
-      message: "Verification email sent",
-      verificationToken: customer.emailVerificationToken // Remove in production
+      message: "Verification email sent"
     });
   } catch (error) {
     console.error("Error resending verification:", error);
