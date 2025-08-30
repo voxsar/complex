@@ -6,6 +6,9 @@ import { ProductType } from "../enums/product_type";
 import { Category } from "../entities/Category";
 import { Customer } from "../entities/Customer";
 import { CustomerStatus } from "../enums/customer_status";
+import { FulfillmentCenter } from "../entities/FulfillmentCenter";
+import { FulfillmentCenterStatus } from "../enums/fulfillment_center_status";
+import { InventoryLevel } from "../entities/InventoryLevel";
 
 async function simpleSeed() {
   try {
@@ -17,11 +20,15 @@ async function simpleSeed() {
     const productRepo = AppDataSource.getRepository(Product);
     const categoryRepo = AppDataSource.getRepository(Category);
     const customerRepo = AppDataSource.getRepository(Customer);
+    const fulfillmentCenterRepo = AppDataSource.getRepository(FulfillmentCenter);
+    const inventoryLevelRepo = AppDataSource.getRepository(InventoryLevel);
 
     console.log("🧹 Clearing existing data...");
     await productRepo.clear();
     await categoryRepo.clear();
     await customerRepo.clear();
+    await fulfillmentCenterRepo.clear();
+    await inventoryLevelRepo.clear();
 
     // Create a simple category
     console.log("📂 Creating categories...");
@@ -168,6 +175,82 @@ async function simpleSeed() {
     const savedProducts = await productRepo.save([product1, product2]);
     console.log("✅ Products created:", savedProducts.length);
 
+    // Create fulfillment centers
+    console.log("🏬 Creating fulfillment centers...");
+    const center1 = new FulfillmentCenter();
+    center1.name = "East Coast Hub";
+    center1.code = "EAST1";
+    center1.status = FulfillmentCenterStatus.ACTIVE;
+    center1.address1 = "100 East St";
+    center1.city = "New York";
+    center1.state = "NY";
+    center1.country = "USA";
+    center1.postalCode = "10001";
+
+    const center2 = new FulfillmentCenter();
+    center2.name = "West Coast Hub";
+    center2.code = "WEST1";
+    center2.status = FulfillmentCenterStatus.ACTIVE;
+    center2.address1 = "200 West Ave";
+    center2.city = "Los Angeles";
+    center2.state = "CA";
+    center2.country = "USA";
+    center2.postalCode = "90001";
+
+    const savedCenters = await fulfillmentCenterRepo.save([center1, center2]);
+    console.log("✅ Fulfillment centers created:", savedCenters.length);
+
+    // Create inventory levels
+    console.log("📦 Creating inventory levels...");
+    const iphone = savedProducts[0];
+    const airpods = savedProducts[1];
+
+    const inventoryLevels = [
+      inventoryLevelRepo.create({
+        productId: iphone.id,
+        variantId: iphone.variants[0].id,
+        fulfillmentCenterId: savedCenters[0].id,
+        quantity: 20,
+        reservedQuantity: 0,
+        lowStockThreshold: 5,
+        trackQuantity: true,
+        allowBackorder: false,
+      }),
+      inventoryLevelRepo.create({
+        productId: iphone.id,
+        variantId: iphone.variants[0].id,
+        fulfillmentCenterId: savedCenters[1].id,
+        quantity: 4,
+        reservedQuantity: 0,
+        lowStockThreshold: 5,
+        trackQuantity: true,
+        allowBackorder: false,
+      }),
+      inventoryLevelRepo.create({
+        productId: airpods.id,
+        variantId: airpods.variants[0].id,
+        fulfillmentCenterId: savedCenters[0].id,
+        quantity: 15,
+        reservedQuantity: 0,
+        lowStockThreshold: 5,
+        trackQuantity: true,
+        allowBackorder: false,
+      }),
+      inventoryLevelRepo.create({
+        productId: airpods.id,
+        variantId: airpods.variants[0].id,
+        fulfillmentCenterId: savedCenters[1].id,
+        quantity: 2,
+        reservedQuantity: 0,
+        lowStockThreshold: 5,
+        trackQuantity: true,
+        allowBackorder: false,
+      }),
+    ];
+
+    const savedInventoryLevels = await inventoryLevelRepo.save(inventoryLevels);
+    console.log("✅ Inventory levels created:", savedInventoryLevels.length);
+
     // Update category with product IDs
     savedCategory.productIds = savedProducts.map(p => p.id);
     await categoryRepo.save(savedCategory);
@@ -177,6 +260,8 @@ async function simpleSeed() {
     console.log(`   - 1 category created`);
     console.log(`   - ${savedCustomers.length} customers created`);
     console.log(`   - ${savedProducts.length} products created`);
+    console.log(`   - ${savedCenters.length} fulfillment centers created`);
+    console.log(`   - ${savedInventoryLevels.length} inventory levels created`);
 
   } catch (error) {
     console.error("❌ Error seeding database:", error);

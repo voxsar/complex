@@ -2,11 +2,12 @@ import "reflect-metadata";
 import { DataSource } from "typeorm";
 import dotenv from "dotenv";
 
-// Import MongoDB-compatible entities
+// Import entities
 import { Product } from "./entities/Product";
 import { Category } from "./entities/Category";
 import { Collection } from "./entities/Collection";
 import { Inventory } from "./entities/Inventory";
+import { InventoryLevel } from "./entities/InventoryLevel";
 import { Customer } from "./entities/Customer";
 import { CustomerGroup } from "./entities/CustomerGroup";
 import { Cart } from "./entities/Cart";
@@ -30,13 +31,15 @@ import { Shipment } from "./entities/Shipment";
 import { Role } from "./entities/Role";
 import { ApiKey } from "./entities/ApiKey";
 import { OAuthAccount } from "./entities/OAuthAccount";
+import { Wishlist } from "./entities/Wishlist";
+import { Review } from "./entities/Review";
 
 dotenv.config();
 
 export const AppDataSource = new DataSource({
-  type: "mongodb",
+  type: "mysql",
   host: process.env.DB_HOST || "localhost",
-  port: parseInt(process.env.DB_PORT || "27017"),
+  port: parseInt(process.env.DB_PORT || "3306"),
   database: process.env.DB_DATABASE || "ecommerce_db",
   username: process.env.DB_USERNAME,
   password: process.env.DB_PASSWORD,
@@ -48,6 +51,7 @@ export const AppDataSource = new DataSource({
     Category,
     Collection,
     Inventory,
+    InventoryLevel,
     Customer,
     CustomerGroup,
     Cart,
@@ -70,6 +74,8 @@ export const AppDataSource = new DataSource({
     Role,
     ApiKey,
     OAuthAccount,
+    Wishlist,
+    Review,
   ],
   migrations: ["src/migrations/*.ts"],
   subscribers: ["src/subscribers/*.ts"],

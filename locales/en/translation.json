@@ -1,0 +1,17 @@
+{
+  "errors": {
+    "too_many_requests": "Too many requests from this IP, please try again later.",
+    "route_not_found": "Route not found",
+    "product_not_found": "Product not found",
+    "failed_to_fetch_products": "Failed to fetch products",
+    "category_not_found": "Category not found",
+    "failed_to_fetch_categories": "Failed to fetch categories",
+    "failed_to_fetch_product": "Failed to fetch product",
+    "failed_to_fetch_category": "Failed to fetch category",
+    "variant_not_found": "Variant not found",
+    "cannot_delete_category_with_children": "Cannot delete category with subcategories. Please delete or move subcategories first."
+  },
+  "health": {
+    "ok": "OK"
+  }
+}

@@ -9,6 +9,7 @@ import { CartType } from "../enums/cart_type";
 import { PromotionStatus } from "../enums/promotion_status";
 import { TaxRegionStatus } from "../enums/tax_region_status";
 import { Repository, LessThan } from "typeorm";
+import i18n from "./i18n";
 
 export class CartService {
   private cartRepository: Repository<Cart>;
@@ -96,7 +97,7 @@ export class CartService {
     });
 
     if (!product) {
-      throw new Error("Product not found");
+      throw new Error(i18n.t("errors.product_not_found"));
     }
 
     const variant = product.variants?.find(v => v.id === data.variantId);

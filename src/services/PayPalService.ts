@@ -225,18 +225,37 @@ export class PayPalService {
     phone?: string;
   }): Promise<any> {
     try {
-      // PayPal doesn't have a direct customer creation like Stripe
-      // This would typically be handled through the vault API for saving payment methods
-      // For now, we'll return a placeholder implementation
-      return {
-        id: `paypal_customer_${Date.now()}`,
-        email: params.email,
+      const accessToken = await this.getAccessToken();
+
+      const requestBody: any = {
+        payer_id: params.email, // Using email as external identifier
         name: {
           given_name: params.firstName,
           surname: params.lastName,
         },
-        phone: params.phone,
+        email_address: params.email,
       };
+
+      if (params.phone) {
+        requestBody.phone = {
+          phone_number: {
+            national_number: params.phone,
+          },
+        };
+      }
+
+      const response = await axios.post<any>(
+        `${this.baseUrl}/v1/vault/people`,
+        requestBody,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      return response.data;
     } catch (error) {
       throw new Error(`PayPal customer creation failed: ${error.message}`);
     }
@@ -247,27 +266,55 @@ export class PayPalService {
    */
   async verifyWebhookSignature(
     headers: Record<string, string>,
-    body: string,
+    body: string | Record<string, any>,
     webhookId: string
   ): Promise<boolean> {
     try {
-      // PayPal webhook verification implementation
-      // This would use PayPal's webhook verification API
-      const authAlgo = headers['paypal-auth-algo'];
-      const transmission = headers['paypal-transmission-id'];
-      const certId = headers['paypal-cert-id'];
-      const timestamp = headers['paypal-transmission-time'];
-      const signature = headers['paypal-transmission-sig'];
+      if (!webhookId) {
+        return false;
+      }
+      const authAlgo = headers["paypal-auth-algo"];
+      const transmissionId = headers["paypal-transmission-id"];
+      const certUrl = headers["paypal-cert-url"];
+      const transmissionSig = headers["paypal-transmission-sig"];
+      const transmissionTime = headers["paypal-transmission-time"];
 
-      if (!authAlgo || !transmission || !certId || !timestamp || !signature) {
+      if (
+        !authAlgo ||
+        !transmissionId ||
+        !certUrl ||
+        !transmissionSig ||
+        !transmissionTime
+      ) {
         return false;
       }
 
-      // In a real implementation, you would verify the signature using PayPal's SDK
-      // For now, we'll assume the webhook is valid if all required headers are present
-      return true;
+      const accessToken = await this.getAccessToken();
+      const payload = {
+        auth_algo: authAlgo,
+        cert_url: certUrl,
+        transmission_id: transmissionId,
+        transmission_sig: transmissionSig,
+        transmission_time: transmissionTime,
+        webhook_id: webhookId,
+        webhook_event:
+          typeof body === "string" ? JSON.parse(body) : body,
+      };
+
+      const response = await axios.post<{ verification_status: string }>(
+        `${this.baseUrl}/v1/notifications/verify-webhook-signature`,
+        payload,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      return response.data.verification_status === "SUCCESS";
     } catch (error) {
-      console.error('PayPal webhook verification failed:', error);
+      console.error("PayPal webhook verification failed:", error);
       return false;
     }
   }
