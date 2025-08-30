@@ -31,6 +31,7 @@ import { Shipment } from "./entities/Shipment";
 import { Role } from "./entities/Role";
 import { ApiKey } from "./entities/ApiKey";
 import { OAuthAccount } from "./entities/OAuthAccount";
+import { Review } from "./entities/Review";
 
 dotenv.config();
 
@@ -72,6 +73,7 @@ export const AppDataSource = new DataSource({
     Role,
     ApiKey,
     OAuthAccount,
+    Review,
   ],
   migrations: ["src/migrations/*.ts"],
   subscribers: ["src/subscribers/*.ts"],

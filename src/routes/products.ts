@@ -149,7 +149,13 @@ router.get("/", async (req: Request, res: Response) => {
     ]);
 
     res.json({
-      products,
+      products: products.map((p) => ({
+        ...p,
+        reviewSummary: {
+          averageRating: p.averageRating,
+          reviewCount: p.reviewCount,
+        },
+      })),
       pagination: {
         page: Number(page),
         limit: Number(limit),
@@ -177,7 +183,13 @@ router.get("/:id", async (req: Request, res: Response) => {
       return res.status(404).json({ error: "Product not found" });
     }
 
-    res.json(product);
+    res.json({
+      ...product,
+      reviewSummary: {
+        averageRating: product.averageRating,
+        reviewCount: product.reviewCount,
+      },
+    });
   } catch (error) {
     console.error("Error fetching product:", error);
     res.status(500).json({ error: "Failed to fetch product" });
