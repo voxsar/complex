@@ -44,6 +44,7 @@ import refundRoutes from "./routes/refunds";
 import analyticsRoutes from "./routes/analytics";
 import wishlistRoutes from "./routes/wishlists";
 import reviewRoutes from "./routes/reviews";
+import checkoutRoutes from "./routes/checkout";
 
 // Import middleware
 import { errorHandler } from "./middleware/errorHandler";
@@ -112,6 +113,7 @@ app.use("/api/shipping-rates", shippingRateRoutes);
 app.use("/api/fulfillment-centers", fulfillmentCenterRoutes);
 app.use("/api/shipping-providers", shippingProviderRoutes);
 app.use("/api/shipments", shipmentRoutes);
+app.use("/api/checkout", checkoutRoutes);
 
 // Payment Integration Routes
 app.use("/api/payment-intents", paymentIntentRoutes);

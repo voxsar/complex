@@ -6,6 +6,11 @@ import { OrderStatus } from "../enums/order_status";
 import { OrderFulfillmentStatus } from "../enums/order_fulfillment_status";
 import { OrderFinancialStatus } from "../enums/order_financial_status";
 import { Repository } from "typeorm";
+import { PaymentIntent, PaymentIntentStatus } from "../entities/PaymentIntent";
+import { Payment } from "../entities/Payment";
+import { PaymentStatus } from "../enums/payment_status";
+import { PaymentMethod } from "../enums/payment_method";
+import { StripeService } from "../services/StripeService";
 
 export class CartToOrderService {
   private cartRepository: Repository<Cart>;
@@ -221,6 +226,152 @@ export class CartToOrderService {
       errors,
       warnings
     };
+  }
+
+  async checkout(params: {
+    cartId: string;
+    customer?: {
+      email?: string;
+      billingAddress?: any;
+      shippingAddress?: any;
+    };
+    shippingMethod?: {
+      shippingOptionId: string;
+      name: string;
+      price: number;
+      data?: Record<string, any>;
+    };
+    payment: {
+      paymentIntentId: string;
+      paymentMethodId?: string;
+    };
+  }): Promise<{ order?: Order; errors?: string[] }> {
+    return await AppDataSource.transaction(async (manager) => {
+      const cartRepository = manager.getRepository(Cart);
+      const orderRepository = manager.getRepository(Order);
+      const paymentIntentRepository = manager.getRepository(PaymentIntent);
+      const paymentRepository = manager.getRepository(Payment);
+
+      const cart = await cartRepository.findOne({ where: { id: params.cartId } });
+      if (!cart) {
+        return { errors: ["Cart not found"] };
+      }
+
+      if (params.customer) {
+        if (params.customer.email) cart.email = params.customer.email;
+        if (params.customer.billingAddress) cart.billingAddress = params.customer.billingAddress;
+        if (params.customer.shippingAddress) {
+          cart.shippingAddress = params.customer.shippingAddress;
+          if (params.customer.shippingAddress.country) {
+            const taxRegion = await (this.cartService as any).findTaxRegion(
+              params.customer.shippingAddress.country,
+              params.customer.shippingAddress.province
+            );
+            if (taxRegion) {
+              cart.taxRegionId = taxRegion.id;
+              await (this.cartService as any).calculateTaxes(cart);
+            }
+          }
+        }
+      }
+
+      if (params.shippingMethod) {
+        cart.setShippingMethod({
+          id: `shipping_${Date.now()}`,
+          shippingOptionId: params.shippingMethod.shippingOptionId,
+          name: params.shippingMethod.name,
+          price: params.shippingMethod.price,
+          data: params.shippingMethod.data,
+        });
+      }
+
+      await cartRepository.save(cart);
+
+      const validation = await this.validateCartForCheckout(cart.id);
+      if (!validation.isValid) {
+        return { errors: validation.errors };
+      }
+
+      const paymentIntent = await paymentIntentRepository.findOne({
+        where: { id: params.payment.paymentIntentId },
+      });
+      if (!paymentIntent) {
+        return { errors: ["Payment intent not found"] };
+      }
+
+      const stripe = new StripeService();
+      const stripeIntent = await stripe.confirmPaymentIntent(
+        paymentIntent.stripePaymentIntentId || paymentIntent.id,
+        params.payment.paymentMethodId
+      );
+      paymentIntent.status = stripe.convertPaymentIntentStatus(stripeIntent.status);
+      await paymentIntentRepository.save(paymentIntent);
+
+      if (paymentIntent.status !== PaymentIntentStatus.SUCCEEDED) {
+        return { errors: ["Payment not confirmed"] };
+      }
+
+      const order = new Order();
+      order.orderNumber = await this.generateOrderNumber();
+      order.status = OrderStatus.PENDING;
+      order.fulfillmentStatus = OrderFulfillmentStatus.UNFULFILLED;
+      order.financialStatus = OrderFinancialStatus.PENDING;
+      order.subtotal = cart.subtotal;
+      order.taxAmount = cart.taxAmount;
+      order.shippingAmount = cart.shippingAmount;
+      order.discountAmount = cart.discountAmount;
+      order.total = cart.total;
+      order.currency = cart.currency;
+      order.customerId = cart.customerId;
+      order.salesChannelId = cart.salesChannelId;
+      order.priceListId = cart.priceListId;
+      order.billingAddress = cart.billingAddress as any;
+      order.shippingAddress = cart.shippingAddress as any;
+      order.items = cart.items.map((cartItem) => ({
+        id: cartItem.id,
+        quantity: cartItem.quantity,
+        price: cartItem.unitPrice,
+        total: cartItem.total,
+        productTitle: cartItem.productTitle,
+        variantTitle: cartItem.variantTitle,
+        productSku: cartItem.productSku,
+        variantId: cartItem.variantId,
+        productSnapshot: cartItem.productSnapshot,
+      }));
+      order.taxRegionId = cart.taxRegionId;
+      order.taxBreakdown = cart.taxBreakdown;
+      order.note = cart.customerNote;
+      order.metadata = cart.metadata;
+      order.tags = [];
+      order.payments = [];
+      order.fulfillments = [];
+      order.returnIds = [];
+      order.claimIds = [];
+      order.exchangeIds = [];
+
+      const savedOrder = await orderRepository.save(order);
+
+      cart.markAsCompleted(savedOrder.id);
+      await cartRepository.save(cart);
+
+      const paymentRecord = paymentRepository.create({
+        orderId: savedOrder.id,
+        amount: cart.total,
+        currency: cart.currency,
+        status: PaymentStatus.COMPLETED,
+        method: PaymentMethod.STRIPE,
+        transactionId: paymentIntent.id,
+        gatewayTransactionId: paymentIntent.stripePaymentIntentId,
+        paymentGateway: "stripe",
+        customerId: cart.customerId,
+        billingAddress: cart.billingAddress,
+      });
+      await paymentRepository.save(paymentRecord);
+      savedOrder.payments = [paymentRecord];
+      await orderRepository.save(savedOrder);
+
+      return { order: savedOrder };
+    });
   }
 
   async getCheckoutSummary(cartId: string): Promise<{
