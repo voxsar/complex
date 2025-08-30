@@ -2,7 +2,7 @@ import "reflect-metadata";
 import { DataSource } from "typeorm";
 import dotenv from "dotenv";
 
-// Import MongoDB-compatible entities
+// Import entities
 import { Product } from "./entities/Product";
 import { Category } from "./entities/Category";
 import { Collection } from "./entities/Collection";
@@ -37,9 +37,9 @@ import { Review } from "./entities/Review";
 dotenv.config();
 
 export const AppDataSource = new DataSource({
-  type: "mongodb",
+  type: "mysql",
   host: process.env.DB_HOST || "localhost",
-  port: parseInt(process.env.DB_PORT || "27017"),
+  port: parseInt(process.env.DB_PORT || "3306"),
   database: process.env.DB_DATABASE || "ecommerce_db",
   username: process.env.DB_USERNAME,
   password: process.env.DB_PASSWORD,

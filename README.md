@@ -31,7 +31,7 @@ A comprehensive headless e-commerce API built with Node.js, Express, TypeScript,
 ## Technology Stack
 
 - **Backend**: Node.js, Express.js, TypeScript
-- **Database**: PostgreSQL with TypeORM
+- **Database**: MySQL with TypeORM
 - **Validation**: class-validator
 - **Security**: helmet, cors, bcryptjs, rate limiting
 - **Documentation**: REST API with JSON responses
@@ -123,7 +123,7 @@ Response:
 
 ### Prerequisites
 - Node.js (v16 or higher)
-- PostgreSQL (v12 or higher)
+- MySQL (v8 or higher)
 - npm or yarn
 
 ### Installation Steps
@@ -144,7 +144,7 @@ Response:
    # Edit .env with your database credentials and other configuration
    ```
 
-4. **Create PostgreSQL database**
+4. **Create MySQL database**
    ```sql
    CREATE DATABASE ecommerce_db;
    ```

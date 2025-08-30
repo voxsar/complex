@@ -1,7 +1,6 @@
 import {
   Entity,
-  ObjectIdColumn,
-  ObjectId,
+  PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
   UpdateDateColumn,
@@ -14,10 +13,7 @@ import { TaxTargetType } from "../enums/tax_target_type";
 
 @Entity("tax_regions")
 export class TaxRegion {
-  @ObjectIdColumn()
-  _id: ObjectId;
-
-  @Column()
+  @PrimaryGeneratedColumn("uuid")
   id: string;
 
   @Column()
@@ -92,9 +88,7 @@ export class TaxRegion {
 
   @BeforeInsert()
   generateId() {
-    if (!this.id) {
-      this.id = uuidv4();
-    }
+    // Placeholder for any additional initialization logic
   }
 
   // Computed properties
