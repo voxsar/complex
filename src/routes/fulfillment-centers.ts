@@ -1,6 +1,7 @@
 import { Router, Request, Response } from "express";
 import { AppDataSource } from "../data-source";
 import { FulfillmentCenter } from "../entities/FulfillmentCenter";
+import { InventoryLevel } from "../entities/InventoryLevel";
 import { validate } from "class-validator";
 
 const router = Router();
@@ -256,7 +257,8 @@ router.get("/:id/inventory", async (req: Request, res: Response) => {
     const { page = 1, limit = 20, productId, lowStock } = req.query;
 
     const fulfillmentCenterRepository = AppDataSource.getRepository(FulfillmentCenter);
-    
+    const inventoryLevelRepository = AppDataSource.getRepository(InventoryLevel);
+
     const center = await fulfillmentCenterRepository.findOne({
       where: { id },
     });
@@ -265,22 +267,43 @@ router.get("/:id/inventory", async (req: Request, res: Response) => {
       return res.status(404).json({ error: "Fulfillment center not found" });
     }
 
-    // This would typically query a separate inventory table
-    // For now, we'll return a placeholder response
+    const query: any = { fulfillmentCenterId: id };
+    if (productId) {
+      query.productId = productId;
+    }
+
+    // Fetch inventory levels and apply optional low stock filtering
+    const allLevels = await inventoryLevelRepository.find({ where: query });
+    const filteredLevels =
+      lowStock === "true"
+        ? allLevels.filter(level => level.isLowStock)
+        : allLevels;
+
+    // Pagination
+    const pageNum = parseInt(page as string);
+    const limitNum = parseInt(limit as string);
+    const start = (pageNum - 1) * limitNum;
+    const paginatedLevels = filteredLevels
+      .slice(start, start + limitNum)
+      .map(level => ({
+        ...level,
+        availableQuantity: level.availableQuantity,
+        isLowStock: level.isLowStock,
+      }));
+
     res.json({
       center: {
         id: center.id,
         name: center.name,
         code: center.code,
       },
-      inventory: [],
+      inventory: paginatedLevels,
       pagination: {
-        page: parseInt(page as string),
-        limit: parseInt(limit as string),
-        total: 0,
-        pages: 0,
+        page: pageNum,
+        limit: limitNum,
+        total: filteredLevels.length,
+        pages: Math.ceil(filteredLevels.length / limitNum),
       },
-      message: "Inventory tracking not yet implemented"
     });
   } catch (error) {
     console.error("Error fetching fulfillment center inventory:", error);

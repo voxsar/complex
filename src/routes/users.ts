@@ -14,6 +14,7 @@ import {
   hashToken,
 } from "../utils/auth";
 import * as bcrypt from "bcryptjs";
+import emailService from "../utils/emailService";
 
 const router = Router();
 
@@ -166,12 +167,10 @@ router.post("/forgot-password", async (req: Request, res: Response) => {
     user.passwordResetExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 
     await userRepository.save(user);
+    await emailService.sendPasswordReset(user.email, resetToken);
 
-    // TODO: Send email with reset link containing resetToken
-    // For now, return the token (remove in production)
     res.json({
-      message: "Password reset link sent to email",
-      resetToken, // Remove this in production
+      message: "Password reset link sent to email"
     });
   } catch (error) {
     console.error("Error in forgot password:", error);
@@ -252,12 +251,10 @@ router.post("/resend-verification", authenticate, async (req: AuthRequest, res: 
     // Generate new verification token
     user.emailVerificationToken = generateEmailVerificationToken();
     await userRepository.save(user);
+    await emailService.sendVerification(user.email, user.emailVerificationToken!);
 
-    // TODO: Send verification email
-    // For now, return the token (remove in production)
     res.json({
-      message: "Verification email sent",
-      verificationToken: user.emailVerificationToken, // Remove this in production
+      message: "Verification email sent"
     });
   } catch (error) {
     console.error("Error resending verification:", error);

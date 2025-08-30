@@ -124,6 +124,42 @@ POST   /api/fulfillment-centers/find-optimal # Find best center for order
 GET    /api/fulfillment-centers/:id/inventory # Get center inventory
 ```
 
+#### Get fulfillment center inventory
+
+Retrieve inventory levels for a specific fulfillment center. Supports optional pagination and filtering for low stock items.
+
+**Endpoint:** `GET /api/fulfillment-centers/:id/inventory`
+
+**Query Parameters:**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| `page` | number | Page number (default `1`) |
+| `limit` | number | Items per page (default `20`) |
+| `productId` | string | Filter by product ID |
+| `lowStock` | boolean | When `true`, only return items where available quantity is below the low stock threshold |
+
+**Sample Response:**
+
+```
+{
+  "center": { "id": "...", "name": "East Coast Hub", "code": "EAST1" },
+  "inventory": [
+    {
+      "productId": "...",
+      "variantId": "...",
+      "fulfillmentCenterId": "...",
+      "quantity": 4,
+      "reservedQuantity": 0,
+      "lowStockThreshold": 5,
+      "availableQuantity": 4,
+      "isLowStock": true
+    }
+  ],
+  "pagination": { "page": 1, "limit": 20, "total": 1, "pages": 1 }
+}
+```
+
 ### Shipping Providers
 
 ```

@@ -2,6 +2,7 @@ import { Router, Request, Response } from "express";
 import { AppDataSource } from "../data-source";
 import { ShippingProvider } from "../entities/ShippingProvider";
 import { validate } from "class-validator";
+import { getShippingAdapter, ProviderError } from "../services/shipping";
 
 const router = Router();
 
@@ -125,7 +126,7 @@ router.post("/", async (req: Request, res: Response) => {
       });
     }
 
-    const savedProvider = await shippingProviderRepository.save(provider);
+    const savedProvider = await shippingProviderRepository.save(provider) as unknown as ShippingProvider;
     
     // Remove sensitive information from response
     const sanitizedProvider = {
@@ -172,7 +173,7 @@ router.put("/:id", async (req: Request, res: Response) => {
       });
     }
 
-    const updatedProvider = await shippingProviderRepository.save(existingProvider);
+    const updatedProvider = await shippingProviderRepository.save(existingProvider) as unknown as ShippingProvider;
     
     // Remove sensitive information from response
     const sanitizedProvider = {
@@ -216,7 +217,7 @@ router.post("/:id/test-connection", async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const shippingProviderRepository = AppDataSource.getRepository(ShippingProvider);
-    
+
     const provider = await shippingProviderRepository.findOne({
       where: { id },
     });
@@ -229,32 +230,31 @@ router.post("/:id/test-connection", async (req: Request, res: Response) => {
       return res.status(400).json({ error: "Shipping provider is not active" });
     }
 
-    const { apiKey } = provider.getCredentials();
-    if (!apiKey) {
-      return res.status(400).json({ error: "Missing API credentials" });
+    const adapter = getShippingAdapter(provider.type);
+    if (!adapter) {
+      return res.status(400).json({ error: "Unsupported shipping provider" });
     }
 
-    // Simulate API connection test
-    // In a real implementation, decrypted credentials above would be used
-    // to authenticate with the provider's API
-    const testResult = {
-      success: true,
-      message: "Connection test successful",
-      provider: provider.name,
-      type: provider.type,
-      timestamp: new Date(),
+    const credentials = {
+      apiKey: provider.apiKey,
+      apiSecret: provider.apiSecret,
+      accountNumber: provider.accountNumber,
+      meterNumber: provider.meterNumber,
+      userId: provider.userId,
+      password: provider.password,
+      apiEndpoint: provider.apiEndpoint,
+      isTestMode: provider.isTestMode,
     };
 
-    // For demonstration, randomly fail some tests
-    if (Math.random() < 0.1) { // 10% chance of failure
-      testResult.success = false;
-      testResult.message = "Connection test failed: Authentication error";
-    }
-
-    res.json(testResult);
+    const result = await adapter.testConnection(credentials);
+    res.json(result);
   } catch (error) {
     console.error("Error testing shipping provider connection:", error);
-    res.status(500).json({ error: "Internal server error" });
+    if (error instanceof ProviderError) {
+      res.status(400).json({ error: error.message });
+    } else {
+      res.status(500).json({ error: "Internal server error" });
+    }
   }
 });
 
@@ -276,7 +276,7 @@ router.post("/:id/get-rates", async (req: Request, res: Response) => {
     }
 
     const shippingProviderRepository = AppDataSource.getRepository(ShippingProvider);
-    
+
     const provider = await shippingProviderRepository.findOne({
       where: { id },
     });
@@ -289,30 +289,28 @@ router.post("/:id/get-rates", async (req: Request, res: Response) => {
       return res.status(400).json({ error: "Shipping provider is not active" });
     }
 
-    const { apiKey } = provider.getCredentials();
-    if (!apiKey) {
-      return res.status(400).json({ error: "Missing API credentials" });
+    const adapter = getShippingAdapter(provider.type);
+    if (!adapter) {
+      return res.status(400).json({ error: "Unsupported shipping provider" });
     }
 
-    // Simulate real-time rate calculation
-    // In a real implementation, decrypted credentials above would be used
-    // to authenticate with the provider's API
-    const mockRates = [
-      {
-        serviceCode: "GROUND",
-        serviceName: "Ground",
-        cost: 12.50,
-        estimatedDays: { min: 3, max: 5 },
-        deliveryDate: new Date(Date.now() + 4 * 24 * 60 * 60 * 1000),
-      },
-      {
-        serviceCode: "EXPRESS",
-        serviceName: "Express",
-        cost: 25.00,
-        estimatedDays: { min: 1, max: 2 },
-        deliveryDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000),
-      },
-    ];
+    const credentials = {
+      apiKey: provider.apiKey,
+      apiSecret: provider.apiSecret,
+      accountNumber: provider.accountNumber,
+      meterNumber: provider.meterNumber,
+      userId: provider.userId,
+      password: provider.password,
+      apiEndpoint: provider.apiEndpoint,
+      isTestMode: provider.isTestMode,
+    };
+
+    const rates = await adapter.getRates(credentials, {
+      fromAddress,
+      toAddress,
+      packages,
+      services,
+    });
 
     res.json({
       provider: {
@@ -320,15 +318,16 @@ router.post("/:id/get-rates", async (req: Request, res: Response) => {
         name: provider.name,
         type: provider.type,
       },
-      rates: mockRates,
-      fromAddress,
-      toAddress,
-      packages,
+      rates,
       timestamp: new Date(),
     });
   } catch (error) {
     console.error("Error getting real-time shipping rates:", error);
-    res.status(500).json({ error: "Internal server error" });
+    if (error instanceof ProviderError) {
+      res.status(400).json({ error: error.message });
+    } else {
+      res.status(500).json({ error: "Internal server error" });
+    }
   }
 });
 

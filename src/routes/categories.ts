@@ -3,6 +3,7 @@ import { In } from "typeorm";
 import { AppDataSource } from "../data-source";
 import { Category } from "../entities/Category";
 import { validate } from "class-validator";
+import { translateCategory } from "../utils/translation";
 
 const router = Router();
 
@@ -19,19 +20,21 @@ router.get("/", async (req: Request, res: Response) => {
       sortOrder = "asc",
     } = req.query;
 
+    const locale = (req.query.locale as string) || req.language;
+
     const categoryRepository = AppDataSource.getRepository(Category);
-    
+
     // Build MongoDB query
     const query: any = {};
-    
+
     if (active !== undefined) {
       query.isActive = active === "true";
     }
-    
+
     if (parentId !== undefined) {
       query.parentId = parentId === "null" ? null : parentId;
     }
-    
+
     if (search) {
       query.$or = [
         { name: { $regex: search, $options: "i" } },
@@ -41,7 +44,7 @@ router.get("/", async (req: Request, res: Response) => {
 
     // Calculate pagination
     const skip = (Number(page) - 1) * Number(limit);
-    
+
     // Get categories
     const [categories, total] = await Promise.all([
       categoryRepository.find({
@@ -54,7 +57,7 @@ router.get("/", async (req: Request, res: Response) => {
     ]);
 
     res.json({
-      categories,
+      categories: categories.map(c => translateCategory(c, locale)),
       pagination: {
         page: Number(page),
         limit: Number(limit),
@@ -64,7 +67,7 @@ router.get("/", async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.error("Error fetching categories:", error);
-    res.status(500).json({ error: "Failed to fetch categories" });
+    res.status(500).json({ error: req.t("errors.failed_to_fetch_categories") });
   }
 });
 
@@ -72,6 +75,7 @@ router.get("/", async (req: Request, res: Response) => {
 router.get("/:id", async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
+    const locale = (req.query.locale as string) || req.language;
     const categoryRepository = AppDataSource.getRepository(Category);
 
     const category = await categoryRepository.findOne({
@@ -79,13 +83,13 @@ router.get("/:id", async (req: Request, res: Response) => {
     });
 
     if (!category) {
-      return res.status(404).json({ error: "Category not found" });
+      return res.status(404).json({ error: req.t("errors.category_not_found") });
     }
 
-    res.json(category);
+    res.json(translateCategory(category, locale));
   } catch (error) {
     console.error("Error fetching category:", error);
-    res.status(500).json({ error: "Failed to fetch category" });
+    res.status(500).json({ error: req.t("errors.failed_to_fetch_category") });
   }
 });
 
@@ -93,6 +97,7 @@ router.get("/:id", async (req: Request, res: Response) => {
 router.get("/slug/:slug", async (req: Request, res: Response) => {
   try {
     const { slug } = req.params;
+    const locale = (req.query.locale as string) || req.language;
     const categoryRepository = AppDataSource.getRepository(Category);
 
     const category = await categoryRepository.findOne({
@@ -100,13 +105,13 @@ router.get("/slug/:slug", async (req: Request, res: Response) => {
     });
 
     if (!category) {
-      return res.status(404).json({ error: "Category not found" });
+      return res.status(404).json({ error: req.t("errors.category_not_found") });
     }
 
-    res.json(category);
+    res.json(translateCategory(category, locale));
   } catch (error) {
     console.error("Error fetching category:", error);
-    res.status(500).json({ error: "Failed to fetch category" });
+    res.status(500).json({ error: req.t("errors.failed_to_fetch_category") });
   }
 });
 
@@ -161,7 +166,7 @@ router.put("/:id", async (req: Request, res: Response) => {
     });
 
     if (!category) {
-      return res.status(404).json({ error: "Category not found" });
+      return res.status(404).json({ error: req.t("errors.category_not_found") });
     }
 
     const oldParentId = category.parentId;
@@ -225,13 +230,13 @@ router.delete("/:id", async (req: Request, res: Response) => {
     });
 
     if (!category) {
-      return res.status(404).json({ error: "Category not found" });
+      return res.status(404).json({ error: req.t("errors.category_not_found") });
     }
 
     // Check if category has children
     if (category.childrenIds && category.childrenIds.length > 0) {
-      return res.status(400).json({ 
-        error: "Cannot delete category with subcategories. Please delete or move subcategories first." 
+      return res.status(400).json({
+        error: req.t("errors.cannot_delete_category_with_children"),
       });
     }
 
@@ -265,7 +270,7 @@ router.get("/:id/children", async (req: Request, res: Response) => {
     });
 
     if (!category) {
-      return res.status(404).json({ error: "Category not found" });
+      return res.status(404).json({ error: req.t("errors.category_not_found") });
     }
 
     if (!category.childrenIds || category.childrenIds.length === 0) {
