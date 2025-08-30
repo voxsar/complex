@@ -95,14 +95,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import { 
-  IconFilter, 
-  IconSearch, 
+import { ref, onMounted } from 'vue'
+import {
+  IconFilter,
+  IconSearch,
   IconDotsVertical,
   IconListDetails
 } from '@tabler/icons-vue'
 import ProductCreateModal from './components/ProductCreateModal.vue'
+import { getProducts, createProduct as createProductApi } from '../../api/products'
 
 // Modal state
 const isCreateModalOpen = ref(false)
@@ -116,118 +117,75 @@ const closeCreateModal = () => {
   isCreateModalOpen.value = false
 }
 
-const handleCreateProduct = (productData: any) => {
-  console.log('New product:', productData)
-  // Here you would typically make an API call to create the product
-  // Then add the new product to the products list or refresh the list
-  
-  // Example of adding a new product to the list
-  const newProduct = {
-    id: (products.value.length + 1).toString(),
-    thumbnail: '',
-    name: productData.name,
-    collection: productData.collections.length > 0 ? 
-      availableCollections.find(c => c.id === productData.collections[0])?.name || '' : '',
-    salesChannels: ['Webshop'],
-    additionalChannels: 0,
-    variants: productData.variants.length,
-    status: productData.status === 'published' ? 'Published' : 'Draft'
-  }
-  
-  products.value.unshift(newProduct)
+interface ProductItem {
+  id: string
+  thumbnail?: string
+  name: string
+  collection: string
+  salesChannels: string[]
+  additionalChannels: number
+  variants: number
+  status: string
 }
 
-// Available collections for reference
-const availableCollections = [
-  { id: '1', name: 'Winter Sale' },
-  { id: '2', name: 'Summer Collection' },
-  { id: '3', name: 'Gaming Products' },
-  { id: '4', name: 'Professional products' }
-]
+const products = ref<ProductItem[]>([])
 
-// Sample products data
-const products = ref([
-  {
-    id: '1',
-    thumbnail: '/product-images/thinkpad.jpg',
-    name: 'ThinkPad',
-    collection: 'Professional products',
-    salesChannels: ['Webshop', 'B2B Portal'],
-    additionalChannels: 3,
-    variants: 4,
-    status: 'Published'
-  },
-  {
-    id: '2',
-    thumbnail: '/product-images/apple-watch.jpg',
-    name: 'Apple Watch',
-    collection: 'Winter sale collection',
-    salesChannels: ['Webshop', 'App'],
-    additionalChannels: 1,
-    variants: 2,
-    status: 'Published'
-  },
-  {
-    id: '3',
-    thumbnail: '/product-images/iphone.jpg',
-    name: 'iPhone 15',
-    collection: 'Winter sale collection',
-    salesChannels: ['Webshop', 'B2B Portal'],
-    additionalChannels: 4,
-    variants: 3,
-    status: 'Published'
-  },
-  {
-    id: '4',
-    thumbnail: '/product-images/gaming-laptop.jpg',
-    name: 'Gaming Laptop',
-    collection: 'Gaming',
-    salesChannels: ['Webshop', 'New York Store'],
-    additionalChannels: 1,
-    variants: 1,
-    status: 'Published'
-  },
-  {
-    id: '5',
-    thumbnail: '/product-images/stationary-pc.jpg',
-    name: 'Stationary PC',
-    collection: 'Professional products',
-    salesChannels: ['Webshop', 'B2B Portal'],
-    additionalChannels: 0,
-    variants: 1,
-    status: 'Published'
-  },
-  {
-    id: '6',
-    thumbnail: '/product-images/gaming-pc.jpg',
-    name: 'Gaming PC',
-    collection: 'Gaming',
-    salesChannels: ['Webshop'],
-    additionalChannels: 0,
-    variants: 1,
-    status: 'Published'
-  },
-  {
-    id: '7',
-    thumbnail: '/product-images/standard-keyboard.jpg',
-    name: 'Standard keyboard',
-    collection: 'Professional products',
-    salesChannels: ['Webshop', 'B2B Portal'],
-    additionalChannels: 1,
-    variants: 1,
-    status: 'Published'
-  },
-  {
-    id: '8',
-    thumbnail: '/product-images/gaming-keyboard.jpg',
-    name: 'Gaming Keyboard',
-    collection: 'Gaming',
-    salesChannels: ['Webshop'],
-    additionalChannels: 0,
-    variants: 1,
-    status: 'Published'
+const fetchProducts = async () => {
+  try {
+    const data = await getProducts()
+    products.value = data.products.map((p: any) => ({
+      id: p.id,
+      thumbnail: p.thumbnail || '',
+      name: p.title,
+      collection: '', // TODO: map collection names
+      salesChannels: p.salesChannels || [],
+      additionalChannels: 0,
+      variants: p.variants ? p.variants.length : 0,
+      status: p.status === 'active' ? 'Published' : p.status
+    }))
+  } catch (error) {
+    console.error('Failed to load products', error)
   }
-])
+}
+
+onMounted(fetchProducts)
+
+const handleCreateProduct = async (productData: any) => {
+  try {
+    const payload = {
+      title: productData.name,
+      description: productData.description,
+      status: productData.status === 'published' ? 'active' : 'draft',
+      variants: productData.variants.map((v: any) => ({
+        title: v.title,
+        sku: v.sku,
+        price: Number(v.price) || 0,
+        inventory: { quantity: Number(v.inventory) || 0 },
+        options: v.options.map((o: any) => ({
+          optionName: o.name,
+          valueName: o.value
+        }))
+      })),
+      collectionIds: productData.collections,
+      categoryIds: productData.categories
+    }
+
+    const created = await createProductApi(payload)
+    const newProduct: ProductItem = {
+      id: created.id,
+      thumbnail: created.thumbnail || '',
+      name: created.title,
+      collection: '',
+      salesChannels: [],
+      additionalChannels: 0,
+      variants: created.variants ? created.variants.length : 0,
+      status: created.status === 'active' ? 'Published' : created.status
+    }
+    products.value.unshift(newProduct)
+  } catch (error) {
+    console.error('Failed to create product', error)
+  }
+}
 
 // Create placeholders for missing images
 const createImagePlaceholder = (name: string): string => {
