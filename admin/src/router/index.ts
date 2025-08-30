@@ -13,6 +13,11 @@ const routes: RouteRecordRaw[] = [
     redirect: '/products'
   },
   {
+    path: '/analytics',
+    name: 'Analytics',
+    component: () => import('../views/AnalyticsDashboard.vue'),
+  },
+  {
     path: '/products',
     name: 'Products',
     component: () => import('../views/products/ProductsList.vue'),
@@ -114,7 +119,7 @@ const router = createRouter({
   routes
 })
 
-router.beforeEach((to, from, next) => {
+router.beforeEach((to, _from, next) => {
   const token = localStorage.getItem('accessToken')
   if (to.meta.requiresAuth === false) {
     if (token && to.path === '/login') {
