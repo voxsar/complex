@@ -23,6 +23,9 @@ A comprehensive headless e-commerce API built with Node.js, Express, TypeScript,
 - **Payments**: Multiple payment methods and status tracking
 - **Order Status**: Comprehensive status tracking (pending, processing, shipped, delivered)
 
+### Checkout
+- **Checkout API**: `/api/checkout` endpoint validates carts, confirms payment intents, and creates orders in a single transaction
+
 ### Marketing & Promotions
 - **Promotions**: Flexible promotion system (percentage, fixed amount, free shipping)
 - **Campaigns**: Marketing campaign management with analytics
