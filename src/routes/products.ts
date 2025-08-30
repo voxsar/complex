@@ -163,6 +163,56 @@ router.get("/", async (req: Request, res: Response) => {
   }
 });
 
+// Search products using MongoDB text index
+router.get("/search", async (req: Request, res: Response) => {
+  try {
+    const { q, page = 1, limit = 20 } = req.query;
+
+    if (!q || typeof q !== "string") {
+      return res.status(400).json({ error: "Query parameter q is required" });
+    }
+
+    const productRepository = AppDataSource.getMongoRepository(Product);
+
+    // Ensure text index exists on relevant fields
+    await productRepository.createCollectionIndex({
+      title: "text",
+      description: "text",
+      tags: "text",
+    });
+
+    const skip = (Number(page) - 1) * Number(limit);
+
+    const pipeline = [
+      { $match: { $text: { $search: q as string } } },
+      { $addFields: { score: { $meta: "textScore" } } },
+      { $sort: { score: -1 } },
+      { $skip: skip },
+      { $limit: Number(limit) },
+    ];
+
+    const cursor = productRepository.aggregate(pipeline);
+    const products = await cursor.toArray();
+
+    const total = await productRepository.count({
+      $text: { $search: q as string },
+    });
+
+    res.json({
+      products,
+      pagination: {
+        page: Number(page),
+        limit: Number(limit),
+        total,
+        pages: Math.ceil(total / Number(limit)),
+      },
+    });
+  } catch (error) {
+    console.error("Error searching products:", error);
+    res.status(500).json({ error: "Failed to search products" });
+  }
+});
+
 // Get product by ID
 router.get("/:id", async (req: Request, res: Response) => {
   try {
