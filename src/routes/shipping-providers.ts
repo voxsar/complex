@@ -229,8 +229,14 @@ router.post("/:id/test-connection", async (req: Request, res: Response) => {
       return res.status(400).json({ error: "Shipping provider is not active" });
     }
 
+    const { apiKey } = provider.getCredentials();
+    if (!apiKey) {
+      return res.status(400).json({ error: "Missing API credentials" });
+    }
+
     // Simulate API connection test
-    // In a real implementation, this would make actual API calls to test connectivity
+    // In a real implementation, decrypted credentials above would be used
+    // to authenticate with the provider's API
     const testResult = {
       success: true,
       message: "Connection test successful",
@@ -283,8 +289,14 @@ router.post("/:id/get-rates", async (req: Request, res: Response) => {
       return res.status(400).json({ error: "Shipping provider is not active" });
     }
 
+    const { apiKey } = provider.getCredentials();
+    if (!apiKey) {
+      return res.status(400).json({ error: "Missing API credentials" });
+    }
+
     // Simulate real-time rate calculation
-    // In a real implementation, this would integrate with actual shipping APIs
+    // In a real implementation, decrypted credentials above would be used
+    // to authenticate with the provider's API
     const mockRates = [
       {
         serviceCode: "GROUND",

@@ -55,6 +55,12 @@ Configuration for shipping providers (UPS, FedEx, DHL, etc.).
 - `supportedServices`: Available shipping services
 - `isTestMode`: Development/production mode
 
+#### Security & Key Management
+- API credentials are encrypted at rest using AES-256 with a server-side key stored in the `SHIPPING_ENCRYPTION_KEY` environment variable.
+- Keep the key in a dedicated secrets manager or secure environment variable with restricted access.
+- Rotate encryption keys periodically by generating a new key, decrypting existing credentials with the old key, re-encrypting with the new key, and removing the old key from all systems.
+- Avoid exposing decrypted credentials in logs or API responses.
+
 ### FulfillmentCenter
 Physical locations for inventory and order fulfillment.
 
