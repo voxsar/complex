@@ -1,65 +1,60 @@
 <template>
   <div>
     <h1>Settings</h1>
-    <nav class="settings-nav">
-      <router-link to="/settings/payments">Payments</router-link>
-      <router-link to="/settings/payment-intents">Payment Intents</router-link>
-      <router-link to="/settings/refunds">Refunds</router-link>
-      <router-link to="/settings/roles">Roles</router-link>
-      <router-link to="/settings/sales-channels">Sales Channels</router-link>
-      <router-link to="/settings/saved-payment-methods">Saved Payment Methods</router-link>
-      <router-link to="/settings/shipments">Shipments</router-link>
-      <router-link to="/settings/shipping-providers">Shipping Providers</router-link>
-      <router-link to="/settings/shipping-rates">Shipping Rates</router-link>
-      <router-link to="/settings/shipping-zones">Shipping Zones</router-link>
-      <router-link to="/settings/tax-regions">Tax Regions</router-link>
-      <router-link to="/settings/users">Users</router-link>
-      <router-link to="/settings/webhooks">Webhooks</router-link>
-    </nav>
-    <router-view />
-  <div class="settings-layout">
-    <aside class="settings-sidebar">
-      <nav>
-        <ul>
-          <li><router-link to="/settings/api-keys">API Keys</router-link></li>
-        </ul>
-      </nav>
-    </aside>
-    <main class="settings-content">
-      <router-view />
-    </main>
+    <div class="settings-layout">
+      <aside class="settings-sidebar">
+        <nav>
+          <ul>
+            <li><router-link to="/settings/payments">Payments</router-link></li>
+            <li><router-link to="/settings/payment-intents">Payment Intents</router-link></li>
+            <li><router-link to="/settings/refunds">Refunds</router-link></li>
+            <li><router-link to="/settings/roles">Roles</router-link></li>
+            <li><router-link to="/settings/sales-channels">Sales Channels</router-link></li>
+            <li><router-link to="/settings/saved-payment-methods">Saved Payment Methods</router-link></li>
+            <li><router-link to="/settings/shipments">Shipments</router-link></li>
+            <li><router-link to="/settings/shipping-providers">Shipping Providers</router-link></li>
+            <li><router-link to="/settings/shipping-rates">Shipping Rates</router-link></li>
+            <li><router-link to="/settings/shipping-zones">Shipping Zones</router-link></li>
+            <li><router-link to="/settings/tax-regions">Tax Regions</router-link></li>
+            <li><router-link to="/settings/users">Users</router-link></li>
+            <li><router-link to="/settings/webhooks">Webhooks</router-link></li>
+            <li><router-link to="/settings/api-keys">API Keys</router-link></li>
+          </ul>
+        </nav>
+      </aside>
+      <main class="settings-content">
+        <router-view />
+      </main>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-// Settings parent view
+// Settings parent view acting as container for sub-routes
 </script>
 
 <style scoped>
-.settings-nav {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 16px;
-}
-
-.settings-nav a {
-  padding: 4px 8px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  text-decoration: none;
-  color: inherit;
-}
-
-.settings-nav a.router-link-active {
-  background-color: #f3f4f6;
 .settings-layout {
   display: flex;
   gap: 1rem;
 }
 
 .settings-sidebar {
-  width: 200px;
+  width: 220px;
+}
+
+.settings-sidebar ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.settings-sidebar li + li {
+  margin-top: 0.5rem;
+}
+
+.settings-sidebar a.router-link-active {
+  font-weight: bold;
 }
 
 .settings-content {
