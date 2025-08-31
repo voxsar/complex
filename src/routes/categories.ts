@@ -63,7 +63,11 @@ router.get("/", async (req: Request, res: Response) => {
     ]);
 
     res.json({
-      categories: categories.map(c => formatCategory(c, locale)),
+      categories: categories.map(c => ({
+        ...translateCategory(c, locale),
+        visibility: c.metadata?.visibility ?? "Public",
+      })),
+
       pagination: {
         page: Number(page),
         limit: Number(limit),
@@ -92,7 +96,10 @@ router.get("/:id", async (req: Request, res: Response) => {
       return res.status(404).json({ error: req.t("errors.category_not_found") });
     }
 
-    res.json(formatCategory(category, locale));
+    res.json({
+      ...translateCategory(category, locale),
+      visibility: category.metadata?.visibility ?? "Public",
+    });
   } catch (error) {
     logger.error("Error fetching category:", error);
     res.status(500).json({ error: req.t("errors.failed_to_fetch_category") });
@@ -114,7 +121,10 @@ router.get("/slug/:slug", async (req: Request, res: Response) => {
       return res.status(404).json({ error: req.t("errors.category_not_found") });
     }
 
-    res.json(formatCategory(category, locale));
+    res.json({
+      ...translateCategory(category, locale),
+      visibility: category.metadata?.visibility ?? "Public",
+    });
   } catch (error) {
     logger.error("Error fetching category:", error);
     res.status(500).json({ error: req.t("errors.failed_to_fetch_category") });
@@ -168,9 +178,10 @@ router.get("/slug/:slug", async (req: Request, res: Response) => {
       }
     }
 
-
-    logger.info(`Category created with ID: ${savedCategory.id}`);
-    res.status(201).json(savedCategory);
+    res.status(201).json({
+      ...savedCategory,
+      visibility: savedCategory.metadata?.visibility ?? "Public",
+    });
   } catch (error) {
     logger.error("Error creating category:", error);
     res.status(500).json({ error: "Failed to create category" });
@@ -236,7 +247,7 @@ router.put("/:id", async (req: Request, res: Response) => {
 
     res.json({
       ...updatedCategory,
-      visibility: updatedCategory.metadata?.visibility,
+      visibility: updatedCategory.metadata?.visibility ?? "Public",
     });
   } catch (error) {
     logger.error("Error updating category:", error);
@@ -308,7 +319,12 @@ router.get("/:id/children", async (req: Request, res: Response) => {
       order: { sortOrder: "ASC" }
     });
 
-    res.json(children.map(c => formatCategory(c, locale)));
+    res.json(
+      children.map(c => ({
+        ...c,
+        visibility: c.metadata?.visibility ?? "Public",
+      }))
+    );
   } catch (error) {
     logger.error("Error fetching category children:", error);
     res.status(500).json({ error: "Failed to fetch category children" });
