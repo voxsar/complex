@@ -1,13 +1,17 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { createProductOption, type ProductOptionPayload } from '../../../api/product-options'
+import { createProductOption, type ProductOption, type ProductOptionPayload } from '../../../api/product-options'
+
 import { useToast } from 'primevue/usetoast'
 
 const props = defineProps<{ isOpen: boolean }>()
 const emit = defineEmits(['close', 'saved'])
 
+const INPUT_TYPES = ['select', 'radio', 'color', 'text'] as const
+
 const toast = useToast()
 const supportedInputTypes = ['select', 'radio', 'color', 'text'] as const
+
 
 const form = ref<ProductOptionPayload>({
   name: '',
@@ -16,6 +20,7 @@ const form = ref<ProductOptionPayload>({
   isRequired: false
 })
 const error = ref('')
+const toast = useToast()
 
 const reset = () => {
   form.value = { name: '', displayName: '', inputType: 'select', isRequired: false }
@@ -28,25 +33,30 @@ const handleSave = async () => {
     error.value = 'Name is required'
     return
   }
-  if (!supportedInputTypes.includes(form.value.inputType as any)) {
-    error.value = `Invalid input type: ${form.value.inputType}`
+  if (!INPUT_TYPES.includes(form.value.inputType as typeof INPUT_TYPES[number])) {
+    error.value = `Input type must be one of: ${INPUT_TYPES.join(', ')}`
     return
   }
+  console.debug('Attempting to save product option', form.value)
   try {
-    const option: any = await createProductOption({
+    const res = await createProductOption({
       ...form.value,
       displayName: form.value.displayName || undefined
     })
-    console.debug('Product option created', option)
-    toast.add({ severity: 'success', summary: 'Success', detail: option?.message || 'Option created', life: 3000 })
+    const option = (res as any).option ?? (res as ProductOption)
+    const message = (res as any).message || 'Product option created'
+    console.debug('Product option saved', option)
+    toast.add({ severity: 'success', summary: 'Success', detail: message })
+
     emit('saved', option)
     reset()
     emit('close')
   } catch (e: any) {
     const message = e.message || 'Failed to create option'
-    console.debug('Failed to create product option', e)
-    toast.add({ severity: 'error', summary: 'Error', detail: message, life: 3000 })
+    console.debug('Product option save failed', e)
     error.value = message
+    toast.add({ severity: 'error', summary: 'Error', detail: message })
+
   }
 }
 

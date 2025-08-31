@@ -6,8 +6,11 @@ import { useToast } from 'primevue/usetoast'
 const props = defineProps<{ isOpen: boolean; option: ProductOption | null }>()
 const emit = defineEmits(['close', 'saved'])
 
+const INPUT_TYPES = ['select', 'radio', 'color', 'text'] as const
+
 const toast = useToast()
 const supportedInputTypes = ['select', 'radio', 'color', 'text'] as const
+
 
 const form = ref<ProductOptionPayload>({
   name: '',
@@ -16,18 +19,23 @@ const form = ref<ProductOptionPayload>({
   isRequired: false
 })
 const error = ref('')
+const toast = useToast()
 
-watch(() => props.option, (opt) => {
-  if (opt) {
+const reset = () => {
+  if (props.option) {
     form.value = {
-      name: opt.name,
-      displayName: opt.displayName || '',
-      inputType: opt.inputType,
-      isRequired: opt.isRequired
+      name: props.option.name,
+      displayName: props.option.displayName || '',
+      inputType: props.option.inputType,
+      isRequired: props.option.isRequired
     }
-    error.value = ''
+  } else {
+    form.value = { name: '', displayName: '', inputType: 'select', isRequired: false }
   }
-})
+  error.value = ''
+}
+
+watch(() => props.option, () => reset())
 
 const handleSave = async () => {
   if (!props.option) return
@@ -36,24 +44,29 @@ const handleSave = async () => {
     error.value = 'Name is required'
     return
   }
-  if (!supportedInputTypes.includes(form.value.inputType as any)) {
-    error.value = `Invalid input type: ${form.value.inputType}`
+  if (!INPUT_TYPES.includes(form.value.inputType as typeof INPUT_TYPES[number])) {
+    error.value = `Input type must be one of: ${INPUT_TYPES.join(', ')}`
     return
   }
+  console.debug('Attempting to update product option', props.option.id, form.value)
   try {
-    const updated: any = await updateProductOption(props.option.id, {
+    const res = await updateProductOption(props.option.id, {
       ...form.value,
       displayName: form.value.displayName || undefined
     })
-    console.debug('Product option updated', updated)
-    toast.add({ severity: 'success', summary: 'Success', detail: updated?.message || 'Option updated', life: 3000 })
-    emit('saved', updated)
+    const option = (res as any).option ?? (res as ProductOption)
+    const message = (res as any).message || 'Product option updated'
+    console.debug('Product option updated', option)
+    toast.add({ severity: 'success', summary: 'Success', detail: message })
+    emit('saved', option)
+    reset()
     emit('close')
   } catch (e: any) {
     const message = e.message || 'Failed to update option'
-    console.debug('Failed to update product option', e)
-    toast.add({ severity: 'error', summary: 'Error', detail: message, life: 3000 })
+    console.debug('Product option update failed', e)
     error.value = message
+    toast.add({ severity: 'error', summary: 'Error', detail: message })
+
   }
 }
 

@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import {
   IconPackage,
-  IconSettings, 
-  IconShoppingCart, 
-  IconUsers, 
+  IconSettings,
+  IconShoppingCart,
+  IconUsers,
   IconSpeakerphone,
   IconCurrencyDollar,
   IconChevronRight,
