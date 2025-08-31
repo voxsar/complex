@@ -3,6 +3,7 @@ import './style.css'
 import App from './App.vue'
 import router from './router'
 import PrimeVue from 'primevue/config'
+import ToastService from 'primevue/toastservice'
 import Aura from '@primeuix/themes/lara'
 import { setupAuthFetch } from './http'
 
@@ -24,4 +25,5 @@ app.use(PrimeVue, {
         }
     }
  })
+app.use(ToastService)
 app.mount('#app')
