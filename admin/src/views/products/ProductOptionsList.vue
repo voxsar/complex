@@ -55,6 +55,7 @@ import {
 } from '../../api/product-options'
 import ProductOptionCreateModal from './components/ProductOptionCreateModal.vue'
 import ProductOptionEditModal from './components/ProductOptionEditModal.vue'
+import { useToast } from 'primevue/usetoast'
 
 const options = ref<ProductOption[]>([])
 const loading = ref(false)
@@ -72,12 +73,13 @@ const fetchOptions = async () => {
   console.debug('Fetching product options')
   try {
     options.value = await listProductOptions()
-    toast.add({ severity: 'success', summary: 'Loaded', detail: 'Product options loaded', life: 3000 })
-    console.debug('Fetched product options', options.value.length)
+    console.debug('Fetched product options', options.value)
   } catch (err: any) {
-    error.value = err.message || 'Error fetching product options'
-    toast.add({ severity: 'error', summary: 'Error', detail: error.value, life: 3000 })
     console.debug('Failed to fetch product options', err)
+    const message = err.message || 'Error fetching product options'
+    error.value = message
+    toast.add({ severity: 'error', summary: 'Error', detail: message })
+
   } finally {
     loading.value = false
   }
@@ -106,15 +108,17 @@ const handleUpdated = (option: ProductOption) => {
 const deleteOption = async (id: string) => {
   if (!confirm('Delete this option?')) return
   deletingId.value = id
-  console.debug('Attempting to delete product option', id)
+  console.debug('Deleting product option', id)
   try {
     await deleteProductOption(id)
     options.value = options.value.filter(o => o.id !== id)
-    toast.add({ severity: 'success', summary: 'Deleted', detail: 'Product option deleted', life: 3000 })
     console.debug('Deleted product option', id)
+    toast.add({ severity: 'success', summary: 'Deleted', detail: 'Product option deleted' })
   } catch (err: any) {
-    toast.add({ severity: 'error', summary: 'Error', detail: err.message || 'Error deleting product option', life: 3000 })
-    console.debug('Failed to delete product option', id, err)
+    console.debug('Failed to delete product option', err)
+    const message = err.message || 'Error deleting product option'
+    toast.add({ severity: 'error', summary: 'Error', detail: message })
+
   } finally {
     deletingId.value = null
   }
