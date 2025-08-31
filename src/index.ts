@@ -34,6 +34,7 @@ import shippingZoneRoutes from "./routes/shipping-zones";
 import shippingRateRoutes from "./routes/shipping-rates";
 import fulfillmentCenterRoutes from "./routes/fulfillment-centers";
 import shippingProviderRoutes from "./routes/shipping-providers";
+import paymentProviderRoutes from "./routes/payment-providers";
 import shipmentRoutes from "./routes/shipments";
 import adminAuthRoutes from "./routes/admin-auth";
 import apiKeyRoutes from "./routes/api-keys";
@@ -129,6 +130,7 @@ app.use("/api/shipping-zones", shippingZoneRoutes);
 app.use("/api/shipping-rates", shippingRateRoutes);
 app.use("/api/fulfillment-centers", fulfillmentCenterRoutes);
 app.use("/api/shipping-providers", shippingProviderRoutes);
+app.use("/api/payment-providers", paymentProviderRoutes);
 app.use("/api/shipments", shipmentRoutes);
 app.use("/api/checkout", checkoutRoutes);
 

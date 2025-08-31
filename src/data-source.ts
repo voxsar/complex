@@ -16,6 +16,7 @@ import { OrderReturn } from "./entities/OrderReturn";
 import { OrderClaim } from "./entities/OrderClaim";
 import { OrderExchange } from "./entities/OrderExchange";
 import { Payment } from "./entities/Payment";
+import { PaymentProvider } from "./entities/PaymentProvider";
 import { Promotion } from "./entities/Promotion";
 import { Campaign } from "./entities/Campaign";
 import { ProductOption } from "./entities/ProductOption";
@@ -60,6 +61,7 @@ export const AppDataSource = new DataSource({
     OrderClaim,
     OrderExchange,
     Payment,
+    PaymentProvider,
     Promotion,
     Campaign,
     PriceList,
