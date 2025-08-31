@@ -85,9 +85,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue';
-import { useRouter } from 'vue-router';
-import httpClient from '../../api/httpClient';
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+import httpClient from '../../api/httpClient'
+
 
 const router = useRouter();
 
@@ -168,37 +169,14 @@ const createCategory = async () => {
   };
 
   try {
-    isSubmitting.value = true;
-    console.debug('Starting category create request', payload);
-    const res = await fetch('/api/categories', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
-
-    if (!res.ok) {
-      const data = await res.json().catch(() => ({}));
-      let message = 'Failed to create category';
-      if (res.status === 409) {
-        message = data.error || 'Category handle already exists';
-      } else if (res.status === 400) {
-        message = data.error || 'Invalid category data';
-      } else if (data.error) {
-        message = data.error;
-      }
-      throw new Error(message);
-
-    }
-
-    console.debug('Category create request succeeded');
-    alert('Category created successfully');
-    router.push('/products/categories');
+    isSubmitting.value = true
+    await httpClient.post('/api/categories', payload)
+    router.push('/products/categories')
   } catch (err: any) {
-    console.debug('Category create request failed', err);
-    alert(err.message || 'Failed to create category');
+    error.value = err.message || 'Failed to create category'
   } finally {
-    console.debug('Category create request ended');
-    isSubmitting.value = false;
+    isSubmitting.value = false
+
   }
 };
 
