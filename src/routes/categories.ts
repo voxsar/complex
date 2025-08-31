@@ -125,17 +125,18 @@ router.post("/", async (req: Request, res: Response) => {
   try {
     const categoryRepository = AppDataSource.getRepository(Category);
 
-
-    logger.debug("Incoming category payload:", req.body);
-
     const category = categoryRepository.create(req.body);
-    const { childrenIds = [], productIds = [], ...rest } = req.body;
-    const category = categoryRepository.create({
-      ...rest,
-      childrenIds,
-      productIds,
+    // Ensure slug is generated and unique
+    category.generateSlug();
+
+    const existing = await categoryRepository.findOne({
+      where: { slug: category.slug }
     });
-    
+
+    if (existing) {
+      return res.status(409).json({ error: req.t("errors.slug_already_exists") });
+    }
+
     // Validate
     const errors = await validate(category);
     if (errors.length > 0) {
