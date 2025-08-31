@@ -1,27 +1,28 @@
 <template>
-  <div class="grid">
-    <div class="item" v-for="n in 6" :key="n">
-      <img :src="placeholder" alt="product" />
-      <p>Product {{ n }}</p>
-    </div>
+  <div class="category-products">
+    <ListingGrid :products="products" />
   </div>
 </template>
 
 <script setup>
-const placeholder = new URL('@/assets/images/placehoder.jpg', import.meta.url).href;
+import ListingGrid from '@/components/ListingGrid.vue';
+
+const placeholder = 'https://via.placeholder.com/300';
+
+const products = [
+  { id: 1, name: 'Modular Modern', price: '$540.00', image: placeholder },
+  { id: 2, name: 'Vintage Chair', price: '$350.00', image: placeholder },
+  { id: 3, name: 'Classic Lamp', price: '$120.00', image: placeholder },
+  { id: 4, name: 'Wooden Desk', price: '$400.00', image: placeholder },
+  { id: 5, name: 'Sofa Set', price: '$800.00', image: placeholder },
+  { id: 6, name: 'Office Chair', price: '$220.00', image: placeholder },
+  { id: 7, name: 'Dining Table', price: '$650.00', image: placeholder },
+  { id: 8, name: 'Cozy Bed', price: '$900.00', image: placeholder },
+];
 </script>
 
 <style scoped>
-.grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-}
-.item {
-  width: calc(33% - 1rem);
-  text-align: center;
-}
-.item img {
-  width: 100%;
+.category-products {
+  margin-bottom: 15px;
 }
 </style>
