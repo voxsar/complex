@@ -1,6 +1,8 @@
 import { Router, Request, Response } from "express";
 import { AppDataSource } from "../data-source";
 import { WebhookEvent, WebhookEventType, WebhookStatus } from "../entities/WebhookEvent";
+import { WebhookEndpoint } from "../entities/WebhookEndpoint";
+import { validate } from "class-validator";
 import { PaymentIntent, PaymentIntentStatus } from "../entities/PaymentIntent";
 import { StripeService } from "../services/StripeService";
 import { PayPalService } from "../services/PayPalService";
@@ -8,6 +10,79 @@ import { PayPalService } from "../services/PayPalService";
 const router = Router();
 const stripeService = new StripeService();
 const paypalService = new PayPalService();
+
+// CRUD for webhook endpoints
+router.get("/endpoints", async (req: Request, res: Response) => {
+  try {
+    const repository = AppDataSource.getRepository(WebhookEndpoint);
+    const endpoints = await repository.find();
+    res.json({ success: true, data: endpoints });
+  } catch (error) {
+    logger.error({ err: error }, "Error fetching webhook endpoints");
+    res.status(500).json({ success: false, error: "Failed to fetch webhook endpoints" });
+  }
+});
+
+router.post("/endpoints", async (req: Request, res: Response) => {
+  try {
+    const repository = AppDataSource.getRepository(WebhookEndpoint);
+    const endpoint = repository.create({
+      url: req.body.url,
+      events: req.body.events,
+    });
+
+    const errors = await validate(endpoint);
+    if (errors.length > 0) {
+      return res.status(400).json({ success: false, error: "Validation failed" });
+    }
+
+    const saved = await repository.save(endpoint);
+    res.status(201).json({ success: true, data: saved });
+  } catch (error) {
+    logger.error({ err: error }, "Error creating webhook endpoint");
+    res.status(500).json({ success: false, error: "Failed to create webhook endpoint" });
+  }
+});
+
+router.put("/endpoints/:id", async (req: Request, res: Response) => {
+  try {
+    const repository = AppDataSource.getRepository(WebhookEndpoint);
+    const endpoint = await repository.findOne({ where: { id: req.params.id } });
+    if (!endpoint) {
+      return res.status(404).json({ success: false, error: "Webhook endpoint not found" });
+    }
+
+    endpoint.url = req.body.url ?? endpoint.url;
+    endpoint.events = req.body.events ?? endpoint.events;
+
+    const errors = await validate(endpoint);
+    if (errors.length > 0) {
+      return res.status(400).json({ success: false, error: "Validation failed" });
+    }
+
+    const saved = await repository.save(endpoint);
+    res.json({ success: true, data: saved });
+  } catch (error) {
+    logger.error({ err: error }, "Error updating webhook endpoint");
+    res.status(500).json({ success: false, error: "Failed to update webhook endpoint" });
+  }
+});
+
+router.delete("/endpoints/:id", async (req: Request, res: Response) => {
+  try {
+    const repository = AppDataSource.getRepository(WebhookEndpoint);
+    const endpoint = await repository.findOne({ where: { id: req.params.id } });
+    if (!endpoint) {
+      return res.status(404).json({ success: false, error: "Webhook endpoint not found" });
+    }
+
+    await repository.remove(endpoint);
+    res.status(204).send();
+  } catch (error) {
+    logger.error({ err: error }, "Error deleting webhook endpoint");
+    res.status(500).json({ success: false, error: "Failed to delete webhook endpoint" });
+  }
+});
 
 // Stripe webhook endpoint
 router.post("/stripe", async (req: Request, res: Response) => {
