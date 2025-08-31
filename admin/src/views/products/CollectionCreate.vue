@@ -56,8 +56,10 @@
 import { ref, computed, onMounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { createCollection as createCollectionApi, getCollections } from '../../api/collections';
+import { useToast } from 'primevue/usetoast';
 
 const router = useRouter();
+const toast = useToast();
 
 const collectionForm = ref({
   title: '',
@@ -148,10 +150,22 @@ const createCollection = async () => {
         : undefined
     };
     await createCollectionApi(payload);
+    toast.add({ severity: 'success', summary: 'Success', detail: 'Collection created', life: 3000 });
     router.push('/products/collections');
   } catch (error) {
     console.error('Failed to create collection:', error);
-    alert((error as any)?.message || 'Failed to create collection');
+    const err: any = error;
+    if (err.errors && Array.isArray(err.errors)) {
+      err.errors.forEach((e: any) => {
+        const message = e.constraints ? Object.values(e.constraints).join(', ') : '';
+        if (e.property && (errors.value as any)[e.property] !== undefined) {
+          (errors.value as any)[e.property] = message;
+        }
+      });
+      toast.add({ severity: 'error', summary: 'Validation Error', detail: 'Please fix the errors in the form', life: 5000 });
+    } else {
+      toast.add({ severity: 'error', summary: 'Error', detail: err.message || 'Failed to create collection', life: 5000 });
+    }
   } finally {
     isSubmitting.value = false;
   }
