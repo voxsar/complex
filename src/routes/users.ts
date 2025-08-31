@@ -22,7 +22,7 @@ const router = Router();
 // Register new user
 router.post("/register", async (req: Request, res: Response) => {
   try {
-    const { email, password, firstName, lastName, phone } = req.body;
+    const { email, password, firstName, lastName, phone, role } = req.body;
     const userRepository = AppDataSource.getRepository(User);
 
     // Check if user already exists
@@ -38,7 +38,7 @@ router.post("/register", async (req: Request, res: Response) => {
       firstName,
       lastName,
       phone,
-      role: UserRole.CUSTOMER,
+      role: Object.values(UserRole).includes(role) ? role : UserRole.CUSTOMER,
       isActive: true,
       isEmailVerified: false,
       emailVerificationToken: generateEmailVerificationToken(),
