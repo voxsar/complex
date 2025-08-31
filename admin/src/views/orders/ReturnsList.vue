@@ -19,11 +19,8 @@
           <td>{{ ret.orderId }}</td>
           <td>{{ ret.status }}</td>
           <td>
-            <select v-model="statusUpdates[ret.id]">
-              <option disabled value="">Select</option>
-              <option v-for="s in statusOptions" :key="s" :value="s">{{ s }}</option>
-            </select>
-            <button @click="updateStatus(ret.id)">Update</button>
+            <button @click="markReceived(ret.id)" :disabled="ret.status === 'received' || ret.status === 'refunded'">Mark Received</button>
+            <button @click="markRefunded(ret.id, ret.refundAmount)" :disabled="ret.status === 'refunded'">Mark Refunded</button>
           </td>
         </tr>
         <tr v-if="returns.length === 0">
@@ -54,14 +51,12 @@ interface OrderReturn {
   orderId: string
   customerId: string
   status: string
+  refundAmount: number
 }
 
 const returns = ref<OrderReturn[]>([])
 const loading = ref(false)
 const error = ref('')
-
-const statusOptions = ['requested','approved','rejected','in_transit','received','processed','refunded','cancelled']
-const statusUpdates = ref<Record<string, string>>({})
 
 const newReturn = ref({ orderId:'', customerId:'', reason:'', items:'[]', customerNote:'', refundAmount:0, currency:'' })
 
@@ -109,16 +104,30 @@ async function createReturn() {
   }
 }
 
-async function updateStatus(id: string) {
-  const status = statusUpdates.value[id]
-  if (!status) return
+
+async function markReceived(id: string) {
   try {
     const res = await fetch(`/api/order-returns/${id}/status`, {
-      method:'PATCH',
-      headers:{ 'Content-Type':'application/json' },
-      body: JSON.stringify({ status })
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: 'received' })
     })
-    if (!res.ok) throw new Error('Failed to update status')
+    if (!res.ok) throw new Error('Failed to mark received')
+    await res.json()
+    fetchReturns()
+  } catch (err) {
+    console.error(err)
+  }
+}
+
+async function markRefunded(id: string, amount: number) {
+  try {
+    const res = await fetch(`/api/order-returns/${id}/refund`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ amount, paymentMethod: 'manual', reference: 'admin_refund' })
+    })
+    if (!res.ok) throw new Error('Failed to mark refunded')
     await res.json()
     fetchReturns()
   } catch (err) {
