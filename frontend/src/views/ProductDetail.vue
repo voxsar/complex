@@ -1,22 +1,29 @@
 <template>
-  <div class="product-detail">
-    <img :src="placeholder" alt="product" />
-    <h2>Sample Product</h2>
-    <p>This is a placeholder description for the product detail page.</p>
+  <div class="product-view sns-product-detail">
+    <ProductGallery :images="images" />
+    <ProductInfo :product="product" />
   </div>
 </template>
 
 <script setup>
-const placeholder = new URL('@/assets/images/placehoder.jpg', import.meta.url).href;
+import ProductGallery from '@/components/ProductGallery.vue';
+import ProductInfo from '@/components/ProductInfo.vue';
+
+const images = [
+  new URL('@/assets/images/product-main.svg', import.meta.url).href,
+  new URL('@/assets/images/product-thumb1.svg', import.meta.url).href,
+  new URL('@/assets/images/product-thumb2.svg', import.meta.url).href,
+  new URL('@/assets/images/product-thumb3.svg', import.meta.url).href,
+  new URL('@/assets/images/product-thumb4.svg', import.meta.url).href
+];
+
+const product = {
+  title: 'Modular Modern',
+  price: '$ 540.00',
+  availability: 'In stock',
+  description:
+    'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque vel magna quis risus commodo porttitor.'
+};
 </script>
 
-<style scoped>
-.product-detail {
-  max-width: 600px;
-  margin: 0 auto;
-}
-.product-detail img {
-  width: 100%;
-  margin-bottom: 1rem;
-}
-</style>
+<style src="../assets/detail.css"></style>
