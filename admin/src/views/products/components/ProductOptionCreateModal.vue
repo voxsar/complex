@@ -1,9 +1,13 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { createProductOption, type ProductOptionPayload } from '../../../api/product-options'
+import { useToast } from 'primevue/usetoast'
 
 const props = defineProps<{ isOpen: boolean }>()
 const emit = defineEmits(['close', 'saved'])
+
+const toast = useToast()
+const supportedInputTypes = ['select', 'radio', 'color', 'text'] as const
 
 const form = ref<ProductOptionPayload>({
   name: '',
@@ -19,25 +23,34 @@ const reset = () => {
 }
 
 const handleSave = async () => {
+  console.debug('Attempting to create product option', form.value)
   if (!form.value.name.trim()) {
     error.value = 'Name is required'
     return
   }
+  if (!supportedInputTypes.includes(form.value.inputType as any)) {
+    error.value = `Invalid input type: ${form.value.inputType}`
+    return
+  }
   try {
-    const option = await createProductOption({
+    const option: any = await createProductOption({
       ...form.value,
       displayName: form.value.displayName || undefined
     })
+    console.debug('Product option created', option)
+    toast.add({ severity: 'success', summary: 'Success', detail: option?.message || 'Option created', life: 3000 })
     emit('saved', option)
     reset()
     emit('close')
   } catch (e: any) {
-    error.value = e.message || 'Failed to create option'
+    const message = e.message || 'Failed to create option'
+    console.debug('Failed to create product option', e)
+    toast.add({ severity: 'error', summary: 'Error', detail: message, life: 3000 })
+    error.value = message
   }
 }
 
 const handleClose = () => {
-  reset()
   emit('close')
 }
 </script>
