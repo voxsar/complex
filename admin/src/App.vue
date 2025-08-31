@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { 
-  IconPackage, 
+import {
+  IconPackage,
   IconSettings, 
   IconShoppingCart, 
   IconUsers, 
@@ -14,6 +14,7 @@ import {
 } from '@tabler/icons-vue'
 import { computed, ref } from 'vue'
 import { useRoute } from 'vue-router'
+import Toast from 'primevue/toast'
 
 const route = useRoute()
 const expandedMenus = ref<string[]>(['products'])
@@ -34,6 +35,7 @@ const isMenuExpanded = (menuKey: string) => {
 // Page descriptions based on route name
 const routeDescriptions: Record<string, string> = {
   'Products': 'Manage your inventory items',
+  'ProductOptions': 'Manage product options',
   'Inventory': 'Manage your inventory items',
   'Orders': 'Manage customer orders',
   'OrderClaims': 'Manage order claims',
@@ -42,6 +44,7 @@ const routeDescriptions: Record<string, string> = {
   'Customers': 'Manage your customers',
   'Promotions': 'Create and manage promotions',
   'PriceLists': 'Manage your price lists',
+  'ProductOptions': 'Manage product options',
   'Analytics': 'View store analytics',
   'Settings': 'Configure your store settings'
 }
@@ -56,6 +59,7 @@ const getPageDescription = computed(() => {
 </script>
 
 <template>
+  <Toast />
   <div class="app-container">
     <!-- Sidebar Navigation -->
     <aside class="sidebar">
@@ -146,8 +150,14 @@ const getPageDescription = computed(() => {
               <router-link to="/products/collections" class="sub-menu-item">
                 <span>Collections</span>
               </router-link>
+              <router-link to="/products/collections/create" class="sub-menu-item">
+                <span>New Collection</span>
+              </router-link>
               <router-link to="/products/categories" class="sub-menu-item">
                 <span>Categories</span>
+              </router-link>
+              <router-link to="/product-options" class="sub-menu-item">
+                <span>Product Options</span>
               </router-link>
             </div>
           </div>

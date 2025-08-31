@@ -6,31 +6,38 @@
     <form @submit.prevent="createCategory">
       <div class="form-group">
         <label for="title">Title</label>
-        <input 
-          id="title" 
-          type="text" 
-          v-model="categoryForm.title" 
-          class="form-control" 
+        <input
+          id="title"
+          type="text"
+          v-model="categoryForm.title"
+          class="form-control"
+          @blur="touched.title = true; validateTitle()"
+          :class="{ invalid: errors.title }"
           required
+
         />
+        <div v-if="errors.title" class="error">{{ errors.title }}</div>
       </div>
 
       <div class="form-group">
         <label for="handle">
-          Handle 
+          Handle
           <span class="info-icon" title="Optional unique identifier for the category">ⓘ</span>
           <span class="optional">(Optional)</span>
         </label>
         <div class="handle-input">
           <span class="handle-prefix">/</span>
-          <input 
-            id="handle" 
-            type="text" 
-            v-model="categoryForm.handle" 
-            class="form-control" 
+          <input
+            id="handle"
+            type="text"
+            v-model="categoryForm.handle"
+            class="form-control"
             placeholder=""
+            @blur="touched.handle = true; validateHandle()"
+            :class="{ invalid: errors.handle }"
           />
         </div>
+        <div v-if="errors.handle" class="error">{{ errors.handle }}</div>
       </div>
 
       <div class="form-group">
@@ -65,19 +72,24 @@
         </div>
       </div>
 
-      <div v-if="error" class="error-message">{{ error }}</div>
-
       <div class="form-actions">
         <button type="button" class="btn btn-secondary" @click="cancel">Cancel</button>
-        <button type="submit" class="btn btn-primary" :disabled="isSubmitting">Create Category</button>
+        <button
+          type="submit"
+          class="btn btn-primary"
+          :disabled="isSubmitting || !isFormValid"
+        >
+          {{ isSubmitting ? 'Creating...' : 'Create Category' }}
+        </button>
       </div>
     </form>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { useRouter } from 'vue-router';
+
 
 const router = useRouter();
 
@@ -89,9 +101,21 @@ const categoryForm = ref({
   visibility: 'Public'
 });
 
-const error = ref('');
-const isSubmitting = ref(false);
+const errors = ref({
+  title: '',
+  handle: ''
+});
 
+const touched = ref({
+  title: false,
+  handle: false
+});
+
+const slugRegex = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+
+
+
+const slugRegex = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const slugify = (str: string) =>
   str
     .toLowerCase()
@@ -99,22 +123,48 @@ const slugify = (str: string) =>
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '');
 
-const createCategory = async () => {
-  error.value = '';
+const validateTitle = () => {
+  errors.value.title = categoryForm.value.title.trim() ? '' : 'Title is required';
+};
 
-  if (!categoryForm.value.title.trim()) {
-    error.value = 'Title is required';
+const validateHandle = () => {
+  const h = categoryForm.value.handle.trim();
+  if (!h) {
+    errors.value.handle = '';
     return;
   }
+  errors.value.handle = slugRegex.test(h) ? '' : 'Handle must be URL friendly';
+};
+
+watch(() => categoryForm.value.title, () => {
+  if (touched.value.title) validateTitle();
+});
+
+watch(() => categoryForm.value.handle, () => {
+  if (touched.value.handle) validateHandle();
+});
+
+const isFormValid = computed(() => {
+  return (
+    categoryForm.value.title.trim() &&
+    !errors.value.title &&
+    !errors.value.handle
+  );
+});
+
+const isSubmitting = ref(false);
+
+
+const createCategory = async () => {
+  touched.value.title = true;
+  touched.value.handle = true;
+  validateTitle();
+  validateHandle();
+  if (!isFormValid.value) return;
 
   const slug = categoryForm.value.handle
     ? slugify(categoryForm.value.handle)
     : slugify(categoryForm.value.title);
-
-  if (!slug) {
-    error.value = 'Handle is invalid';
-    return;
-  }
 
   const payload = {
     name: categoryForm.value.title.trim(),
@@ -125,23 +175,38 @@ const createCategory = async () => {
   };
 
   try {
+    console.debug('createCategory request start', payload);
     isSubmitting.value = true;
     const res = await fetch('/api/categories', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     });
+    console.debug('createCategory request end', res.status);
 
     if (!res.ok) {
-      const data = await res.json().catch(() => ({}));
-      throw new Error(data.error || 'Failed to create category');
+      let message = 'Failed to create category';
+      try {
+        const data = await res.json();
+        message = data.error || data.message || message;
+      } catch {}
+      if (res.status === 409) {
+        message = message || 'Category handle already exists';
+      } else if (res.status === 400) {
+        message = message || 'Invalid category data';
+      }
+      throw new Error(message);
     }
 
+    alert('Category created successfully');
     router.push('/products/categories');
   } catch (err: any) {
-    error.value = err.message || 'Failed to create category';
+    console.debug('createCategory error', err);
+    alert(err.message || 'Failed to create category');
+
   } finally {
-    isSubmitting.value = false;
+    isSubmitting.value = false
+
   }
 };
 
@@ -246,13 +311,18 @@ select.form-control {
   border: none;
 }
 
-.error-message {
-  color: red;
-  margin-bottom: 10px;
-}
-
 .btn-secondary {
   background-color: #f5f5f5;
   border: 1px solid #ccc;
+}
+
+.error {
+  color: red;
+  margin-top: 4px;
+  font-size: 0.9em;
+}
+
+.invalid {
+  border-color: red;
 }
 </style>

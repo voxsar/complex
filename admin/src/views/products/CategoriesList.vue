@@ -97,6 +97,7 @@ const fetchCategories = async () => {
       handle: c.slug,
       status: c.isActive ? 'Active' : 'Inactive',
       visibility: c.visibility || 'Public'
+
     }));
   } catch (error) {
     console.error('Failed to fetch categories:', error);
