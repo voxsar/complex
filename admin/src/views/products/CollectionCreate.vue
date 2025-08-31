@@ -35,7 +35,13 @@
 
       <div class="form-actions">
         <button type="button" class="btn btn-secondary" @click="cancel">Cancel</button>
-        <button type="submit" class="btn btn-primary">Create Collection</button>
+        <button
+          type="submit"
+          class="btn btn-primary"
+          :disabled="isSubmitting"
+        >
+          {{ isSubmitting ? 'Creating...' : 'Create Collection' }}
+        </button>
       </div>
     </form>
   </div>
@@ -44,6 +50,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
+import { createCollection as createCollectionApi } from '../../api/collections';
 
 const router = useRouter();
 
@@ -52,14 +59,21 @@ const collectionForm = ref({
   handle: ''
 });
 
+const isSubmitting = ref(false);
+
 const createCollection = async () => {
   try {
-    // TODO: Implement API call to create collection
-    console.log('Creating collection:', collectionForm.value);
-    // After successful creation, navigate back to collections list
+    isSubmitting.value = true;
+    const payload = {
+      title: collectionForm.value.title,
+      handle: collectionForm.value.handle || undefined
+    };
+    await createCollectionApi(payload);
     router.push('/products/collections');
   } catch (error) {
     console.error('Failed to create collection:', error);
+  } finally {
+    isSubmitting.value = false;
   }
 };
 
