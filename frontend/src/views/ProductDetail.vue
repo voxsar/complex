@@ -1,4 +1,5 @@
 <template>
+
   <div class="product-view sns-product-detail">
     <ProductGallery :images="images" />
     <ProductInfo :product="product" />
@@ -6,24 +7,49 @@
 </template>
 
 <script setup>
-import ProductGallery from '@/components/ProductGallery.vue';
-import ProductInfo from '@/components/ProductInfo.vue';
+import { onMounted, ref } from 'vue';
+import Swiper from 'swiper';
+import 'swiper/css';
+import 'swiper/css/navigation';
+import 'swiper/css/pagination';
+import { Navigation, Pagination } from 'swiper/modules';
 
-const images = [
-  new URL('@/assets/images/product-main.svg', import.meta.url).href,
-  new URL('@/assets/images/product-thumb1.svg', import.meta.url).href,
-  new URL('@/assets/images/product-thumb2.svg', import.meta.url).href,
-  new URL('@/assets/images/product-thumb3.svg', import.meta.url).href,
-  new URL('@/assets/images/product-thumb4.svg', import.meta.url).href
-];
+const placeholder = new URL('@/assets/images/placehoder.jpg', import.meta.url).href;
+const images = ref([
+  placeholder,
+  placeholder,
+  placeholder,
+]);
 
-const product = {
-  title: 'Modular Modern',
-  price: '$ 540.00',
-  availability: 'In stock',
-  description:
-    'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque vel magna quis risus commodo porttitor.'
-};
+onMounted(() => {
+  new Swiper('.product-swiper', {
+    modules: [Navigation, Pagination],
+    loop: true,
+    pagination: {
+      el: '.swiper-pagination',
+      clickable: true,
+    },
+    navigation: {
+      nextEl: '.swiper-button-next',
+      prevEl: '.swiper-button-prev',
+    },
+  });
+});
 </script>
 
-<style src="../assets/detail.css"></style>
+<style scoped>
+.product-detail {
+  max-width: 600px;
+  margin: 0 auto;
+}
+.product-swiper {
+  width: 100%;
+  height: 300px;
+  margin-bottom: 1rem;
+}
+.product-swiper img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+</style>
