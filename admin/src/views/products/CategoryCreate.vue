@@ -14,6 +14,7 @@
           @blur="touched.title = true; validateTitle()"
           :class="{ invalid: errors.title }"
           required
+
         />
         <div v-if="errors.title" class="error">{{ errors.title }}</div>
       </div>
@@ -89,6 +90,7 @@
 import { ref, computed, watch } from 'vue';
 import { useRouter } from 'vue-router';
 
+
 const router = useRouter();
 
 const categoryForm = ref({
@@ -111,6 +113,9 @@ const touched = ref({
 
 const slugRegex = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
+
+
+const slugRegex = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const slugify = (str: string) =>
   str
     .toLowerCase()
@@ -148,6 +153,7 @@ const isFormValid = computed(() => {
 });
 
 const isSubmitting = ref(false);
+
 
 const createCategory = async () => {
   touched.value.title = true;
@@ -197,8 +203,10 @@ const createCategory = async () => {
   } catch (err: any) {
     console.debug('createCategory error', err);
     alert(err.message || 'Failed to create category');
+
   } finally {
-    isSubmitting.value = false;
+    isSubmitting.value = false
+
   }
 };
 
