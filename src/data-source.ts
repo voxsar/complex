@@ -34,6 +34,8 @@ import { ApiKey } from "./entities/ApiKey";
 import { OAuthAccount } from "./entities/OAuthAccount";
 import { Wishlist } from "./entities/Wishlist";
 import { Review } from "./entities/Review";
+import { WebhookEvent } from "./entities/WebhookEvent";
+import { WebhookEndpoint } from "./entities/WebhookEndpoint";
 
 dotenv.config();
 
@@ -78,6 +80,8 @@ export const AppDataSource = new DataSource({
     OAuthAccount,
     Wishlist,
     Review,
+    WebhookEvent,
+    WebhookEndpoint,
   ],
   migrations: ["src/migrations/*.ts"],
   subscribers: ["src/subscribers/*.ts"],
