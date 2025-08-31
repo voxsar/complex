@@ -13,6 +13,8 @@
           class="form-control"
           @blur="touched.title = true; validateTitle()"
           :class="{ invalid: errors.title }"
+          required
+
         />
         <div v-if="errors.title" class="error">{{ errors.title }}</div>
       </div>
@@ -85,9 +87,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
-import httpClient from '../../api/httpClient'
+import { ref, computed, watch } from 'vue';
+import { useRouter } from 'vue-router';
 
 
 const router = useRouter();
@@ -110,7 +111,9 @@ const touched = ref({
   handle: false
 });
 
-const isSubmitting = ref(false);
+const slugRegex = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+
+
 
 const slugRegex = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const slugify = (str: string) =>
@@ -149,6 +152,9 @@ const isFormValid = computed(() => {
   );
 });
 
+const isSubmitting = ref(false);
+
+
 const createCategory = async () => {
   touched.value.title = true;
   touched.value.handle = true;
@@ -169,11 +175,35 @@ const createCategory = async () => {
   };
 
   try {
-    isSubmitting.value = true
-    await httpClient.post('/api/categories', payload)
-    router.push('/products/categories')
+    console.debug('createCategory request start', payload);
+    isSubmitting.value = true;
+    const res = await fetch('/api/categories', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    console.debug('createCategory request end', res.status);
+
+    if (!res.ok) {
+      let message = 'Failed to create category';
+      try {
+        const data = await res.json();
+        message = data.error || data.message || message;
+      } catch {}
+      if (res.status === 409) {
+        message = message || 'Category handle already exists';
+      } else if (res.status === 400) {
+        message = message || 'Invalid category data';
+      }
+      throw new Error(message);
+    }
+
+    alert('Category created successfully');
+    router.push('/products/categories');
   } catch (err: any) {
-    error.value = err.message || 'Failed to create category'
+    console.debug('createCategory error', err);
+    alert(err.message || 'Failed to create category');
+
   } finally {
     isSubmitting.value = false
 
