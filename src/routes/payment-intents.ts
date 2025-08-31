@@ -517,6 +517,43 @@ router.post("/:id/cancel", authenticate, authorize([Permission.PAYMENT_PROCESS])
   }
 });
 
+// Update payment intent status manually
+router.patch(
+  "/:id/status",
+  authenticate,
+  authorize([Permission.PAYMENT_PROCESS]),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const { id } = req.params;
+      const { status } = req.body;
+
+      if (!status) {
+        return res.status(400).json({ error: "Status is required" });
+      }
+
+      if (!Object.values(PaymentIntentStatus).includes(status)) {
+        return res.status(400).json({ error: "Invalid status" });
+      }
+
+      const paymentIntentRepository = AppDataSource.getRepository(PaymentIntent);
+      const paymentIntent = await paymentIntentRepository.findOne({ where: { id } });
+
+      if (!paymentIntent) {
+        return res.status(404).json({ error: "Payment intent not found" });
+      }
+
+      paymentIntent.status = status as PaymentIntentStatus;
+      paymentIntent.updatedAt = new Date();
+
+      const updated = await paymentIntentRepository.save(paymentIntent);
+      res.json(updated);
+    } catch (error) {
+      logger.error("Error updating payment intent status:", error);
+      res.status(500).json({ error: "Failed to update payment intent status" });
+    }
+  }
+);
+
 // List payment intents (admin only or filtered by customer)
 router.get("/", authenticate, async (req: AuthRequest, res: Response) => {
   try {
