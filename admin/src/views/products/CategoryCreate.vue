@@ -78,6 +78,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
+import httpClient from '../../api/httpClient';
 
 const router = useRouter();
 
