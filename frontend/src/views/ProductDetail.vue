@@ -1,17 +1,8 @@
 <template>
-  <div class="product-detail">
-    <div class="swiper product-swiper">
-      <div class="swiper-wrapper">
-        <div class="swiper-slide" v-for="img in images" :key="img">
-          <img :src="img" alt="product image" />
-        </div>
-      </div>
-      <div class="swiper-pagination"></div>
-      <div class="swiper-button-prev"></div>
-      <div class="swiper-button-next"></div>
-    </div>
-    <h2>Sample Product</h2>
-    <p>This is a placeholder description for the product detail page.</p>
+
+  <div class="product-view sns-product-detail">
+    <ProductGallery :images="images" />
+    <ProductInfo :product="product" />
   </div>
 </template>
 
