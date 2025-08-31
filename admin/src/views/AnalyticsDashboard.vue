@@ -174,6 +174,13 @@ const chartData = computed(() => ({
       fill: false,
       borderColor: '#42A5F5',
       tension: 0.4
+    },
+    {
+      label: 'Orders',
+      data: sales.value.map(s => s.orders),
+      fill: false,
+      borderColor: '#FFA726',
+      tension: 0.4
     }
   ]
 }))
@@ -182,7 +189,7 @@ const chartOptions = {
   responsive: true,
   plugins: {
     legend: {
-      display: false
+      position: 'bottom'
     }
   }
 }

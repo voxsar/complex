@@ -33,6 +33,11 @@ const routes: RouteRecordRaw[] = [
     component: () => import('../views/products/CollectionCreate.vue')
   },
   {
+    path: '/products/collections/:id',
+    name: 'EditCollection',
+    component: () => import('../views/products/CollectionEdit.vue')
+  },
+  {
     path: '/products/categories',
     name: 'Categories',
     component: () => import('../views/products/CategoriesList.vue')

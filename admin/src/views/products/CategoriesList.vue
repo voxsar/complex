@@ -41,7 +41,8 @@
             {{ category.visibility }}
           </td>
           <td class="actions-cell">
-            <button class="btn-menu">⋯</button>
+            <button class="btn-edit" @click="editCategory(category.id)">Edit</button>
+            <button class="btn-delete" @click="deleteCategory(category.id)">Delete</button>
           </td>
         </tr>
         <tr v-if="categories.length === 0">
@@ -66,16 +67,19 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
+import { getCategories, deleteCategory as deleteCategoryApi } from '../../api/categories';
 
 const router = useRouter();
 const searchQuery = ref('');
-const categories = ref<Array<{
+interface CategoryItem {
   id: string;
   name: string;
   handle: string;
   status: string;
   visibility: string;
-}>>([]);
+}
+
+const categories = ref<CategoryItem[]>([]);
 const currentPage = ref(1);
 const totalPages = ref(1);
 
@@ -85,38 +89,15 @@ onMounted(async () => {
 
 const fetchCategories = async () => {
   try {
-    // TODO: Replace with actual API call
-    // Mocking data based on the screenshot
-    categories.value = [
-      {
-        id: '1',
-        name: 'Sweatshirts',
-        handle: 'sweatshirts',
-        status: 'Active',
-        visibility: 'Public'
-      },
-      {
-        id: '2',
-        name: 'Shirts',
-        handle: 'shirts',
-        status: 'Active',
-        visibility: 'Public'
-      },
-      {
-        id: '3',
-        name: 'Merch',
-        handle: 'merch',
-        status: 'Active',
-        visibility: 'Public'
-      },
-      {
-        id: '4',
-        name: 'Pants',
-        handle: 'pants',
-        status: 'Active',
-        visibility: 'Public'
-      }
-    ];
+    const data = await getCategories();
+    const list = Array.isArray(data) ? data : data.categories;
+    categories.value = (list || []).map((c: any) => ({
+      id: c.id,
+      name: c.name,
+      handle: c.slug,
+      status: c.isActive ? 'Active' : 'Inactive',
+      visibility: c.isVisible ? 'Public' : 'Private'
+    }));
   } catch (error) {
     console.error('Failed to fetch categories:', error);
   }
@@ -129,6 +110,20 @@ const navigateToCreate = () => {
 const editRanking = () => {
   // TODO: Implement edit ranking functionality
   console.log('Edit ranking clicked');
+};
+
+const editCategory = (id: string) => {
+  router.push(`/products/categories/create?id=${id}`);
+};
+
+const deleteCategory = async (id: string) => {
+  if (!confirm('Are you sure you want to delete this category?')) return;
+  try {
+    await deleteCategoryApi(id);
+    categories.value = categories.value.filter(c => c.id !== id);
+  } catch (error) {
+    console.error('Failed to delete category:', error);
+  }
 };
 </script>
 
@@ -234,14 +229,25 @@ const editRanking = () => {
 }
 
 .actions-cell {
-  text-align: right;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
 }
 
-.btn-menu {
+.btn-edit,
+.btn-delete {
   background: none;
   border: none;
-  font-size: 18px;
   cursor: pointer;
+  font-size: 14px;
+}
+
+.btn-edit {
+  color: #4a6cf7;
+}
+
+.btn-delete {
+  color: #dc2626;
 }
 
 .empty-state {

@@ -83,8 +83,11 @@
               </span>
             </td>
             <td class="action-column">
-              <button class="action-btn">
-                <IconDotsVertical :size="16" />
+              <button class="action-btn" @click="startEditProduct(product)">
+                <IconPencil :size="16" />
+              </button>
+              <button class="action-btn" @click="removeProduct(product.id)">
+                <IconTrash :size="16" />
               </button>
             </td>
           </tr>
@@ -99,11 +102,17 @@ import { ref, onMounted } from 'vue'
 import {
   IconFilter,
   IconSearch,
-  IconDotsVertical,
-  IconListDetails
+  IconListDetails,
+  IconPencil,
+  IconTrash
 } from '@tabler/icons-vue'
 import ProductCreateModal from './components/ProductCreateModal.vue'
-import { getProducts, createProduct as createProductApi } from '../../api/products'
+import {
+  getProducts,
+  createProduct as createProductApi,
+  updateProduct as updateProductApi,
+  deleteProduct as deleteProductApi
+} from '../../api/products'
 
 // Modal state
 const isCreateModalOpen = ref(false)
@@ -184,6 +193,27 @@ const handleCreateProduct = async (productData: any) => {
     products.value.unshift(newProduct)
   } catch (error) {
     console.error('Failed to create product', error)
+  }
+}
+
+const startEditProduct = async (product: ProductItem) => {
+  const newName = prompt('Enter new product name', product.name)
+  if (!newName || newName === product.name) return
+  try {
+    const updated = await updateProductApi(product.id, { title: newName })
+    product.name = updated.title
+  } catch (error) {
+    console.error('Failed to update product', error)
+  }
+}
+
+const removeProduct = async (id: string) => {
+  if (!confirm('Are you sure you want to delete this product?')) return
+  try {
+    await deleteProductApi(id)
+    products.value = products.value.filter(p => p.id !== id)
+  } catch (error) {
+    console.error('Failed to delete product', error)
   }
 }
 
@@ -349,7 +379,11 @@ td {
 }
 
 .action-column {
-  width: 40px;
+  width: 80px;
+}
+td.action-column {
+  display: flex;
+  gap: 0.25rem;
 }
 
 .product-cell {
