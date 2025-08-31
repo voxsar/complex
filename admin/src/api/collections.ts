@@ -13,3 +13,7 @@ export async function getCollections() {
 export async function getCollection(id: string) {
   return httpClient.get(`/api/collections/${id}`)
 }
+
+export async function createCollection(payload: CollectionPayload) {
+  return httpClient.post('/api/collections', payload)
+}

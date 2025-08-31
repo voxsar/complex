@@ -1,7 +1,10 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { IconX, IconUpload, IconPlus, IconTrash } from '@tabler/icons-vue'
 import OptionSelector from './OptionSelector.vue'
+import MultiSelect from 'primevue/multiselect'
+import { getCategories } from '../../../api/categories'
+import { getCollections } from '../../../api/collections'
 
 const props = defineProps({
   isOpen: {
@@ -36,19 +39,29 @@ const productData = ref({
 })
 
 // Available options for dropdowns
-const availableCategories = ref([
-  { id: '1', name: 'Electronics' },
-  { id: '2', name: 'Computers' },
-  { id: '3', name: 'Gaming' },
-  { id: '4', name: 'Office Equipment' }
-])
+const availableCategories = ref<any[]>([])
+const availableCollections = ref<any[]>([])
 
-const availableCollections = ref([
-  { id: '1', name: 'Winter Sale' },
-  { id: '2', name: 'Summer Collection' },
-  { id: '3', name: 'Gaming Products' },
-  { id: '4', name: 'Professional products' }
-])
+const loadOptions = async () => {
+  try {
+    const [categoriesRes, collectionsRes] = await Promise.all([
+      getCategories(),
+      getCollections()
+    ])
+    const categoryList = Array.isArray(categoriesRes)
+      ? categoriesRes
+      : (categoriesRes.categories || [])
+    const collectionList = Array.isArray(collectionsRes)
+      ? collectionsRes
+      : (collectionsRes.collections || [])
+    availableCategories.value = categoryList
+    availableCollections.value = collectionList
+  } catch (error) {
+    console.error('Failed to load options', error)
+  }
+}
+
+onMounted(loadOptions)
 
 // Form tab state
 const activeTab = ref('general')
@@ -249,22 +262,32 @@ const handleClose = () => {
             
             <div class="form-group">
               <label for="product-categories">Categories</label>
-              <select id="product-categories" v-model="productData.categories" multiple class="form-select">
-                <option v-for="category in availableCategories" :key="category.id" :value="category.id">
-                  {{ category.name }}
-                </option>
-              </select>
-              <p class="help-text">Hold Ctrl/Cmd to select multiple categories</p>
+              <MultiSelect
+                id="product-categories"
+                v-model="productData.categories"
+                :options="availableCategories"
+                optionLabel="name"
+                optionValue="id"
+                filter
+                display="chip"
+                placeholder="Select Categories"
+                class="w-full"
+              />
             </div>
-            
+
             <div class="form-group">
               <label for="product-collections">Collections</label>
-              <select id="product-collections" v-model="productData.collections" multiple class="form-select">
-                <option v-for="collection in availableCollections" :key="collection.id" :value="collection.id">
-                  {{ collection.name }}
-                </option>
-              </select>
-              <p class="help-text">Hold Ctrl/Cmd to select multiple collections</p>
+              <MultiSelect
+                id="product-collections"
+                v-model="productData.collections"
+                :options="availableCollections"
+                optionLabel="name"
+                optionValue="id"
+                filter
+                display="chip"
+                placeholder="Select Collections"
+                class="w-full"
+              />
             </div>
           </div>
         </div>

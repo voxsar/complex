@@ -13,6 +13,7 @@ import { requestLogger } from "./middleware/requestLogger";
 // Import routes
 import productRoutes from "./routes/products";
 import categoryRoutes from "./routes/categories";
+import collectionRoutes from "./routes/collections";
 import customerRoutes from "./routes/customers";
 import customerGroupRoutes from "./routes/customer-groups";
 import userRoutes from "./routes/users";
@@ -110,6 +111,7 @@ app.get("/health", (req, res) => {
 // API Routes
 app.use("/api/products", productRoutes);
 app.use("/api/categories", categoryRoutes);
+app.use("/api/collections", collectionRoutes);
 app.use("/api/customers", customerRoutes);
 app.use("/api/customer-groups", customerGroupRoutes);
 app.use("/api/users", userRoutes);

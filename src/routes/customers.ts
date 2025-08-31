@@ -69,7 +69,10 @@ router.post("/register", customerAuthRateLimit, async (req: Request, res: Respon
     // Validate
     const errors = await validate(customer);
     if (errors.length > 0) {
-      return res.status(400).json({ errors });
+      const errorMessages = errors.flatMap((err) =>
+        Object.values(err.constraints || {})
+      );
+      return res.status(400).json({ errors: errorMessages });
     }
 
     await customerRepository.save(customer);
@@ -532,7 +535,10 @@ router.post("/", async (req: Request, res: Response) => {
     // Validate
     const errors = await validate(customer);
     if (errors.length > 0) {
-      return res.status(400).json({ errors });
+      const errorMessages = errors.flatMap((err) =>
+        Object.values(err.constraints || {})
+      );
+      return res.status(400).json({ errors: errorMessages });
     }
 
     const savedCustomer = await customerRepository.save(customer);
@@ -563,7 +569,10 @@ router.put("/:id", async (req: Request, res: Response) => {
     // Validate
     const errors = await validate(customer);
     if (errors.length > 0) {
-      return res.status(400).json({ errors });
+      const errorMessages = errors.flatMap((err) =>
+        Object.values(err.constraints || {})
+      );
+      return res.status(400).json({ errors: errorMessages });
     }
 
     const updatedCustomer = await customerRepository.save(customer);

@@ -95,6 +95,11 @@ const routes: RouteRecordRaw[] = [
     ]
   },
   {
+    path: '/customers/create',
+    name: 'CustomerCreate',
+    component: () => import('../views/customers/CustomerCreate.vue')
+  },
+  {
     path: '/customers/:id',
     name: 'CustomerDetail',
     component: () => import('../views/customers/CustomerDetail.vue')
