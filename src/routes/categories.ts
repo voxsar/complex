@@ -123,7 +123,13 @@ router.post("/", async (req: Request, res: Response) => {
     logger.debug("Incoming category payload:", req.body);
 
     const category = categoryRepository.create(req.body);
-
+    const { childrenIds = [], productIds = [], ...rest } = req.body;
+    const category = categoryRepository.create({
+      ...rest,
+      childrenIds,
+      productIds,
+    });
+    
     // Validate
     const errors = await validate(category);
     if (errors.length > 0) {
