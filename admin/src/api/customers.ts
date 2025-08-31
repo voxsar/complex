@@ -23,3 +23,7 @@ export function removeWishlistItem(customerId: string, productId: string) {
   return httpClient.delete<WishlistResponse>(`/customers/${customerId}/wishlist/${productId}`)
 }
 
+export function transferWishlistItemToOrder(customerId: string, productId: string) {
+  return httpClient.post(`/customers/${customerId}/wishlist/${productId}/transfer`, {})
+}
+
