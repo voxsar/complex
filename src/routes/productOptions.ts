@@ -41,7 +41,8 @@ async function validateOptionPayload(
 
 // Get all product options
 router.get("/", async (req: Request, res: Response) => {
-  logger.debug("List product options", { query: req.query });
+  logger.debug("GET /product-options query", req.query);
+
   try {
     const {
       page = 1,
@@ -99,7 +100,8 @@ router.get("/", async (req: Request, res: Response) => {
 
 // Get option by ID
 router.get("/:id", async (req: Request, res: Response) => {
-  logger.debug("Get product option", { params: req.params });
+  logger.debug("GET /product-options/:id params", req.params);
+
   try {
     const { id } = req.params;
     const optionRepository = AppDataSource.getRepository(ProductOption);
@@ -121,6 +123,43 @@ router.get("/:id", async (req: Request, res: Response) => {
 
 // Create product option
 router.post("/", async (req: Request, res: Response) => {
+  logger.debug("POST /product-options body", req.body);
+  try {
+    const optionRepository = AppDataSource.getRepository(ProductOption);
+
+    const option = optionRepository.create(req.body);
+
+    // Check for unique name
+    const existing = await optionRepository.findOne({ where: { name: option.name } });
+    if (existing) {
+      return res.status(409).json({ error: "Product option with this name already exists" });
+    }
+
+    // Ensure values array when required
+    if (option.inputType !== "text" && (!option.values || option.values.length === 0)) {
+      return res.status(400).json({
+        error: "Validation failed",
+        details: [
+          {
+            property: "values",
+            constraints: {
+              isNotEmpty: "Values array must contain at least one value for this input type",
+            },
+          },
+        ],
+      });
+    }
+
+    // Validate entity
+    const errors = await validate(option);
+    if (errors.length > 0) {
+      return res.status(400).json({
+        error: "Validation failed",
+        details: errors.map(err => ({
+          property: err.property,
+          constraints: err.constraints,
+        })),
+      });
   logger.debug("Create product option", { body: req.body });
   try {
     const optionRepository = AppDataSource.getRepository(ProductOption);
@@ -132,7 +171,9 @@ router.post("/", async (req: Request, res: Response) => {
 
     const option = optionRepository.create(req.body);
     const savedOption = await optionRepository.save(option);
+
     logger.info("Product option created", { id: savedOption.id });
+
     res.status(201).json(savedOption);
   } catch (error) {
     logger.error("Error creating product option:", error);
@@ -142,8 +183,9 @@ router.post("/", async (req: Request, res: Response) => {
 
 // Update product option
 router.put("/:id", async (req: Request, res: Response) => {
-  const { id } = req.params;
-  logger.debug("Update product option", { id, body: req.body });
+  logger.debug("PUT /product-options/:id params", req.params);
+  logger.debug("PUT /product-options/:id body", req.body);
+
   try {
     const optionRepository = AppDataSource.getRepository(ProductOption);
 
@@ -155,16 +197,45 @@ router.put("/:id", async (req: Request, res: Response) => {
       return res.status(404).json({ error: "Product option not found" });
     }
 
+    if (req.body.name && req.body.name !== option.name) {
+      const existing = await optionRepository.findOne({ where: { name: req.body.name } });
+      if (existing && existing.id !== id) {
+        return res.status(409).json({ error: "Product option with this name already exists" });
+      }
+    }
+
     // Update fields
     Object.assign(option, req.body);
 
-    const errors = await validateOptionPayload(option, optionRepository, id);
-    if (Object.keys(errors).length > 0) {
-      return res.status(400).json({ errors });
+    if (option.inputType !== "text" && (!option.values || option.values.length === 0)) {
+      return res.status(400).json({
+        error: "Validation failed",
+        details: [
+          {
+            property: "values",
+            constraints: {
+              isNotEmpty: "Values array must contain at least one value for this input type",
+            },
+          },
+        ],
+      });
+    }
+
+    // Validate
+    const errors = await validate(option);
+    if (errors.length > 0) {
+      return res.status(400).json({
+        error: "Validation failed",
+        details: errors.map(err => ({
+          property: err.property,
+          constraints: err.constraints,
+        })),
+      });
     }
 
     const updatedOption = await optionRepository.save(option);
-    logger.info("Product option updated", { id: updatedOption.id });
+    logger.info(`Updated product option ${updatedOption.id}`);
+
     res.json(updatedOption);
   } catch (error) {
     logger.error("Error updating product option:", error);
@@ -174,8 +245,8 @@ router.put("/:id", async (req: Request, res: Response) => {
 
 // Delete product option
 router.delete("/:id", async (req: Request, res: Response) => {
-  const { id } = req.params;
-  logger.debug("Delete product option", { params: req.params });
+  logger.debug("DELETE /product-options/:id params", req.params);
+
   try {
     const optionRepository = AppDataSource.getRepository(ProductOption);
 
@@ -185,7 +256,8 @@ router.delete("/:id", async (req: Request, res: Response) => {
       return res.status(404).json({ error: "Product option not found" });
     }
 
-    logger.info("Product option deleted", { id });
+    logger.info(`Deleted product option ${id}`);
+
     res.status(204).send();
   } catch (error) {
     logger.error("Error deleting product option:", error);
@@ -194,12 +266,25 @@ router.delete("/:id", async (req: Request, res: Response) => {
 });
 
 // Add value to option
-router.post("/:id/values", async (req: Request, res: Response) => {
-  const { id } = req.params;
-  logger.debug("Add option value", { id, body: req.body });
+router.post("/:id/values", async (req: Request, res: Response) => 
+  logger.debug("POST /product-options/:id/values params", req.params);
+  logger.debug("POST /product-options/:id/values body", req.body);
+
   try {
     const { value, displayValue, ...metadata } = req.body;
     const optionRepository = AppDataSource.getRepository(ProductOption);
+
+    if (!value) {
+      return res.status(400).json({
+        error: "Validation failed",
+        details: [
+          {
+            property: "value",
+            constraints: { isNotEmpty: "Value is required" },
+          },
+        ],
+      });
+    }
 
     const option = await optionRepository.findOne({
       where: { id }
@@ -212,7 +297,7 @@ router.post("/:id/values", async (req: Request, res: Response) => {
     const optionValue = option.addValue(value, displayValue, metadata);
 
     await optionRepository.save(option);
-    logger.info("Option value added", { optionId: id, valueId: optionValue.id });
+    logger.info(`Added value ${optionValue.id} to product option ${id}`);
     res.status(201).json(optionValue);
   } catch (error) {
     logger.error("Error adding option value:", error);
@@ -222,9 +307,8 @@ router.post("/:id/values", async (req: Request, res: Response) => {
 
 // Update option value
 router.put("/:id/values/:valueId", async (req: Request, res: Response) => {
-  const { id, valueId } = req.params;
-  logger.debug("Update option value", { id, valueId, body: req.body });
-  try {
+  logger.debug("PUT /product-options/:id/values/:valueId params", req.params);
+  logger.debug("PUT /product-options/:id/values/:valueId body", req.body);
     const optionRepository = AppDataSource.getRepository(ProductOption);
 
     const option = await optionRepository.findOne({
@@ -248,7 +332,7 @@ router.put("/:id/values/:valueId", async (req: Request, res: Response) => {
     };
 
     await optionRepository.save(option);
-    logger.info("Option value updated", { optionId: id, valueId });
+    logger.info(`Updated value ${valueId} for product option ${id}`);
     res.json(option.values[valueIndex]);
   } catch (error) {
     logger.error("Error updating option value:", error);
@@ -258,8 +342,7 @@ router.put("/:id/values/:valueId", async (req: Request, res: Response) => {
 
 // Delete option value
 router.delete("/:id/values/:valueId", async (req: Request, res: Response) => {
-  const { id, valueId } = req.params;
-  logger.debug("Delete option value", { id, valueId });
+  logger.debug("DELETE /product-options/:id/values/:valueId params", req.params);
   try {
     const optionRepository = AppDataSource.getRepository(ProductOption);
 
@@ -274,7 +357,7 @@ router.delete("/:id/values/:valueId", async (req: Request, res: Response) => {
     option.removeValue(valueId);
 
     await optionRepository.save(option);
-    logger.info("Option value deleted", { optionId: id, valueId });
+    logger.info(`Deleted value ${valueId} from product option ${id}`);
     res.status(204).send();
   } catch (error) {
     logger.error("Error deleting option value:", error);
