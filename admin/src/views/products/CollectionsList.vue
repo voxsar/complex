@@ -34,11 +34,15 @@
       </thead>
       <tbody>
         <tr v-for="collection in collections" :key="collection.id">
-          <td>{{ collection.title }}</td>
+          <td>
+            <router-link :to="`/products/collections/${collection.id}`" class="collection-link">
+              {{ collection.title }}
+            </router-link>
+          </td>
           <td>/{{ collection.handle }}</td>
           <td>{{ collection.productsCount || '-' }}</td>
           <td class="actions-cell">
-            <button class="btn-menu">⋯</button>
+            <button class="btn-menu" @click="navigateToEdit(collection.id)">⋯</button>
           </td>
         </tr>
         <tr v-if="collections.length === 0">
@@ -63,6 +67,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
+import { getCollections } from '../../api/collections';
 
 const router = useRouter();
 const searchQuery = ref('');
@@ -79,16 +84,13 @@ onMounted(async () => {
 
 const fetchCollections = async () => {
   try {
-    // TODO: Replace with actual API call
-    // Mocking data for now based on the screenshot
-    collections.value = [
-      {
-        id: '1',
-        title: 'd',
-        handle: 'd',
-        productsCount: 0
-      }
-    ];
+    const data = await getCollections();
+    collections.value = data.collections.map((c: any) => ({
+      id: c.id,
+      title: c.title,
+      handle: c.slug,
+      productsCount: c.productIds ? c.productIds.length : 0
+    }));
   } catch (error) {
     console.error('Failed to fetch collections:', error);
   }
@@ -96,6 +98,10 @@ const fetchCollections = async () => {
 
 const navigateToCreate = () => {
   router.push('/products/collections/create');
+};
+
+const navigateToEdit = (id: string) => {
+  router.push(`/products/collections/${id}`);
 };
 </script>
 
@@ -235,5 +241,14 @@ const navigateToCreate = () => {
 .btn-page:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+.collection-link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.collection-link:hover {
+  text-decoration: underline;
 }
 </style>
