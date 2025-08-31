@@ -19,11 +19,18 @@
           <td>{{ ex.orderId }}</td>
           <td>{{ ex.status }}</td>
           <td>
-            <select v-model="statusUpdates[ex.id]">
-              <option disabled value="">Select</option>
-              <option v-for="s in statusOptions" :key="s" :value="s">{{ s }}</option>
-            </select>
-            <button @click="updateStatus(ex.id)">Update</button>
+            <button
+              @click="approveExchange(ex.id)"
+              :disabled="ex.status !== 'requested'"
+            >
+              Approve
+            </button>
+            <button
+              @click="denyExchange(ex.id)"
+              :disabled="ex.status !== 'requested'"
+            >
+              Deny
+            </button>
           </td>
         </tr>
         <tr v-if="exchanges.length === 0">
@@ -31,18 +38,6 @@
         </tr>
       </tbody>
     </table>
-
-    <h2>Create Exchange</h2>
-    <div class="create-form">
-      <input v-model="newExchange.orderId" placeholder="Order ID" />
-      <input v-model="newExchange.customerId" placeholder="Customer ID" />
-      <input v-model="newExchange.reason" placeholder="Reason" />
-      <textarea v-model="newExchange.returnItems" placeholder='Return items JSON'></textarea>
-      <textarea v-model="newExchange.exchangeItems" placeholder='Exchange items JSON'></textarea>
-      <input v-model="newExchange.customerNote" placeholder="Customer note" />
-      <textarea v-model="newExchange.shippingAddress" placeholder='Shipping address JSON'></textarea>
-      <button @click="createExchange">Create</button>
-    </div>
   </div>
 </template>
 
@@ -52,18 +47,12 @@ import { ref, onMounted } from 'vue'
 interface Exchange {
   id: string
   orderId: string
-  customerId: string
   status: string
 }
 
 const exchanges = ref<Exchange[]>([])
 const loading = ref(false)
 const error = ref('')
-
-const statusOptions = ['requested','approved','rejected','in_transit','received','processed','completed','cancelled']
-const statusUpdates = ref<Record<string, string>>({})
-
-const newExchange = ref({ orderId:'', customerId:'', reason:'', returnItems:'[]', exchangeItems:'[]', customerNote:'', shippingAddress:'{}' })
 
 onMounted(() => {
   fetchExchanges()
@@ -84,41 +73,29 @@ async function fetchExchanges() {
   }
 }
 
-async function createExchange() {
+async function approveExchange(id: string) {
   try {
-    const body = {
-      orderId: newExchange.value.orderId,
-      customerId: newExchange.value.customerId,
-      reason: newExchange.value.reason,
-      customerNote: newExchange.value.customerNote,
-      returnItems: JSON.parse(newExchange.value.returnItems || '[]'),
-      exchangeItems: JSON.parse(newExchange.value.exchangeItems || '[]'),
-      shippingAddress: JSON.parse(newExchange.value.shippingAddress || '{}')
-    }
-    const res = await fetch('/api/order-exchanges', {
-      method:'POST',
-      headers:{ 'Content-Type':'application/json' },
-      body: JSON.stringify(body)
+    const res = await fetch(`/api/order-exchanges/${id}/approve`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({})
     })
-    if (!res.ok) throw new Error('Failed to create exchange')
+    if (!res.ok) throw new Error('Failed to approve exchange')
     await res.json()
-    newExchange.value = { orderId:'', customerId:'', reason:'', returnItems:'[]', exchangeItems:'[]', customerNote:'', shippingAddress:'{}' }
     fetchExchanges()
   } catch (err) {
     console.error(err)
   }
 }
 
-async function updateStatus(id: string) {
-  const status = statusUpdates.value[id]
-  if (!status) return
+async function denyExchange(id: string) {
   try {
     const res = await fetch(`/api/order-exchanges/${id}/status`, {
-      method:'PATCH',
-      headers:{ 'Content-Type':'application/json' },
-      body: JSON.stringify({ status })
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: 'rejected' })
     })
-    if (!res.ok) throw new Error('Failed to update status')
+    if (!res.ok) throw new Error('Failed to deny exchange')
     await res.json()
     fetchExchanges()
   } catch (err) {
@@ -147,17 +124,5 @@ async function updateStatus(id: string) {
 .state.error {
   color: red;
 }
-
-.create-form {
-  margin-top: 1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.create-form input,
-.create-form textarea {
-  padding: 0.5rem;
-  border: 1px solid #ddd;
-}
 </style>
+
