@@ -8,6 +8,10 @@ const emit = defineEmits(['close', 'saved'])
 
 const INPUT_TYPES = ['select', 'radio', 'color', 'text'] as const
 
+const toast = useToast()
+const supportedInputTypes = ['select', 'radio', 'color', 'text'] as const
+
+
 const form = ref<ProductOptionPayload>({
   name: '',
   displayName: '',
@@ -35,6 +39,7 @@ watch(() => props.option, () => reset())
 
 const handleSave = async () => {
   if (!props.option) return
+  console.debug('Attempting to update product option', { id: props.option.id, payload: form.value })
   if (!form.value.name.trim()) {
     error.value = 'Name is required'
     return
@@ -61,6 +66,7 @@ const handleSave = async () => {
     console.debug('Product option update failed', e)
     error.value = message
     toast.add({ severity: 'error', summary: 'Error', detail: message })
+
   }
 }
 

@@ -1,12 +1,17 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { createProductOption, type ProductOption, type ProductOptionPayload } from '../../../api/product-options'
+
 import { useToast } from 'primevue/usetoast'
 
 const props = defineProps<{ isOpen: boolean }>()
 const emit = defineEmits(['close', 'saved'])
 
 const INPUT_TYPES = ['select', 'radio', 'color', 'text'] as const
+
+const toast = useToast()
+const supportedInputTypes = ['select', 'radio', 'color', 'text'] as const
+
 
 const form = ref<ProductOptionPayload>({
   name: '',
@@ -23,6 +28,7 @@ const reset = () => {
 }
 
 const handleSave = async () => {
+  console.debug('Attempting to create product option', form.value)
   if (!form.value.name.trim()) {
     error.value = 'Name is required'
     return
@@ -41,6 +47,7 @@ const handleSave = async () => {
     const message = (res as any).message || 'Product option created'
     console.debug('Product option saved', option)
     toast.add({ severity: 'success', summary: 'Success', detail: message })
+
     emit('saved', option)
     reset()
     emit('close')
@@ -49,6 +56,7 @@ const handleSave = async () => {
     console.debug('Product option save failed', e)
     error.value = message
     toast.add({ severity: 'error', summary: 'Error', detail: message })
+
   }
 }
 
