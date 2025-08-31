@@ -1,3 +1,5 @@
+import httpClient from './httpClient'
+
 export interface ProductPayload {
   title: string
   description?: string
@@ -7,24 +9,15 @@ export interface ProductPayload {
   categoryIds?: string[]
 }
 
-export async function getProducts() {
-  const res = await fetch('/products')
-  if (!res.ok) {
-    throw new Error('Failed to fetch products')
-  }
-  return res.json()
-}
+export const getProducts = () => httpClient.get('/products')
 
-export async function createProduct(payload: ProductPayload) {
-  const res = await fetch('/products', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(payload)
-  })
-  if (!res.ok) {
-    throw new Error('Failed to create product')
-  }
-  return res.json()
-}
+export const createProduct = (payload: ProductPayload) =>
+  httpClient.post('/products', payload)
+
+export const updateProduct = (
+  id: string,
+  payload: Partial<ProductPayload>
+) => httpClient.put(`/products/${id}`, payload)
+
+export const deleteProduct = (id: string) =>
+  httpClient.delete(`/products/${id}`)
