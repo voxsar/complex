@@ -87,6 +87,7 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue';
 import { useRouter } from 'vue-router';
+import httpClient from '../../api/httpClient';
 
 const router = useRouter();
 
@@ -186,6 +187,7 @@ const createCategory = async () => {
         message = data.error;
       }
       throw new Error(message);
+
     }
 
     console.debug('Category create request succeeded');
