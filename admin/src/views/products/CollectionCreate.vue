@@ -72,6 +72,7 @@ const createCollection = async () => {
     router.push('/products/collections');
   } catch (error) {
     console.error('Failed to create collection:', error);
+    alert((error as any)?.message || 'Failed to create collection');
   } finally {
     isSubmitting.value = false;
   }
