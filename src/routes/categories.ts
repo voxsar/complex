@@ -120,6 +120,9 @@ router.post("/", async (req: Request, res: Response) => {
   try {
     const categoryRepository = AppDataSource.getRepository(Category);
 
+    logger.debug("Incoming category payload:", req.body);
+
+    const category = categoryRepository.create(req.body);
     const { childrenIds = [], productIds = [], ...rest } = req.body;
     const category = categoryRepository.create({
       ...rest,
@@ -130,6 +133,7 @@ router.post("/", async (req: Request, res: Response) => {
     // Validate
     const errors = await validate(category);
     if (errors.length > 0) {
+      logger.warn("Category validation failed:", errors);
       return res.status(400).json({ errors });
     }
 
@@ -153,6 +157,7 @@ router.post("/", async (req: Request, res: Response) => {
       }
     }
 
+    logger.info(`Category created with ID: ${savedCategory.id}`);
     res.status(201).json(savedCategory);
   } catch (error) {
     logger.error("Error creating category:", error);
