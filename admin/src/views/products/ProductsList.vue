@@ -170,10 +170,14 @@ const handleCreateProduct = async (productData: any) => {
         sku: v.sku,
         price: Number(v.price) || 0,
         inventory: { quantity: Number(v.inventory) || 0 },
-        options: v.options.map((o: any) => ({
-          optionName: o.name,
-          valueName: o.value
-        }))
+        optionValues: v.options
+          .filter((o: any) => o.optionId && o.valueId)
+          .map((o: any) => ({
+            optionId: o.optionId,
+            optionName: o.optionName,
+            valueId: o.valueId,
+            valueName: o.valueName
+          }))
       })),
       collectionIds: productData.collections,
       categoryIds: productData.categories

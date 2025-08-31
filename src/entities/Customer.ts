@@ -7,7 +7,7 @@ import {
   BeforeInsert,
   BeforeUpdate,
 } from "typeorm";
-import { IsEmail, IsNotEmpty, IsOptional } from "class-validator";
+import { IsEmail, IsNotEmpty, IsOptional, Matches } from "class-validator";
 import bcrypt from "bcryptjs";
 import { v4 as uuidv4 } from "uuid";
 import { CustomerStatus } from "../enums/customer_status"; // Assuming CustomerStatus is defined in a separate file
@@ -31,6 +31,7 @@ export class Customer {
 
   @Column({ nullable: true })
   @IsOptional()
+  @Matches(/^\+?[1-9]\d{1,14}$/,{ message: "phone must be a valid phone number" })
   phone?: string;
 
   @Column({ nullable: true, select: false })

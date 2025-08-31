@@ -1,7 +1,7 @@
 <template>
   <div class="product-options-list">
     <h1>Product Options</h1>
-    <button @click="createOption" class="btn">Create Option</button>
+    <button @click="openCreate" class="btn">Create Option</button>
     <div v-if="loading" class="state">Loading...</div>
     <div v-else-if="error" class="state error">{{ error }}</div>
     <table v-else class="options-table">
@@ -21,7 +21,7 @@
           <td>{{ option.inputType }}</td>
           <td>{{ option.isRequired ? 'Yes' : 'No' }}</td>
           <td>
-            <button @click="editOption(option)">Edit</button>
+            <button @click="openEdit(option)">Edit</button>
             <button @click="deleteOption(option.id)">Delete</button>
           </td>
         </tr>
@@ -31,32 +31,43 @@
       </tbody>
     </table>
   </div>
+
+  <ProductOptionCreateModal
+    :is-open="showCreate"
+    @close="showCreate = false"
+    @saved="handleCreated"
+  />
+  <ProductOptionEditModal
+    :is-open="showEdit"
+    :option="selectedOption"
+    @close="showEdit = false"
+    @saved="handleUpdated"
+  />
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-
-interface ProductOption {
-  id: string
-  name: string
-  displayName?: string
-  inputType: string
-  isRequired: boolean
-  position: number
-}
+import {
+  listProductOptions,
+  deleteProductOption,
+  type ProductOption
+} from '../../api/product-options'
+import ProductOptionCreateModal from './components/ProductOptionCreateModal.vue'
+import ProductOptionEditModal from './components/ProductOptionEditModal.vue'
 
 const options = ref<ProductOption[]>([])
 const loading = ref(false)
 const error = ref('')
 
+const showCreate = ref(false)
+const showEdit = ref(false)
+const selectedOption = ref<ProductOption | null>(null)
+
 const fetchOptions = async () => {
   loading.value = true
   error.value = ''
   try {
-    const res = await fetch('/api/product-options')
-    if (!res.ok) throw new Error('Failed to fetch product options')
-    const data = await res.json()
-    options.value = data.options ?? []
+    options.value = await listProductOptions()
   } catch (err: any) {
     error.value = err.message || 'Error fetching product options'
   } finally {
@@ -66,48 +77,28 @@ const fetchOptions = async () => {
 
 onMounted(fetchOptions)
 
-const createOption = async () => {
-  const name = prompt('Option name?')
-  if (!name) return
-  const displayName = prompt('Display name?', name) || name
-  try {
-    const res = await fetch('/api/product-options', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, displayName, values: [], productIds: [] })
-    })
-    if (!res.ok) throw new Error('Failed to create option')
-    const data = await res.json()
-    options.value.push(data)
-  } catch (err) {
-    console.error(err)
-  }
+const openCreate = () => {
+  showCreate.value = true
 }
 
-const editOption = async (option: ProductOption) => {
-  const name = prompt('Option name?', option.name)
-  if (!name) return
-  const displayName = prompt('Display name?', option.displayName || '') || undefined
-  try {
-    const res = await fetch(`/api/product-options/${option.id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, displayName })
-    })
-    if (!res.ok) throw new Error('Failed to update option')
-    const data = await res.json()
-    const index = options.value.findIndex(o => o.id === option.id)
-    if (index !== -1) options.value[index] = data
-  } catch (err) {
-    console.error(err)
-  }
+const openEdit = (option: ProductOption) => {
+  selectedOption.value = option
+  showEdit.value = true
+}
+
+const handleCreated = (option: ProductOption) => {
+  options.value.push(option)
+}
+
+const handleUpdated = (option: ProductOption) => {
+  const index = options.value.findIndex(o => o.id === option.id)
+  if (index !== -1) options.value[index] = option
 }
 
 const deleteOption = async (id: string) => {
   if (!confirm('Delete this option?')) return
   try {
-    const res = await fetch(`/api/product-options/${id}`, { method: 'DELETE' })
-    if (!res.ok) throw new Error('Failed to delete option')
+    await deleteProductOption(id)
     options.value = options.value.filter(o => o.id !== id)
   } catch (err) {
     console.error(err)
