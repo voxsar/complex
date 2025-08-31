@@ -4,6 +4,7 @@ import { AppDataSource } from "../data-source";
 import { Category } from "../entities/Category";
 import { validate } from "class-validator";
 import { translateCategory } from "../utils/translation";
+import logger from "../utils/logger";
 
 const router = Router();
 
@@ -121,26 +122,19 @@ router.get("/slug/:slug", async (req: Request, res: Response) => {
 });
 
 // Create category
-router.post("/", async (req: Request, res: Response) => {
+  router.post("/", async (req: Request, res: Response) => {
   try {
     const categoryRepository = AppDataSource.getRepository(Category);
 
+    logger.debug("Incoming category payload:", req.body);
     const category = categoryRepository.create(req.body);
-    // Ensure slug is generated and unique
-    category.generateSlug();
 
-    const existing = await categoryRepository.findOne({
-      where: { slug: category.slug }
-    });
-
-    if (existing) {
-      return res.status(409).json({ error: req.t("errors.slug_already_exists") });
-    }
 
     // Validate
     const errors = await validate(category);
     if (errors.length > 0) {
-      logger.warn("Category validation failed:", errors);
+      logger.warn("Category validation errors:", errors);
+
       return res.status(400).json({ errors });
     }
 
@@ -155,13 +149,14 @@ router.post("/", async (req: Request, res: Response) => {
 
     const savedCategories = await categoryRepository.save(category);
     const savedCategory = Array.isArray(savedCategories) ? savedCategories[0] : savedCategories;
-    
+    logger.info(`Category created with ID: ${savedCategory.id}`);
+
     // Update parent category if needed
     if (savedCategory.parentId) {
       const parentCategory = await categoryRepository.findOne({
         where: { id: savedCategory.parentId }
       });
-      
+
       if (parentCategory) {
         if (!parentCategory.childrenIds) {
           parentCategory.childrenIds = [];
