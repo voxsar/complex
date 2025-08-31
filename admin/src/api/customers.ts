@@ -9,6 +9,8 @@ export interface Customer {
   note?: string
 }
 
+export type CreateCustomerPayload = Omit<Customer, 'id'>
+
 export interface Order {
   id: string
   orderNumber: string
@@ -33,6 +35,10 @@ interface OrdersResponse {
 
 export function getCustomer(customerId: string) {
   return httpClient.get<Customer>(`/api/customers/${customerId}`)
+}
+
+export function createCustomer(data: CreateCustomerPayload) {
+  return httpClient.post<Customer, CreateCustomerPayload>('/api/customers', data)
 }
 
 export function updateCustomer(customerId: string, data: Partial<Customer>) {

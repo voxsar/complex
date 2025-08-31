@@ -1,6 +1,9 @@
 <template>
   <div class="customers-list">
     <h1>Customers</h1>
+    <div class="actions">
+      <RouterLink to="/customers/create">New Customer</RouterLink>
+    </div>
 
     <div v-if="loading" class="state">Loading...</div>
     <div v-else-if="error" class="state error">{{ error }}</div>
@@ -84,5 +87,9 @@ onMounted(() => {
 
 .state.error {
   color: red;
+}
+
+.actions {
+  margin-bottom: 10px;
 }
 </style>
