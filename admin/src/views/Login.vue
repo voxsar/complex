@@ -28,15 +28,14 @@ async function login() {
       body: JSON.stringify({ email: email.value, password: password.value })
     })
 
+    const data = await response.json()
     if (!response.ok) {
-      const data = await response.json()
       throw new Error(data.error || 'Login failed')
     }
 
-    const data = await response.json()
     localStorage.setItem('accessToken', data.tokens.accessToken)
     localStorage.setItem('refreshToken', data.tokens.refreshToken)
-    router.push('/')
+    router.push('/products')
   } catch (err: any) {
     error.value = err.message
   }
