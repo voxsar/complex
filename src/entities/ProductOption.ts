@@ -6,7 +6,15 @@ import {
   UpdateDateColumn,
   BeforeInsert,
 } from "typeorm";
-import { IsNotEmpty, IsOptional, IsBoolean, IsNumber, Min, IsEnum } from "class-validator";
+
+import {
+  IsNotEmpty,
+  IsOptional,
+  IsBoolean,
+  IsNumber,
+  Min,
+  IsEnum,
+} from "class-validator";
 import { v4 as uuidv4 } from "uuid";
 
 @Entity("product-options")
@@ -36,7 +44,9 @@ export class ProductOption {
    */
   @Column({ default: "select" })
   @IsEnum(["select", "radio", "color", "text"])
-  inputType: string;
+
+  inputType: string; // Accepted values: "select", "radio", "color", "text"
+
 
   @Column({ type: "simple-json", nullable: true })
   values: Array<{

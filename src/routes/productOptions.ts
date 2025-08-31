@@ -5,9 +5,44 @@ import { validate } from "class-validator";
 
 const router = Router();
 
+async function validateOptionPayload(
+  data: Partial<ProductOption>,
+  repository = AppDataSource.getRepository(ProductOption),
+  ignoreId?: string
+) {
+  const errors: Record<string, string> = {};
+
+  // Run class-validator checks
+  const entity = repository.create(data);
+  const validationErrors = await validate(entity);
+  for (const err of validationErrors) {
+    if (err.constraints && !errors[err.property]) {
+      errors[err.property] = Object.values(err.constraints).join(", ");
+    }
+  }
+
+  // Name must be unique
+  if (data.name) {
+    const existing = await repository.findOne({ where: { name: data.name } });
+    if (existing && existing.id !== ignoreId) {
+      errors.name = "Name must be unique";
+    }
+  }
+
+  // Values array must not be empty for non-text input types
+  if (data.inputType && data.inputType !== "text") {
+    if (!Array.isArray((data as any).values) || (data as any).values.length === 0) {
+      errors.values = "Values array must contain at least one value";
+    }
+  }
+
+  return errors;
+}
+
 // Get all product options
 router.get("/", async (req: Request, res: Response) => {
   logger.debug("GET /product-options query", req.query);
+
   try {
     const {
       page = 1,
@@ -66,6 +101,7 @@ router.get("/", async (req: Request, res: Response) => {
 // Get option by ID
 router.get("/:id", async (req: Request, res: Response) => {
   logger.debug("GET /product-options/:id params", req.params);
+
   try {
     const { id } = req.params;
     const optionRepository = AppDataSource.getRepository(ProductOption);
@@ -124,10 +160,20 @@ router.post("/", async (req: Request, res: Response) => {
           constraints: err.constraints,
         })),
       });
+  logger.debug("Create product option", { body: req.body });
+  try {
+    const optionRepository = AppDataSource.getRepository(ProductOption);
+
+    const errors = await validateOptionPayload(req.body, optionRepository);
+    if (Object.keys(errors).length > 0) {
+      return res.status(400).json({ errors });
     }
 
+    const option = optionRepository.create(req.body);
     const savedOption = await optionRepository.save(option);
-    logger.info(`Created product option ${savedOption.id}`);
+
+    logger.info("Product option created", { id: savedOption.id });
+
     res.status(201).json(savedOption);
   } catch (error) {
     logger.error("Error creating product option:", error);
@@ -139,8 +185,8 @@ router.post("/", async (req: Request, res: Response) => {
 router.put("/:id", async (req: Request, res: Response) => {
   logger.debug("PUT /product-options/:id params", req.params);
   logger.debug("PUT /product-options/:id body", req.body);
+
   try {
-    const { id } = req.params;
     const optionRepository = AppDataSource.getRepository(ProductOption);
 
     const option = await optionRepository.findOne({
@@ -189,6 +235,7 @@ router.put("/:id", async (req: Request, res: Response) => {
 
     const updatedOption = await optionRepository.save(option);
     logger.info(`Updated product option ${updatedOption.id}`);
+
     res.json(updatedOption);
   } catch (error) {
     logger.error("Error updating product option:", error);
@@ -199,8 +246,8 @@ router.put("/:id", async (req: Request, res: Response) => {
 // Delete product option
 router.delete("/:id", async (req: Request, res: Response) => {
   logger.debug("DELETE /product-options/:id params", req.params);
+
   try {
-    const { id } = req.params;
     const optionRepository = AppDataSource.getRepository(ProductOption);
 
     const result = await optionRepository.delete({ id });
@@ -210,6 +257,7 @@ router.delete("/:id", async (req: Request, res: Response) => {
     }
 
     logger.info(`Deleted product option ${id}`);
+
     res.status(204).send();
   } catch (error) {
     logger.error("Error deleting product option:", error);
@@ -218,11 +266,11 @@ router.delete("/:id", async (req: Request, res: Response) => {
 });
 
 // Add value to option
-router.post("/:id/values", async (req: Request, res: Response) => {
+router.post("/:id/values", async (req: Request, res: Response) => 
   logger.debug("POST /product-options/:id/values params", req.params);
   logger.debug("POST /product-options/:id/values body", req.body);
+
   try {
-    const { id } = req.params;
     const { value, displayValue, ...metadata } = req.body;
     const optionRepository = AppDataSource.getRepository(ProductOption);
 
@@ -261,8 +309,6 @@ router.post("/:id/values", async (req: Request, res: Response) => {
 router.put("/:id/values/:valueId", async (req: Request, res: Response) => {
   logger.debug("PUT /product-options/:id/values/:valueId params", req.params);
   logger.debug("PUT /product-options/:id/values/:valueId body", req.body);
-  try {
-    const { id, valueId } = req.params;
     const optionRepository = AppDataSource.getRepository(ProductOption);
 
     const option = await optionRepository.findOne({
@@ -298,7 +344,6 @@ router.put("/:id/values/:valueId", async (req: Request, res: Response) => {
 router.delete("/:id/values/:valueId", async (req: Request, res: Response) => {
   logger.debug("DELETE /product-options/:id/values/:valueId params", req.params);
   try {
-    const { id, valueId } = req.params;
     const optionRepository = AppDataSource.getRepository(ProductOption);
 
     const option = await optionRepository.findOne({
