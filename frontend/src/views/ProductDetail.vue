@@ -7,7 +7,7 @@
 </template>
 
 <script setup>
-const placeholder = new URL('../assets/images/placehoder.jpg', import.meta.url).href;
+const placeholder = new URL('@/assets/images/placehoder.jpg', import.meta.url).href;
 </script>
 
 <style scoped>
