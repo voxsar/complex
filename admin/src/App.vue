@@ -150,6 +150,9 @@ const getPageDescription = computed(() => {
               <router-link to="/products/collections" class="sub-menu-item">
                 <span>Collections</span>
               </router-link>
+              <router-link to="/products/collections/create" class="sub-menu-item">
+                <span>New Collection</span>
+              </router-link>
               <router-link to="/products/categories" class="sub-menu-item">
                 <span>Categories</span>
               </router-link>
