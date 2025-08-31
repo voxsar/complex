@@ -27,12 +27,13 @@ async function request<T>(endpoint: string, config: RequestConfig = {}): Promise
     ...init
   })
   if (!response.ok) {
-    let message = `HTTP error ${response.status}`
+    let data: any = {}
     try {
-      const err = await response.json()
-      message = err.error || (Array.isArray(err.errors) ? err.errors.join(', ') : message)
+      data = await response.json()
     } catch {}
-    throw new Error(message)
+    const error: any = new Error(data.error || `HTTP error ${response.status}`)
+    if (data.errors) error.errors = data.errors
+    throw error
   }
   return await response.json() as T
 }
