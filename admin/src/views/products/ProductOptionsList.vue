@@ -22,7 +22,7 @@
           <td>{{ option.isRequired ? 'Yes' : 'No' }}</td>
           <td>
             <button @click="openEdit(option)" :disabled="loading || deletingId !== null">Edit</button>
-            <button @click="deleteOption(option.id)" :disabled="loading || deletingId !== null">Delete</button>
+            <button @click="deleteOption(option.id)" :disabled="loading || deletingId === option.id">Delete</button>
           </td>
         </tr>
         <tr v-if="options.length === 0">
@@ -47,6 +47,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { useToast } from 'primevue/usetoast'
 import {
   listProductOptions,
   deleteProductOption,
@@ -60,7 +61,6 @@ const options = ref<ProductOption[]>([])
 const loading = ref(false)
 const error = ref('')
 const deletingId = ref<string | null>(null)
-
 const toast = useToast()
 
 const showCreate = ref(false)
@@ -79,6 +79,7 @@ const fetchOptions = async () => {
     const message = err.message || 'Error fetching product options'
     error.value = message
     toast.add({ severity: 'error', summary: 'Error', detail: message })
+
   } finally {
     loading.value = false
   }
@@ -117,6 +118,7 @@ const deleteOption = async (id: string) => {
     console.debug('Failed to delete product option', err)
     const message = err.message || 'Error deleting product option'
     toast.add({ severity: 'error', summary: 'Error', detail: message })
+
   } finally {
     deletingId.value = null
   }
