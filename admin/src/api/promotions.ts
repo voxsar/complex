@@ -11,18 +11,18 @@ export interface Promotion extends PromotionPayload {
 }
 
 export function getPromotions() {
-  return httpClient.get<Promotion[]>('/promotions')
+  return httpClient.get<Promotion[]>('/api/promotions')
 }
 
 export function createPromotion(payload: PromotionPayload) {
-  return httpClient.post<Promotion, PromotionPayload>('/promotions', payload)
+  return httpClient.post<Promotion, PromotionPayload>('/api/promotions', payload)
 }
 
 export function updatePromotion(id: string, payload: PromotionPayload) {
-  return httpClient.put<Promotion, PromotionPayload>(`/promotions/${id}`, payload)
+  return httpClient.put<Promotion, PromotionPayload>(`/api/promotions/${id}`, payload)
 }
 
 export function deletePromotion(id: string) {
-  return httpClient.delete<void>(`/promotions/${id}`)
+  return httpClient.delete<void>(`/api/promotions/${id}`)
 }
 

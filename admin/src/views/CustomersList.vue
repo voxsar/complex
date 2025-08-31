@@ -33,6 +33,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { RouterLink } from 'vue-router'
+import httpClient from '../api/httpClient'
 
 interface Customer {
   id: string
@@ -50,9 +51,7 @@ const fetchCustomers = async () => {
   loading.value = true
   error.value = ''
   try {
-    const res = await fetch('/api/customers')
-    if (!res.ok) throw new Error('Failed to fetch customers')
-    const data = await res.json()
+    const data = await httpClient.get<{ customers: Customer[] }>('/api/customers')
     customers.value = data.customers ?? []
   } catch (err: any) {
     error.value = err.message || 'Error fetching customers'

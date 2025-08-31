@@ -1,8 +1,12 @@
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
+// Use environment variable with fallback to localhost:3000
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000'
 
 type RequestConfig = RequestInit & { params?: Record<string, any> }
 
 function buildUrl(endpoint: string, params?: Record<string, any>): string {
+  if (!API_BASE_URL) {
+    throw new Error('API_BASE_URL is not configured')
+  }
   const url = new URL(endpoint, API_BASE_URL)
   if (params) {
     Object.entries(params).forEach(([key, value]) => {

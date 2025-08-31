@@ -1,3 +1,5 @@
+import httpClient from './httpClient'
+
 export interface Category {
   id: string
   name: string
@@ -8,17 +10,9 @@ export interface Category {
 }
 
 export async function getCategories() {
-  const res = await fetch('/api/categories')
-  if (!res.ok) {
-    throw new Error('Failed to fetch categories')
-  }
-  return res.json()
+  return httpClient.get('/api/categories')
 }
 
 export async function deleteCategory(id: string) {
-  const res = await fetch(`/api/categories/${id}`, { method: 'DELETE' })
-  if (!res.ok) {
-    throw new Error('Failed to delete category')
-  }
-  return res.text()
+  return httpClient.delete(`/api/categories/${id}`)
 }

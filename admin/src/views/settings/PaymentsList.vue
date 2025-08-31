@@ -1,6 +1,28 @@
 <template>
   <div class="payments-container">
-    <h1>Payment Providers</h1>
+    <h1>Paymenconst fetchconst fetchProviders = async () => {
+  loading.value = true
+  error.value = ''
+  try {
+    const data = await getPaymentProviders()
+    providers.value = data || []
+  } catch (err: any) {
+    error.value = err.message || 'Error fetching payment providers'
+  } finally {
+    loading.value = false
+  }
+}ync () => {
+  loading.value = true
+  error.value = ''
+  try {
+    const data = await getPaymentProviders()
+    providers.value = data || []
+  } catch (err: any) {
+    error.value = err.message || 'Error fetching payment providers'
+  } finally {
+    loading.value = false
+  }
+}1>
 
     <div class="add-provider">
       <input v-model="newProvider.name" placeholder="Name" />
@@ -45,6 +67,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { getPaymentProviders, createPaymentProvider, updatePaymentProvider } from '../../api/payments'
 
 interface PaymentProvider {
   id: string

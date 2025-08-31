@@ -7,17 +7,9 @@ export interface CollectionPayload {
 }
 
 export async function getCollections() {
-  const res = await fetch('/collections')
-  if (!res.ok) {
-    throw new Error('Failed to fetch collections')
-  }
-  return res.json()
+  return httpClient.get('/api/collections')
 }
 
 export async function getCollection(id: string) {
-  const res = await fetch(`/collections/${id}`)
-  if (!res.ok) {
-    throw new Error('Failed to fetch collection')
-  }
-  return res.json()
+  return httpClient.get(`/api/collections/${id}`)
 }

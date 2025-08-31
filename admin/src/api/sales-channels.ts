@@ -7,6 +7,6 @@ export interface SalesChannel {
 }
 
 export function getSalesChannels() {
-  return httpClient.get<{ salesChannels: SalesChannel[] }>('/sales-channels')
+  return httpClient.get<{ salesChannels: SalesChannel[] }>('/api/sales-channels')
 }
 

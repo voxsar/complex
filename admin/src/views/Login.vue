@@ -13,6 +13,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { login as loginApi } from '../api/auth'
 
 const email = ref('')
 const password = ref('')
@@ -22,16 +23,10 @@ const router = useRouter()
 async function login() {
   error.value = ''
   try {
-    const response = await fetch('/api/admin/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: email.value, password: password.value })
+    const data = await loginApi({ 
+      email: email.value, 
+      password: password.value 
     })
-
-    const data = await response.json()
-    if (!response.ok) {
-      throw new Error(data.error || 'Login failed')
-    }
 
     localStorage.setItem('accessToken', data.tokens.accessToken)
     localStorage.setItem('refreshToken', data.tokens.refreshToken)

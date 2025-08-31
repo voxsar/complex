@@ -32,30 +32,30 @@ interface OrdersResponse {
 }
 
 export function getCustomer(customerId: string) {
-  return httpClient.get<Customer>(`/customers/${customerId}`)
+  return httpClient.get<Customer>(`/api/customers/${customerId}`)
 }
 
 export function updateCustomer(customerId: string, data: Partial<Customer>) {
-  return httpClient.put<Customer, Partial<Customer>>(`/customers/${customerId}`, data)
+  return httpClient.put<Customer, Partial<Customer>>(`/api/customers/${customerId}`, data)
 }
 
 export function getCustomerOrders(customerId: string) {
-  return httpClient.get<OrdersResponse>(`/orders`, { params: { customerId } })
+  return httpClient.get<OrdersResponse>(`/api/orders`, { params: { customerId } })
 }
 
 export function getCustomerWishlist(customerId: string) {
-  return httpClient.get<WishlistResponse>(`/customers/${customerId}/wishlist`)
+  return httpClient.get<WishlistResponse>(`/api/customers/${customerId}/wishlist`)
 }
 
 export function addWishlistItem(customerId: string, productId: string) {
-  return httpClient.post<WishlistResponse, { productId: string }>(`/customers/${customerId}/wishlist`, { productId })
+  return httpClient.post<WishlistResponse, { productId: string }>(`/api/customers/${customerId}/wishlist`, { productId })
 }
 
 export function removeWishlistItem(customerId: string, productId: string) {
-  return httpClient.delete<WishlistResponse>(`/customers/${customerId}/wishlist/${productId}`)
+  return httpClient.delete<WishlistResponse>(`/api/customers/${customerId}/wishlist/${productId}`)
 }
 
 export function transferWishlistItemToOrder(customerId: string, productId: string) {
-  return httpClient.post(`/customers/${customerId}/wishlist/${productId}/transfer`, {})
+  return httpClient.post(`/api/customers/${customerId}/wishlist/${productId}/transfer`, {})
 }
 

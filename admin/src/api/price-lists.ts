@@ -18,18 +18,18 @@ export interface PriceListPayload {
 }
 
 export function getPriceLists() {
-  return httpClient.get<{ priceLists: PriceList[] }>('/price-lists')
+  return httpClient.get<{ priceLists: PriceList[] }>('/api/price-lists')
 }
 
 export function createPriceList(payload: PriceListPayload) {
-  return httpClient.post('/price-lists', payload)
+  return httpClient.post('/api/price-lists', payload)
 }
 
 export function updatePriceList(id: string, payload: PriceListPayload) {
-  return httpClient.put(`/price-lists/${id}`, payload)
+  return httpClient.put(`/api/price-lists/${id}`, payload)
 }
 
 export function deletePriceList(id: string) {
-  return httpClient.delete(`/price-lists/${id}`)
+  return httpClient.delete(`/api/price-lists/${id}`)
 }
 

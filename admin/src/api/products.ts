@@ -9,15 +9,15 @@ export interface ProductPayload {
   categoryIds?: string[]
 }
 
-export const getProducts = () => httpClient.get('/products')
+export const getProducts = () => httpClient.get('/api/products')
 
 export const createProduct = (payload: ProductPayload) =>
-  httpClient.post('/products', payload)
+  httpClient.post('/api/products', payload)
 
 export const updateProduct = (
   id: string,
   payload: Partial<ProductPayload>
-) => httpClient.put(`/products/${id}`, payload)
+) => httpClient.put(`/api/products/${id}`, payload)
 
 export const deleteProduct = (id: string) =>
-  httpClient.delete(`/products/${id}`)
+  httpClient.delete(`/api/products/${id}`)
