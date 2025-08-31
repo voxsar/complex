@@ -65,9 +65,11 @@
         </div>
       </div>
 
+      <div v-if="error" class="error-message">{{ error }}</div>
+
       <div class="form-actions">
         <button type="button" class="btn btn-secondary" @click="cancel">Cancel</button>
-        <button type="submit" class="btn btn-primary">Create Category</button>
+        <button type="submit" class="btn btn-primary" :disabled="isSubmitting">Create Category</button>
       </div>
     </form>
   </div>
@@ -87,14 +89,59 @@ const categoryForm = ref({
   visibility: 'Public'
 });
 
+const error = ref('');
+const isSubmitting = ref(false);
+
+const slugify = (str: string) =>
+  str
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+
 const createCategory = async () => {
+  error.value = '';
+
+  if (!categoryForm.value.title.trim()) {
+    error.value = 'Title is required';
+    return;
+  }
+
+  const slug = categoryForm.value.handle
+    ? slugify(categoryForm.value.handle)
+    : slugify(categoryForm.value.title);
+
+  if (!slug) {
+    error.value = 'Handle is invalid';
+    return;
+  }
+
+  const payload = {
+    name: categoryForm.value.title.trim(),
+    slug,
+    description: categoryForm.value.description.trim() || undefined,
+    isActive: categoryForm.value.status === 'Active',
+    metadata: { visibility: categoryForm.value.visibility }
+  };
+
   try {
-    // TODO: Implement API call to create category
-    console.log('Creating category:', categoryForm.value);
-    // After successful creation, navigate back to categories list
+    isSubmitting.value = true;
+    const res = await fetch('/api/categories', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      throw new Error(data.error || 'Failed to create category');
+    }
+
     router.push('/products/categories');
-  } catch (error) {
-    console.error('Failed to create category:', error);
+  } catch (err: any) {
+    error.value = err.message || 'Failed to create category';
+  } finally {
+    isSubmitting.value = false;
   }
 };
 
@@ -197,6 +244,11 @@ select.form-control {
   background-color: #4a6cf7;
   color: white;
   border: none;
+}
+
+.error-message {
+  color: red;
+  margin-bottom: 10px;
 }
 
 .btn-secondary {
