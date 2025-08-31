@@ -124,13 +124,32 @@ router.get("/slug/:slug", async (req: Request, res: Response) => {
 router.post("/", async (req: Request, res: Response) => {
   try {
     const categoryRepository = AppDataSource.getRepository(Category);
-    
+
+
+    logger.debug("Incoming category payload:", req.body);
+
     const category = categoryRepository.create(req.body);
+    const { childrenIds = [], productIds = [], ...rest } = req.body;
+    const category = categoryRepository.create({
+      ...rest,
+      childrenIds,
+      productIds,
+    });
     
     // Validate
     const errors = await validate(category);
     if (errors.length > 0) {
+      logger.warn("Category validation failed:", errors);
       return res.status(400).json({ errors });
+    }
+
+    // Check if slug already exists
+    const existingCategory = await categoryRepository.findOne({
+      where: { slug: category.slug }
+    });
+
+    if (existingCategory) {
+      return res.status(409).json({ error: req.t("errors.category_slug_exists") });
     }
 
     const savedCategories = await categoryRepository.save(category);
@@ -153,10 +172,9 @@ router.post("/", async (req: Request, res: Response) => {
       }
     }
 
-    res.status(201).json({
-      ...savedCategory,
-      visibility: savedCategory.metadata?.visibility,
-    });
+
+    logger.info(`Category created with ID: ${savedCategory.id}`);
+    res.status(201).json(savedCategory);
   } catch (error) {
     logger.error("Error creating category:", error);
     res.status(500).json({ error: "Failed to create category" });
