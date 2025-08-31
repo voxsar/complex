@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { IconX, IconUpload, IconPlus, IconTrash } from '@tabler/icons-vue'
 
 const props = defineProps({
@@ -32,6 +32,53 @@ const productData = ref({
   ]
 })
 
+const buildVariantError = () => ({ sku: '', price: '', inventory: '' })
+const errors = ref({
+  name: 'Name is required',
+  sku: 'SKU is required',
+  price: 'Price must be a number',
+  variants: [buildVariantError()]
+})
+
+const validateForm = () => {
+  const skuSet = new Set<string>()
+
+  errors.value.name = productData.value.name.trim() ? '' : 'Name is required'
+  errors.value.sku = productData.value.sku.trim() ? '' : 'SKU is required'
+  errors.value.price = productData.value.price !== '' && !isNaN(Number(productData.value.price))
+    ? ''
+    : 'Price must be a number'
+
+  skuSet.add(productData.value.sku.trim())
+
+  errors.value.variants = productData.value.variants.map((v) => {
+    const ve = buildVariantError()
+
+    ve.sku = v.sku.trim() ? '' : 'SKU is required'
+    if (!ve.sku) {
+      if (skuSet.has(v.sku.trim())) {
+        ve.sku = 'SKU must be unique'
+      } else {
+        skuSet.add(v.sku.trim())
+      }
+    }
+
+    ve.price = v.price !== '' && !isNaN(Number(v.price)) ? '' : 'Price must be a number'
+    ve.inventory = v.inventory !== '' && !isNaN(Number(v.inventory)) ? '' : 'Inventory must be a number'
+    return ve
+  })
+
+  const hasErrors =
+    errors.value.name !== '' ||
+    errors.value.sku !== '' ||
+    errors.value.price !== '' ||
+    errors.value.variants.some((v) => v.sku || v.price || v.inventory)
+
+  return !hasErrors
+}
+
+const isFormValid = computed(() => validateForm())
+
 // Available options for dropdowns
 const availableCategories = ref([
   { id: '1', name: 'Electronics' },
@@ -63,10 +110,12 @@ const addVariant = () => {
     price: '',
     inventory: '0'
   })
+  errors.value.variants.push(buildVariantError())
 }
 
 const removeVariant = (index: number) => {
   productData.value.variants.splice(index, 1)
+  errors.value.variants.splice(index, 1)
 }
 
 const addOption = (variantIndex: number) => {
@@ -78,8 +127,10 @@ const removeOption = (variantIndex: number, optionIndex: number) => {
 }
 
 const handleSave = () => {
-  emit('save', productData.value)
-  emit('close')
+  if (validateForm()) {
+    emit('save', productData.value)
+    emit('close')
+  }
 }
 
 const handleClose = () => {
@@ -125,13 +176,14 @@ const handleClose = () => {
           <div v-show="activeTab === 'general'" class="form-section">
             <div class="form-group">
               <label for="product-name">Product Name</label>
-              <input 
+              <input
                 type="text"
                 id="product-name"
                 v-model="productData.name"
                 placeholder="Enter product name"
-                class="form-input"
+                :class="['form-input', { error: errors.name }]"
               />
+              <p v-if="errors.name" class="error-message">{{ errors.name }}</p>
             </div>
             
             <div class="form-group">
@@ -148,13 +200,14 @@ const handleClose = () => {
             <div class="grid-2">
               <div class="form-group">
                 <label for="product-sku">SKU</label>
-                <input 
+                <input
                   type="text"
                   id="product-sku"
                   v-model="productData.sku"
                   placeholder="Enter SKU"
-                  class="form-input"
+                  :class="['form-input', { error: errors.sku }]"
                 />
+                <p v-if="errors.sku" class="error-message">{{ errors.sku }}</p>
               </div>
               
               <div class="form-group">
@@ -166,9 +219,10 @@ const handleClose = () => {
                     id="product-price"
                     v-model="productData.price"
                     placeholder="0.00"
-                    class="form-input price-input"
+                    :class="['form-input', 'price-input', { error: errors.price }]"
                   />
                 </div>
+                <p v-if="errors.price" class="error-message">{{ errors.price }}</p>
               </div>
             </div>
             
@@ -196,13 +250,14 @@ const handleClose = () => {
               <div class="grid-2">
                 <div class="form-group">
                   <label :for="'variant-sku-' + variantIndex">SKU</label>
-                  <input 
+                  <input
                     type="text"
                     :id="'variant-sku-' + variantIndex"
                     v-model="variant.sku"
                     placeholder="Enter SKU"
-                    class="form-input"
+                    :class="['form-input', { error: errors.variants[variantIndex].sku }]"
                   />
+                  <p v-if="errors.variants[variantIndex].sku" class="error-message">{{ errors.variants[variantIndex].sku }}</p>
                 </div>
                 
                 <div class="form-group">
@@ -214,21 +269,23 @@ const handleClose = () => {
                       :id="'variant-price-' + variantIndex"
                       v-model="variant.price"
                       placeholder="0.00"
-                      class="form-input price-input"
+                      :class="['form-input', 'price-input', { error: errors.variants[variantIndex].price }]"
                     />
                   </div>
+                  <p v-if="errors.variants[variantIndex].price" class="error-message">{{ errors.variants[variantIndex].price }}</p>
                 </div>
               </div>
-              
+
               <div class="form-group">
                 <label :for="'variant-inventory-' + variantIndex">Inventory Quantity</label>
-                <input 
+                <input
                   type="number"
                   :id="'variant-inventory-' + variantIndex"
                   v-model="variant.inventory"
                   min="0"
-                  class="form-input"
+                  :class="['form-input', { error: errors.variants[variantIndex].inventory }]"
                 />
+                <p v-if="errors.variants[variantIndex].inventory" class="error-message">{{ errors.variants[variantIndex].inventory }}</p>
               </div>
               
               <div class="options-section">
@@ -304,7 +361,7 @@ const handleClose = () => {
       
       <div class="modal-footer">
         <button @click="handleClose" class="btn secondary">Cancel</button>
-        <button @click="handleSave" class="btn primary">Create Product</button>
+        <button @click="handleSave" class="btn primary" :disabled="!isFormValid">Create Product</button>
       </div>
     </div>
   </div>
@@ -377,6 +434,17 @@ const handleClose = () => {
   display: flex;
   justify-content: flex-end;
   gap: 0.75rem;
+}
+
+.error-message {
+  color: #dc2626;
+  font-size: 0.75rem;
+  margin-top: 0.25rem;
+}
+
+.form-input.error,
+.price-input.error {
+  border-color: #dc2626;
 }
 
 .tabs {
