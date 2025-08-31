@@ -119,6 +119,27 @@ const pagination = ref({
 const goBack = () => {
   router.push('/products')
 }
+
+// Edit mode state
+const isEditing = ref(false)
+
+// Copy of product for editing
+const editedProduct = ref({ ...product.value })
+
+const startEditing = () => {
+  editedProduct.value = JSON.parse(JSON.stringify(product.value))
+  isEditing.value = true
+}
+
+const cancelEditing = () => {
+  isEditing.value = false
+}
+
+const saveProduct = () => {
+  product.value = JSON.parse(JSON.stringify(editedProduct.value))
+  isEditing.value = false
+  console.log('Product saved', product.value)
+}
 </script>
 
 <template>
@@ -132,10 +153,22 @@ const goBack = () => {
         </button>
       </div>
       <div class="actions">
-        <button class="btn secondary">
-          <IconEdit :size="16" />
-          <span>Edit</span>
-        </button>
+        <template v-if="isEditing">
+          <button class="btn primary" @click="saveProduct">
+            <IconCheck :size="16" />
+            <span>Save</span>
+          </button>
+          <button class="btn secondary" @click="cancelEditing">
+            <IconX :size="16" />
+            <span>Cancel</span>
+          </button>
+        </template>
+        <template v-else>
+          <button class="btn secondary" @click="startEditing">
+            <IconEdit :size="16" />
+            <span>Edit</span>
+          </button>
+        </template>
         <button class="btn danger">
           <IconTrash :size="16" />
           <span>Delete</span>
@@ -145,7 +178,10 @@ const goBack = () => {
 
     <!-- Product Title Section with Status -->
     <div class="product-title-section">
-      <h1 class="product-title">{{ product.title }}</h1>
+      <template v-if="isEditing">
+        <input v-model="editedProduct.title" class="title-input" />
+      </template>
+      <h1 v-else class="product-title">{{ product.title }}</h1>
       <div class="status-badge published">
         <IconCheck :size="14" />
         <span>Published</span>
@@ -164,23 +200,35 @@ const goBack = () => {
           <div class="card-content">
             <div class="form-field">
               <label>Description</label>
-              <p>{{ product.description }}</p>
+              <template v-if="isEditing">
+                <textarea v-model="editedProduct.description"></textarea>
+              </template>
+              <p v-else>{{ product.description }}</p>
             </div>
 
             <div class="form-field">
               <label>Subtitle</label>
-              <p v-if="product.subtitle">{{ product.subtitle }}</p>
+              <template v-if="isEditing">
+                <input type="text" v-model="editedProduct.subtitle" />
+              </template>
+              <p v-else-if="product.subtitle">{{ product.subtitle }}</p>
               <p v-else class="empty-field">-</p>
             </div>
 
             <div class="form-field">
               <label>Handle</label>
-              <p>/{{ product.handle }}</p>
+              <template v-if="isEditing">
+                <input type="text" v-model="editedProduct.handle" />
+              </template>
+              <p v-else>/{{ product.handle }}</p>
             </div>
 
             <div class="form-field">
               <label>Discountable</label>
-              <p>{{ product.discountable ? 'True' : 'False' }}</p>
+              <template v-if="isEditing">
+                <input type="checkbox" v-model="editedProduct.discountable" />
+              </template>
+              <p v-else>{{ product.discountable ? 'True' : 'False' }}</p>
             </div>
           </div>
         </div>
@@ -636,6 +684,24 @@ const goBack = () => {
   margin: 0;
   font-size: 0.875rem;
   color: #111827;
+}
+
+.form-field input,
+.form-field textarea {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+}
+
+.title-input {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #111827;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  padding: 0.25rem 0.5rem;
 }
 
 .empty-field {
