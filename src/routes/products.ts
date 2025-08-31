@@ -6,9 +6,58 @@ import { ProductOption } from "../entities/ProductOption";
 import { ProductStatus } from "../enums/product_status";
 import { validate } from "class-validator";
 import { translateProduct } from "../utils/translation";
+import logger from "../utils/logger";
 
 const router = Router();
 
+async function validateProductPayload(
+  data: any,
+  repository = AppDataSource.getRepository(Product),
+  ignoreId?: string
+) {
+  const errors: Record<string, string> = {};
+
+  if (!data.title || data.title.trim() === "") {
+    errors.title = "Title is required";
+  }
+
+  if (!Array.isArray(data.variants) || data.variants.length === 0) {
+    errors.variants = "At least one variant is required";
+  } else {
+    const skuSet = new Set<string>();
+    for (let i = 0; i < data.variants.length; i++) {
+      const v = data.variants[i];
+      const prefix = `variants[${i}]`;
+
+      if (!v.sku || v.sku.trim() === "") {
+        errors[`${prefix}.sku`] = "SKU is required";
+      } else if (skuSet.has(v.sku.trim())) {
+        errors[`${prefix}.sku`] = "SKU must be unique";
+      } else {
+        skuSet.add(v.sku.trim());
+      }
+
+      if (v.price === undefined || v.price === null || isNaN(Number(v.price))) {
+        errors[`${prefix}.price`] = "Price must be a number";
+      }
+
+      const inventoryQty = v.inventory?.quantity;
+      if (inventoryQty === undefined || isNaN(Number(inventoryQty))) {
+        errors[`${prefix}.inventory`] = "Inventory must be a number";
+      }
+    }
+
+    // Check existing SKUs in DB
+    for (const sku of skuSet) {
+      const existing = await repository.findOne({ where: { "variants.sku": sku } as any });
+      if (existing && existing.id !== ignoreId) {
+        errors[`sku_${sku}`] = `SKU ${sku} already exists`;
+      }
+    }
+  }
+
+  return errors;
+}
 // Helper function to create product options
 async function createProductOptions(optionsData: any[], productId: string): Promise<ProductOption[]> {
   const optionRepository = AppDataSource.getRepository(ProductOption);
@@ -254,13 +303,17 @@ router.get("/:id", async (req: Request, res: Response) => {
 router.post("/", async (req: Request, res: Response) => {
   try {
     const productRepository = AppDataSource.getRepository(Product);
-    
+
     // Extract productOptions from request body
     const { productOptions, ...productData } = req.body;
-    
+
+    const inputErrors = await validateProductPayload(productData, productRepository);
+    if (Object.keys(inputErrors).length > 0) {
+      return res.status(400).json({ errors: inputErrors });
+    }
+
     const product = productRepository.create(productData);
-    
-    // Validate product
+
     const errors = await validate(product);
     if (errors.length > 0) {
       return res.status(400).json({ errors });
@@ -321,8 +374,12 @@ router.put("/:id", async (req: Request, res: Response) => {
 
     // Update product fields
     Object.assign(product, productData);
-    
-    // Validate product
+
+    const inputErrors = await validateProductPayload(product, productRepository, id);
+    if (Object.keys(inputErrors).length > 0) {
+      return res.status(400).json({ errors: inputErrors });
+    }
+
     const errors = await validate(product);
     if (errors.length > 0) {
       return res.status(400).json({ errors });
