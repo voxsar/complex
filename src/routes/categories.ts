@@ -8,6 +8,11 @@ import logger from "../utils/logger";
 
 const router = Router();
 
+const formatCategory = (category: Category, locale: string) => ({
+  ...translateCategory(category, locale),
+  visibility: category.metadata?.visibility,
+});
+
 // Get all categories
 router.get("/", async (req: Request, res: Response) => {
   try {
@@ -58,7 +63,7 @@ router.get("/", async (req: Request, res: Response) => {
     ]);
 
     res.json({
-      categories: categories.map(c => translateCategory(c, locale)),
+      categories: categories.map(c => formatCategory(c, locale)),
       pagination: {
         page: Number(page),
         limit: Number(limit),
@@ -87,7 +92,7 @@ router.get("/:id", async (req: Request, res: Response) => {
       return res.status(404).json({ error: req.t("errors.category_not_found") });
     }
 
-    res.json(translateCategory(category, locale));
+    res.json(formatCategory(category, locale));
   } catch (error) {
     logger.error("Error fetching category:", error);
     res.status(500).json({ error: req.t("errors.failed_to_fetch_category") });
@@ -109,7 +114,7 @@ router.get("/slug/:slug", async (req: Request, res: Response) => {
       return res.status(404).json({ error: req.t("errors.category_not_found") });
     }
 
-    res.json(translateCategory(category, locale));
+    res.json(formatCategory(category, locale));
   } catch (error) {
     logger.error("Error fetching category:", error);
     res.status(500).json({ error: req.t("errors.failed_to_fetch_category") });
@@ -124,11 +129,22 @@ router.get("/slug/:slug", async (req: Request, res: Response) => {
     logger.debug("Incoming category payload:", req.body);
     const category = categoryRepository.create(req.body);
 
+
     // Validate
     const errors = await validate(category);
     if (errors.length > 0) {
       logger.warn("Category validation errors:", errors);
+
       return res.status(400).json({ errors });
+    }
+
+    // Check if slug already exists
+    const existingCategory = await categoryRepository.findOne({
+      where: { slug: category.slug }
+    });
+
+    if (existingCategory) {
+      return res.status(409).json({ error: req.t("errors.category_slug_exists") });
     }
 
     const savedCategories = await categoryRepository.save(category);
@@ -152,6 +168,8 @@ router.get("/slug/:slug", async (req: Request, res: Response) => {
       }
     }
 
+
+    logger.info(`Category created with ID: ${savedCategory.id}`);
     res.status(201).json(savedCategory);
   } catch (error) {
     logger.error("Error creating category:", error);
@@ -216,7 +234,10 @@ router.put("/:id", async (req: Request, res: Response) => {
       }
     }
 
-    res.json(updatedCategory);
+    res.json({
+      ...updatedCategory,
+      visibility: updatedCategory.metadata?.visibility,
+    });
   } catch (error) {
     logger.error("Error updating category:", error);
     res.status(500).json({ error: "Failed to update category" });
@@ -267,6 +288,7 @@ router.delete("/:id", async (req: Request, res: Response) => {
 router.get("/:id/children", async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
+    const locale = (req.query.locale as string) || req.language;
     const categoryRepository = AppDataSource.getRepository(Category);
 
     const category = await categoryRepository.findOne({
@@ -286,7 +308,7 @@ router.get("/:id/children", async (req: Request, res: Response) => {
       order: { sortOrder: "ASC" }
     });
 
-    res.json(children);
+    res.json(children.map(c => formatCategory(c, locale)));
   } catch (error) {
     logger.error("Error fetching category children:", error);
     res.status(500).json({ error: "Failed to fetch category children" });

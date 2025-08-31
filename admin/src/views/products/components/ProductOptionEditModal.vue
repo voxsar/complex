@@ -1,9 +1,13 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import { updateProductOption, type ProductOption, type ProductOptionPayload } from '../../../api/product-options'
+import { useToast } from 'primevue/usetoast'
 
 const props = defineProps<{ isOpen: boolean; option: ProductOption | null }>()
 const emit = defineEmits(['close', 'saved'])
+
+const toast = useToast()
+const supportedInputTypes = ['select', 'radio', 'color', 'text'] as const
 
 const form = ref<ProductOptionPayload>({
   name: '',
@@ -27,19 +31,29 @@ watch(() => props.option, (opt) => {
 
 const handleSave = async () => {
   if (!props.option) return
+  console.debug('Attempting to update product option', { id: props.option.id, payload: form.value })
   if (!form.value.name.trim()) {
     error.value = 'Name is required'
     return
   }
+  if (!supportedInputTypes.includes(form.value.inputType as any)) {
+    error.value = `Invalid input type: ${form.value.inputType}`
+    return
+  }
   try {
-    const updated = await updateProductOption(props.option.id, {
+    const updated: any = await updateProductOption(props.option.id, {
       ...form.value,
       displayName: form.value.displayName || undefined
     })
+    console.debug('Product option updated', updated)
+    toast.add({ severity: 'success', summary: 'Success', detail: updated?.message || 'Option updated', life: 3000 })
     emit('saved', updated)
     emit('close')
   } catch (e: any) {
-    error.value = e.message || 'Failed to update option'
+    const message = e.message || 'Failed to update option'
+    console.debug('Failed to update product option', e)
+    toast.add({ severity: 'error', summary: 'Error', detail: message, life: 3000 })
+    error.value = message
   }
 }
 
