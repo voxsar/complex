@@ -5,8 +5,7 @@ export interface Category {
   name: string
   slug: string
   isActive: boolean
-  // Optionally there might be isVisible; include generics
-  isVisible?: boolean
+  visibility?: string
 }
 
 export async function getCategories() {
