@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { 
-  IconPackage, 
-  IconSettings, 
+import {
+  IconPackage,
+  IconSettings,
   IconShoppingCart, 
   IconUsers, 
   IconSpeakerphone,
@@ -14,6 +14,7 @@ import {
 } from '@tabler/icons-vue'
 import { computed, ref } from 'vue'
 import { useRoute } from 'vue-router'
+import Toast from 'primevue/toast'
 
 const route = useRoute()
 const expandedMenus = ref<string[]>(['products'])
@@ -57,6 +58,7 @@ const getPageDescription = computed(() => {
 </script>
 
 <template>
+  <Toast />
   <div class="app-container">
     <!-- Sidebar Navigation -->
     <aside class="sidebar">
