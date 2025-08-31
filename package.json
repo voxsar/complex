@@ -12,6 +12,7 @@
     "migration:run": "npm run typeorm -- migration:run -d src/data-source.ts",
     "migration:revert": "npm run typeorm -- migration:revert -d src/data-source.ts",
     "seed": "ts-node src/seeds/simpleSeed.ts",
+    "seed:admin": "ts-node src/seeds/createAdminUser.ts",
     "test": "jest",
     "test:unit": "jest src/__tests__/services",
     "test:integration": "jest src/__tests__/integration"

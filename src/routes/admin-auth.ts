@@ -9,6 +9,7 @@ import { authenticate, authorize, AuthRequest } from "../middleware/rbac";
 import { validate } from "class-validator";
 import * as bcrypt from "bcryptjs";
 import rateLimit from "express-rate-limit";
+import logger from "../utils/logger";
 
 const router = Router();
 
@@ -126,11 +127,11 @@ router.post("/login", adminLoginLimiter, async (req: Request, res: Response) => 
 
     // Load user roles for response
     let userRoles: Role[] = [];
-    if (user.roleIds.length > 0) {
+    if (user.roleIds && user.roleIds.length > 0) {
       const roleRepository = AppDataSource.getRepository(Role);
       userRoles = await roleRepository.find({
         where: {
-          id: { $in: user.roleIds } as any,
+          id: user.roleIds.length > 0 ? user.roleIds[0] : undefined, // Fix: handle single role for now
           isActive: true,
         },
       });
@@ -189,7 +190,7 @@ router.post("/refresh", async (req: Request, res: Response) => {
       
       const userRepository = AppDataSource.getRepository(User);
       const user = await userRepository.findOne({
-        where: { id: decoded.id } as any,
+        where: { id: decoded.id },
       });
 
       if (!user || !user.isActive || !user.isStaff()) {

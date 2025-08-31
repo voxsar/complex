@@ -15,6 +15,7 @@ import {
 } from "../utils/auth";
 import * as bcrypt from "bcryptjs";
 import emailService from "../utils/emailService";
+import logger from "../utils/logger";
 
 const router = Router();
 
