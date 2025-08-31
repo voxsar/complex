@@ -119,9 +119,19 @@ router.get("/slug/:slug", async (req: Request, res: Response) => {
 router.post("/", async (req: Request, res: Response) => {
   try {
     const categoryRepository = AppDataSource.getRepository(Category);
-    
+
     const category = categoryRepository.create(req.body);
-    
+    // Ensure slug is generated and unique
+    category.generateSlug();
+
+    const existing = await categoryRepository.findOne({
+      where: { slug: category.slug }
+    });
+
+    if (existing) {
+      return res.status(409).json({ error: req.t("errors.slug_already_exists") });
+    }
+
     // Validate
     const errors = await validate(category);
     if (errors.length > 0) {
