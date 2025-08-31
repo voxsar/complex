@@ -120,6 +120,7 @@ router.post("/", async (req: Request, res: Response) => {
   try {
     const categoryRepository = AppDataSource.getRepository(Category);
 
+
     logger.debug("Incoming category payload:", req.body);
 
     const category = categoryRepository.create(req.body);
@@ -135,6 +136,15 @@ router.post("/", async (req: Request, res: Response) => {
     if (errors.length > 0) {
       logger.warn("Category validation failed:", errors);
       return res.status(400).json({ errors });
+    }
+
+    // Check if slug already exists
+    const existingCategory = await categoryRepository.findOne({
+      where: { slug: category.slug }
+    });
+
+    if (existingCategory) {
+      return res.status(409).json({ error: req.t("errors.category_slug_exists") });
     }
 
     const savedCategories = await categoryRepository.save(category);

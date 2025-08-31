@@ -77,7 +77,9 @@ export class Category {
   @BeforeInsert()
   @BeforeUpdate()
   generateSlug() {
-    if (this.name) {
+    if (this.slug) {
+      this.slug = slugify(this.slug, { lower: true, strict: true });
+    } else if (this.name) {
       this.slug = slugify(this.name, { lower: true, strict: true });
     }
   }
