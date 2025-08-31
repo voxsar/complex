@@ -78,6 +78,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
+import httpClient from '../../api/httpClient';
 
 const router = useRouter();
 
@@ -126,17 +127,7 @@ const createCategory = async () => {
 
   try {
     isSubmitting.value = true;
-    const res = await fetch('/api/categories', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
-
-    if (!res.ok) {
-      const data = await res.json().catch(() => ({}));
-      throw new Error(data.error || 'Failed to create category');
-    }
-
+    await httpClient.post('/api/categories', payload);
     router.push('/products/categories');
   } catch (err: any) {
     error.value = err.message || 'Failed to create category';
