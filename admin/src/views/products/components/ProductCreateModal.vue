@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { IconX, IconUpload, IconPlus, IconTrash } from '@tabler/icons-vue'
+import OptionSelector from './OptionSelector.vue'
 import MultiSelect from 'primevue/multiselect'
 import { getCategories } from '../../../api/categories'
 import { getCollections } from '../../../api/collections'
@@ -25,12 +26,14 @@ const productData = ref({
   categories: [],
   collections: [],
   variants: [
-    { 
-      title: 'Default', 
-      options: [{ name: '', value: '' }],
+    {
+      title: 'Default',
+      options: [
+        { optionId: '', optionName: '', valueId: '', valueName: '' }
+      ],
       sku: '',
       price: '',
-      inventory: '0' 
+      inventory: '0'
     }
   ]
 })
@@ -71,7 +74,9 @@ const setActiveTab = (tab: string) => {
 const addVariant = () => {
   productData.value.variants.push({
     title: `Variant ${productData.value.variants.length + 1}`,
-    options: [{ name: '', value: '' }],
+    options: [
+      { optionId: '', optionName: '', valueId: '', valueName: '' }
+    ],
     sku: '',
     price: '',
     inventory: '0'
@@ -80,14 +85,6 @@ const addVariant = () => {
 
 const removeVariant = (index: number) => {
   productData.value.variants.splice(index, 1)
-}
-
-const addOption = (variantIndex: number) => {
-  productData.value.variants[variantIndex].options.push({ name: '', value: '' })
-}
-
-const removeOption = (variantIndex: number, optionIndex: number) => {
-  productData.value.variants[variantIndex].options.splice(optionIndex, 1)
 }
 
 const handleSave = () => {
@@ -244,36 +241,7 @@ const handleClose = () => {
                 />
               </div>
               
-              <div class="options-section">
-                <h4>Options</h4>
-                <div v-for="(option, optionIndex) in variant.options" :key="optionIndex" class="option-row">
-                  <div class="option-inputs">
-                    <input 
-                      type="text" 
-                      v-model="option.name" 
-                      placeholder="Option name (e.g. Color)" 
-                      class="form-input"
-                    />
-                    <input 
-                      type="text" 
-                      v-model="option.value" 
-                      placeholder="Value (e.g. Red)" 
-                      class="form-input"
-                    />
-                  </div>
-                  <button 
-                    v-if="variant.options.length > 1" 
-                    @click="removeOption(variantIndex, optionIndex)" 
-                    class="remove-option-btn"
-                  >
-                    <IconTrash :size="16" />
-                  </button>
-                </div>
-                <button @click="addOption(variantIndex)" class="add-option-btn">
-                  <IconPlus :size="14" />
-                  <span>Add Option</span>
-                </button>
-              </div>
+              <OptionSelector v-model="variant.options" />
             </div>
             
             <button @click="addVariant" class="add-variant-btn">
@@ -545,33 +513,6 @@ label {
   margin: 0;
 }
 
-.options-section {
-  margin-top: 1rem;
-  padding-top: 1rem;
-  border-top: 1px solid #f3f4f6;
-}
-
-.options-section h4 {
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: #374151;
-  margin: 0 0 0.75rem;
-}
-
-.option-row {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 0.75rem;
-}
-
-.option-inputs {
-  display: flex;
-  gap: 0.75rem;
-  flex: 1;
-}
-
-.remove-option-btn,
 .remove-btn {
   background: none;
   border: none;
@@ -580,13 +521,9 @@ label {
   padding: 0.25rem;
   border-radius: 0.25rem;
 }
-
-.remove-option-btn:hover,
 .remove-btn:hover {
   background-color: #fee2e2;
 }
-
-.add-option-btn,
 .add-variant-btn {
   display: inline-flex;
   align-items: center;
@@ -601,7 +538,6 @@ label {
   cursor: pointer;
 }
 
-.add-option-btn:hover,
 .add-variant-btn:hover {
   background-color: #f3f4f6;
   color: #111827;
