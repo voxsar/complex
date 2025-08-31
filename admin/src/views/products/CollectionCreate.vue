@@ -6,31 +6,36 @@
     <form @submit.prevent="createCollection">
       <div class="form-group">
         <label for="title">Title</label>
-        <input 
-          id="title" 
-          type="text" 
-          v-model="collectionForm.title" 
-          class="form-control" 
-          required
+        <input
+          id="title"
+          type="text"
+          v-model="collectionForm.title"
+          class="form-control"
+          @blur="touched.title = true; validateTitle()"
+          :class="{ invalid: errors.title }"
         />
+        <div v-if="errors.title" class="error">{{ errors.title }}</div>
       </div>
 
       <div class="form-group">
         <label for="handle">
-          Handle 
+          Handle
           <span class="info-icon" title="Optional unique identifier for the collection">ⓘ</span>
           <span class="optional">(Optional)</span>
         </label>
         <div class="handle-input">
           <span class="handle-prefix">/</span>
-          <input 
-            id="handle" 
-            type="text" 
-            v-model="collectionForm.handle" 
-            class="form-control" 
+          <input
+            id="handle"
+            type="text"
+            v-model="collectionForm.handle"
+            class="form-control"
             placeholder=""
+            @blur="touched.handle = true; validateHandle()"
+            :class="{ invalid: errors.handle }"
           />
         </div>
+        <div v-if="errors.handle" class="error">{{ errors.handle }}</div>
       </div>
 
       <div class="form-actions">
@@ -38,7 +43,7 @@
         <button
           type="submit"
           class="btn btn-primary"
-          :disabled="isSubmitting"
+          :disabled="isSubmitting || !isFormValid"
         >
           {{ isSubmitting ? 'Creating...' : 'Create Collection' }}
         </button>
@@ -48,9 +53,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
-import { createCollection as createCollectionApi } from '../../api/collections';
+import { createCollection as createCollectionApi, getCollections } from '../../api/collections';
 
 const router = useRouter();
 
@@ -59,14 +64,88 @@ const collectionForm = ref({
   handle: ''
 });
 
+const errors = ref({
+  title: '',
+  handle: ''
+});
+
+const touched = ref({
+  title: false,
+  handle: false
+});
+
+const existingHandles = ref<string[]>([]);
+
+onMounted(async () => {
+  try {
+    const data = await getCollections();
+    existingHandles.value = data.collections.map((c: any) => c.slug.toLowerCase());
+  } catch (error) {
+    console.error('Failed to fetch collections:', error);
+  }
+});
+
+const slugify = (str: string) =>
+  str
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+
+const validateTitle = () => {
+  errors.value.title = collectionForm.value.title.trim() ? '' : 'Title is required';
+};
+
+const validateHandle = () => {
+  const h = collectionForm.value.handle.trim();
+  if (!h) {
+    errors.value.handle = '';
+    return;
+  }
+  const slug = slugify(h);
+  if (slug !== h) {
+    errors.value.handle = 'Handle must be URL friendly';
+    return;
+  }
+  if (existingHandles.value.includes(slug)) {
+    errors.value.handle = 'Handle already in use';
+    return;
+  }
+  errors.value.handle = '';
+};
+
+watch(() => collectionForm.value.title, () => {
+  if (touched.value.title) validateTitle();
+});
+
+watch(() => collectionForm.value.handle, () => {
+  if (touched.value.handle) validateHandle();
+});
+
+const isFormValid = computed(() => {
+  return (
+    collectionForm.value.title.trim() &&
+    !errors.value.title &&
+    !errors.value.handle
+  );
+});
+
 const isSubmitting = ref(false);
 
 const createCollection = async () => {
+  touched.value.title = true;
+  touched.value.handle = true;
+  validateTitle();
+  validateHandle();
+  if (!isFormValid.value) return;
+
   try {
     isSubmitting.value = true;
     const payload = {
-      title: collectionForm.value.title,
-      handle: collectionForm.value.handle || undefined
+      title: collectionForm.value.title.trim(),
+      handle: collectionForm.value.handle
+        ? slugify(collectionForm.value.handle)
+        : undefined
     };
     await createCollectionApi(payload);
     router.push('/products/collections');
@@ -159,5 +238,15 @@ label {
 .btn-secondary {
   background-color: #f5f5f5;
   border: 1px solid #ccc;
+}
+
+.error {
+  color: red;
+  margin-top: 4px;
+  font-size: 0.9em;
+}
+
+.invalid {
+  border-color: red;
 }
 </style>
