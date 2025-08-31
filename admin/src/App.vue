@@ -35,6 +35,7 @@ const isMenuExpanded = (menuKey: string) => {
 // Page descriptions based on route name
 const routeDescriptions: Record<string, string> = {
   'Products': 'Manage your inventory items',
+  'ProductOptions': 'Manage product options',
   'Inventory': 'Manage your inventory items',
   'Orders': 'Manage customer orders',
   'OrderClaims': 'Manage order claims',
