@@ -9,7 +9,8 @@
     "failed_to_fetch_product": "No se pudo obtener el producto",
     "failed_to_fetch_category": "No se pudo obtener la categoría",
     "variant_not_found": "Variante no encontrada",
-    "cannot_delete_category_with_children": "No se puede eliminar la categoría con subcategorías. Elimine o mueva las subcategorías primero."
+    "cannot_delete_category_with_children": "No se puede eliminar la categoría con subcategorías. Elimine o mueva las subcategorías primero.",
+    "category_slug_exists": "El slug de la categoría ya existe"
   },
   "health": {
     "ok": "OK"
