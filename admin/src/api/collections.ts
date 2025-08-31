@@ -1,3 +1,5 @@
+import httpClient from './httpClient'
+
 export interface CollectionPayload {
   title: string
   description?: string
