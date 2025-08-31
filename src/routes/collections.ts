@@ -6,6 +6,52 @@ import logger from "../utils/logger";
 
 const router = Router();
 
+// Get all collections with pagination
+router.get("/", async (req: Request, res: Response) => {
+  try {
+    const { page = 1, limit = 50 } = req.query;
+
+    const collectionRepository = AppDataSource.getRepository(Collection);
+    const [collections, total] = await collectionRepository.findAndCount({
+      skip: (Number(page) - 1) * Number(limit),
+      take: Number(limit),
+      order: { createdAt: "DESC" },
+    });
+
+    res.json({
+      collections,
+      pagination: {
+        page: Number(page),
+        limit: Number(limit),
+        total,
+        pages: Math.ceil(total / Number(limit)),
+      },
+    });
+  } catch (error) {
+    logger.error("Error fetching collections:", error);
+    res.status(500).json({ error: "Failed to fetch collections" });
+  }
+});
+
+// Get a single collection by ID
+router.get("/:id", async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const collectionRepository = AppDataSource.getRepository(Collection);
+
+    const collection = await collectionRepository.findOne({ where: { id } });
+
+    if (!collection) {
+      return res.status(404).json({ error: "Collection not found" });
+    }
+
+    res.json({ collection });
+  } catch (error) {
+    logger.error("Error fetching collection:", error);
+    res.status(500).json({ error: "Failed to fetch collection" });
+  }
+});
+
 // Create collection
 router.post("/", async (req: Request, res: Response) => {
   try {
