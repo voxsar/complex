@@ -13,9 +13,9 @@ import { Swiper, SwiperSlide } from 'swiper/vue';
 import 'swiper/css';
 
 const slides = [
-  new URL('../assets/images/banner11.jpg', import.meta.url).href,
-  new URL('../assets/images/banner14.jpg', import.meta.url).href,
-  new URL('../assets/images/banner_right.jpg', import.meta.url).href,
+  new URL('@/assets/images/banner11.jpg', import.meta.url).href,
+  new URL('@/assets/images/banner14.jpg', import.meta.url).href,
+  new URL('@/assets/images/banner_right.jpg', import.meta.url).href,
 ];
 </script>
 
