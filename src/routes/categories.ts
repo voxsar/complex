@@ -119,8 +119,13 @@ router.get("/slug/:slug", async (req: Request, res: Response) => {
 router.post("/", async (req: Request, res: Response) => {
   try {
     const categoryRepository = AppDataSource.getRepository(Category);
-    
-    const category = categoryRepository.create(req.body);
+
+    const { childrenIds = [], productIds = [], ...rest } = req.body;
+    const category = categoryRepository.create({
+      ...rest,
+      childrenIds,
+      productIds,
+    });
     
     // Validate
     const errors = await validate(category);
