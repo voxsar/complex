@@ -14,6 +14,7 @@ import { requestLogger } from "./middleware/requestLogger";
 import productRoutes from "./routes/products";
 import categoryRoutes from "./routes/categories";
 import customerRoutes from "./routes/customers";
+import customerGroupRoutes from "./routes/customer-groups";
 import userRoutes from "./routes/users";
 import authDemoRoutes from "./routes/auth-demo";
 import customerDemoRoutes from "./routes/customer-demo";
@@ -109,6 +110,7 @@ app.get("/health", (req, res) => {
 app.use("/api/products", productRoutes);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/customers", customerRoutes);
+app.use("/api/customer-groups", customerGroupRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/auth-demo", authDemoRoutes);
 app.use("/api/customer-demo", customerDemoRoutes);
